@@ -1,83 +1,30 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>보드게임</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f8f9fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            background-color: #ffffff;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 90%;
-            max-width: 400px;
-        }
-
-        h1 {
-            margin-top: 0;
-            margin-bottom: 30px;
-            color: #333333;
-        }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-        }
-
-        .menu-card {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 24px 10px;
-            background-color: #4CAF50;
-            color: white;
-            text-decoration: none;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border-radius: 12px;
-            transition: transform 0.2s ease, background-color 0.2s ease;
-        }
-
-        .menu-card:hover {
-            background-color: #45a049;
-            transform: translateY(-3px);
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>보드게임</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #f4f5f7; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 16px; }
+    .card { background: white; border-radius: 14px; padding: 24px; box-shadow: 0 4px 12px rgba(0,0,0,0.06); width: 100%; max-width: 360px; text-align: center; }
+    h1 { font-size: 1.3rem; margin-bottom: 20px; color: #1f2937; }
+    .menu { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px; text-decoration: none; background: #f9fafb; border: 1.5px solid #e5e7eb; border-radius: 10px; color: #1f2937; font-weight: 700; font-size: 1.05rem; transition: background 0.15s; }
+    .btn:hover { background: #eff6ff; border-color: #93c5fd; color: #1e40af; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>보드게임</h1>
-
-        <div class="menu-grid">
-            <a href="omok.html" class="menu-card">
-                <span>오목</span>
-            </a>
-
-            <a href="chess.html" class="menu-card">
-                <span>체스</span>
-            </a>
-
-            <a href="janggi.html" class="menu-card">
-                <span>장기</span>
-            </a>
-
-            <a href="shogi.html" class="menu-card">
-                <span>쇼기</span>
-            </a>
-        </div>
+  <div class="card">
+    <h1>보드게임 모음</h1>
+    <div class="menu">
+      <a href="오목.html" class="btn">오목</a>
+      <a href="체스.html" class="btn">체스</a>
+      <a href="장기.html" class="btn">장기</a>
+      <a href="쇼기.html" class="btn">쇼기</a>
     </div>
+  </div>
 </body>
 </html>
