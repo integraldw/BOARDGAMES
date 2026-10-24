@@ -9,81 +9,584 @@
   <link rel="apple-touch-icon" href="icon-192.png">
   <meta name="theme-color" content="#E5B869">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-style" content="default">
   <meta name="apple-mobile-web-app-title" content="오목">
   <style>
-    *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
-    body{background:rgb(244,245,247);color:rgb(31,41,55);padding:8px;line-height:1.4;}
-    .wrap{max-width:600px;margin:0 auto;display:flex;flex-direction:column;gap:8px;}
-    .card{background:white;border:1px solid rgb(229,231,235);border-radius:10px;padding:10px;box-shadow:0 2px 4px rgba(0,0,0,0.03);}
-    h1{font-size:1.1rem;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px;}
-    h2{font-size:0.92rem;margin-bottom:6px;color:rgb(17,24,39);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px;}
-    .top-dl{background:rgb(239,246,255);border:1px solid rgb(191,219,254);padding:8px 10px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;font-size:0.82rem;font-weight:600;color:rgb(30,64,175);}
-    .players-bar{display:flex;align-items:center;justify-content:space-between;gap:6px;background:rgb(249,250,251);padding:8px;border-radius:8px;border:1px solid rgb(229,231,235);margin-bottom:8px;font-size:0.85rem;flex-wrap:wrap;}
-    .players-bar.long-names{display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;align-items:center;column-gap:8px;row-gap:5px;}
-    .players-bar.long-names #bBadge{grid-column:1;grid-row:1;justify-self:start;}
-    .players-bar.long-names #wBadge{grid-column:1;grid-row:2;justify-self:start;}
-    .players-bar.long-names #playerBtns{grid-column:2;grid-row:1 / span 2;justify-self:end;align-self:center;}
-    .badge{display:inline-flex;align-items:center;gap:6px;font-weight:700;width:fit-content;max-width:100%;padding:4px 9px;border-radius:7px;background:white;border:1.5px solid rgb(209,213,219);color:rgb(31,41,55);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:all 0.2s ease;}
-    .badge.active-turn{background:linear-gradient(135deg,rgb(254,243,199),rgb(253,230,138));border:1.5px solid rgb(245,158,11);color:rgb(146,64,14);box-shadow:0 1px 4px rgba(245,158,11,0.25);}
-    .player-btns{display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap;padding:3px 5px;border-radius:7px;background:white;border:1px solid rgb(229,231,235);}
-    .dot-b{width:14px;height:14px;border-radius:99px;background:radial-gradient(circle at 35% 35%, #666, #000);box-shadow:1px 1px 2px rgba(0,0,0,0.4);display:inline-block;flex-shrink:0;}
-    .dot-w{width:14px;height:14px;border-radius:99px;background:radial-gradient(circle at 35% 35%, #fff, #ccc);border:1px solid rgb(180,185,195);box-shadow:1px 1px 2px rgba(0,0,0,0.2);display:inline-block;flex-shrink:0;}
-    .turn-pill{padding:3px 8px;border-radius:99px;font-size:0.78rem;font-weight:600;background:rgb(219,234,254);color:rgb(30,64,175);}
-    .win-banner{display:none;background:linear-gradient(135deg,rgb(254,243,199),rgb(253,230,138));border:2px solid rgb(245,158,11);color:rgb(146,64,14);padding:8px;border-radius:8px;text-align:center;font-weight:800;font-size:0.98rem;margin-bottom:8px;}
-    button{cursor:pointer;border:1px solid rgb(209,213,219);background:white;color:rgb(31,41,55);padding:5px 9px;border-radius:6px;font-size:0.8rem;font-weight:600;transition:all 0.15s ease;touch-action:manipulation;user-select:none;outline:none;}
-    button:disabled{opacity:0.4;cursor:not-allowed;}
-    .btn-pri{background:rgb(37,99,235);color:white;border-color:rgb(37,99,235);}
-    .btn-danger{color:rgb(220,38,38);border-color:rgb(254,202,202);background:rgb(254,242,242);}
-    .btn-copied{background:rgb(5,150,105)!important;color:white!important;border-color:rgb(5,150,105)!important;}
-    .btn-off{background:rgb(243,244,246);color:rgb(31,41,55);border-color:rgb(209,213,219);}
-    .btn-on{background:rgb(37,99,235);color:white;border-color:rgb(37,99,235);}
-    .btn-right{margin-left:auto;}
-    .board-box{display:flex;justify-content:center;margin-top:4px;margin-bottom:8px;position:relative;}
-    canvas{background:rgb(220,179,92);border-radius:8px;box-shadow:0 3px 10px rgba(0,0,0,0.12);max-width:calc(100vw - 32px);width:100%;height:auto;touch-action:pan-y !important;user-select:none;-webkit-user-select:none;outline:none;}
-    .row{display:flex;gap:6px;align-items:stretch;}
-    textarea{flex:1;padding:6px 8px;border:1px solid rgb(209,213,219);border-radius:6px;font-size:0.82rem;outline:none;resize:none;}
-    input[type="text"]{padding:5px 8px;border:1px solid rgb(209,213,219);border-radius:6px;font-size:0.8rem;outline:none;width:100px;}
-    input[type="text"]:disabled{background:rgb(229,231,235);color:rgb(107,114,128);cursor:not-allowed;}
-    .status-panel{margin-top:8px;background:rgb(249,250,251);border:1px solid rgb(229,231,235);border-radius:8px;padding:7px 10px;display:flex;flex-direction:column;gap:3px;}
-    .status-header{font-size:0.76rem;font-weight:700;color:rgb(107,114,128);}
-    .status{font-size:0.82rem;font-weight:600;min-height:18px;word-break:keep-all;white-space:pre-wrap;line-height:1.5;}
-    .err{color:rgb(220,38,38);}
-    .ok{color:rgb(5,150,105);}
-    .kibo{height:100px;overflow-y:auto;background:rgb(249,250,251);border:1px solid rgb(229,231,235);border-radius:6px;padding:6px;font-family:monospace;font-size:0.8rem;white-space:pre-wrap;}
-    .p-grid{display:flex;flex-direction:column;gap:6px;}
-    .p-card{background:rgb(249,250,251);border:1px solid rgb(229,231,235);border-radius:6px;padding:6px;display:flex;flex-direction:column;gap:4px;}
-    .p-card textarea{height:80px;font-size:0.76rem;background:white;resize:none;}
-    .score{display:flex;gap:8px;margin-bottom:4px;font-size:0.82rem;font-weight:700;background:rgb(248,250,252);padding:5px 8px;border-radius:6px;border:1px solid rgb(229,231,235);flex-wrap:wrap;}
-    .h-list{width:100%;max-height:130px;overflow-y:auto;overflow-x:auto;border:1px solid rgb(229,231,235);border-radius:6px;}
-    table{border-collapse:collapse;font-size:0.76rem;width:100%;table-layout:auto;}
-    th,td{padding:3px 4px;border-bottom:1px solid rgb(229,231,235);height:24px;white-space:nowrap;text-align:center;vertical-align:middle;}
-    th{background:rgb(249,250,251);}
-    td button{padding:3px 6px;font-size:0.74rem;border-radius:5px;}
-    .date-wrap{display:inline-flex;align-items:center;justify-content:center;gap:4px;vertical-align:middle;}
-    .date-text{line-height:1;display:inline-flex;align-items:center;}
-    td button.info-btn{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:rgb(209,213,219);color:white;font-size:10px;font-weight:bold;line-height:1;border:none;cursor:pointer;padding:0;margin:0;flex-shrink:0;}
-    td button.info-btn:hover{background:rgb(37,99,235);}
-    .replay-controls{display:none;background:rgb(254,243,199);border:1px solid rgb(252,211,77);padding:6px;border-radius:6px;margin-bottom:8px;align-items:center;justify-content:space-between;gap:4px;flex-wrap:wrap;}
-    .name-edit-box{display:none;background:rgb(243,244,246);border:1px solid rgb(209,213,219);padding:6px 8px;border-radius:6px;margin-bottom:8px;flex-direction:column;gap:6px;font-size:0.8rem;}
-    .ai-eval-panel{display:none;background:rgb(248,250,252);border:1px solid rgb(203,213,225);border-radius:8px;padding:8px 10px;margin-bottom:8px;flex-direction:column;gap:6px;}
-    .eval-header{display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;font-weight:700;flex-wrap:wrap;gap:4px;}
-    .eval-bar-wrap{width:100%;height:16px;background:rgb(243,244,246);border-radius:99px;overflow:hidden;display:flex;border:1px solid rgb(156,163,175);}
-    .eval-bar-b{background:rgb(31,41,55);color:white;font-size:0.68rem;font-weight:700;display:flex;align-items:center;padding-left:6px;transition:width 0.25s ease;white-space:nowrap;}
-    .eval-bar-w{background:rgb(255,255,255);color:rgb(31,41,55);font-size:0.68rem;font-weight:700;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;flex:1;white-space:nowrap;}
-    .eval-bottom-row{display:flex;justify-content:space-between;align-items:flex-end;gap:6px;flex-wrap:wrap;}
-    .rec-list{display:flex;gap:4px;flex-wrap:wrap;align-items:center;flex:1;min-width:0;}
-    .rec-chip{font-size:0.74rem;padding:3px 6px;border-radius:5px;border:1px solid rgb(191,219,254);background:rgb(239,246,255);color:rgb(30,64,175);cursor:pointer;font-weight:600;}
-    .rec-chip.rank1{background:rgb(220,252,231);border-color:rgb(134,239,172);color:rgb(22,101,52);}
-    .eval-meta{font-size:0.74rem;color:rgb(75,85,99);display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;}
-    .custom-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 16px; }
-    .custom-modal-card { background: white; border-radius: 12px; padding: 22px 24px 18px 24px; max-width: 320px; width: 100%; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18); display: flex; flex-direction: column; gap: 18px; animation: modalFadeIn 0.15s ease-out; text-align: center; }
-    @keyframes modalFadeIn { from { transform: scale(0.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .custom-modal-text { font-size: 0.92rem; font-weight: 600; color: rgb(31, 41, 55); line-height: 1.5; white-space: pre-wrap; word-break: keep-all; text-align: center; margin: 0 auto; }
-    .custom-modal-actions { display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; }
-    .modal-btn-cancel { background: white; border: 1px solid rgb(209, 213, 219); color: rgb(31, 41, 55); padding: 6px 14px; border-radius: 6px; font-size: 0.84rem; font-weight: 600; cursor: pointer; flex: 1; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent !important;
+    }
+    body {
+      background: rgb(244, 245, 247);
+      color: rgb(31, 41, 55);
+      padding: 8px;
+      line-height: 1.4;
+    }
+    .wrap {
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .card {
+      background: white;
+      border: 1px solid rgb(229, 231, 235);
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+    }
+    h1 {
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    h2 {
+      font-size: 0.92rem;
+      margin-bottom: 6px;
+      color: rgb(17, 24, 39);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .top-dl {
+      background: rgb(239, 246, 255);
+      border: 1px solid rgb(191, 219, 254);
+      padding: 8px 10px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: rgb(30, 64, 175);
+    }
+    .players-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      background: rgb(249, 250, 251);
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid rgb(229, 231, 235);
+      margin-bottom: 8px;
+      font-size: 0.85rem;
+      flex-wrap: wrap;
+    }
+    .players-bar.long-names {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto auto;
+      align-items: center;
+      column-gap: 8px;
+      row-gap: 5px;
+    }
+    .players-bar.long-names #bBadge { grid-column: 1; grid-row: 1; justify-self: start; }
+    .players-bar.long-names #wBadge { grid-column: 1; grid-row: 2; justify-self: start; }
+    .players-bar.long-names #playerBtns { grid-column: 2; grid-row: 1 / span 2; justify-self: end; align-self: center; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      width: fit-content;
+      max-width: 100%;
+      padding: 4px 9px;
+      border-radius: 7px;
+      background: white;
+      border: 1.5px solid rgb(209, 213, 219);
+      color: rgb(31, 41, 55);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+    .badge.active-turn {
+      background: linear-gradient(135deg, rgb(254, 243, 199), rgb(253, 230, 138));
+      border: 1.5px solid rgb(245, 158, 11);
+      color: rgb(146, 64, 14);
+      box-shadow: 0 1px 4px rgba(245, 158, 11, 0.25);
+    }
+    .player-btns {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+      padding: 3px 5px;
+      border-radius: 7px;
+      background: white;
+      border: 1px solid rgb(229, 231, 235);
+    }
+    .dot-b {
+      width: 14px;
+      height: 14px;
+      border-radius: 99px;
+      background: radial-gradient(circle at 35% 35%, #4b5563, #111827 75%, #000 100%);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.4);
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .dot-w {
+      width: 14px;
+      height: 14px;
+      border-radius: 99px;
+      background: radial-gradient(circle at 35% 35%, #ffffff, #f3f4f6 65%, #9ca3af 100%);
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9), 0 1px 2px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgb(156, 163, 175);
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .turn-pill {
+      padding: 3px 8px;
+      border-radius: 99px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      background: rgb(219, 234, 254);
+      color: rgb(30, 64, 175);
+    }
+    .win-banner {
+      display: none;
+      background: linear-gradient(135deg, rgb(254, 243, 199), rgb(253, 230, 138));
+      border: 2px solid rgb(245, 158, 11);
+      color: rgb(146, 64, 14);
+      padding: 8px;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 0.98rem;
+      margin-bottom: 8px;
+    }
+    button {
+      cursor: pointer;
+      border: 1px solid rgb(209, 213, 219);
+      background: white;
+      color: rgb(31, 41, 55);
+      padding: 5px 9px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: all 0.15s ease;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+      outline: none;
+      -webkit-tap-highlight-color: transparent !important;
+    }
+    button:focus, button:active {
+      outline: none !important;
+      -webkit-tap-highlight-color: transparent !important;
+    }
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .btn-pri {
+      background: rgb(37, 99, 235);
+      color: white;
+      border-color: rgb(37, 99, 235);
+    }
+    .btn-danger {
+      color: rgb(220, 38, 38);
+      border-color: rgb(254, 202, 202);
+      background: rgb(254, 242, 242);
+    }
+    .btn-copied {
+      background: rgb(5, 150, 105) !important;
+      color: white !important;
+      border-color: rgb(5, 150, 105) !important;
+    }
+    .btn-off {
+      background: rgb(243, 244, 246);
+      color: rgb(31, 41, 55);
+      border-color: rgb(209, 213, 219);
+    }
+    .btn-on {
+      background: rgb(37, 99, 235);
+      color: white;
+      border-color: rgb(37, 99, 235);
+    }
+    .btn-right {
+      margin-left: auto;
+    }
+    .board-box {
+      display: flex;
+      justify-content: center;
+      margin-top: 4px;
+      margin-bottom: 8px;
+      position: relative;
+    }
+    canvas {
+      background: rgb(220, 179, 92);
+      border-radius: 8px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+      max-width: calc(100vw - 32px);
+      width: 100%;
+      height: auto;
+      touch-action: pan-y !important;
+      user-select: none;
+      -webkit-user-select: none;
+      outline: none;
+      -webkit-tap-highlight-color: transparent !important;
+    }
+    .row {
+      display: flex;
+      gap: 6px;
+      align-items: stretch;
+    }
+    textarea {
+      flex: 1;
+      padding: 6px 8px;
+      border: 1px solid rgb(209, 213, 219);
+      border-radius: 6px;
+      font-size: 0.82rem;
+      outline: none;
+      resize: none;
+      -webkit-tap-highlight-color: transparent !important;
+    }
+    input[type="text"] {
+      padding: 5px 8px;
+      border: 1px solid rgb(209, 213, 219);
+      border-radius: 6px;
+      font-size: 0.8rem;
+      outline: none;
+      width: 100px;
+      -webkit-tap-highlight-color: transparent !important;
+    }
+    input[type="text"]:disabled {
+      background: rgb(229, 231, 235);
+      color: rgb(107, 114, 128);
+      cursor: not-allowed;
+    }
+    .status-panel {
+      margin-top: 8px;
+      background: rgb(249, 250, 251);
+      border: 1px solid rgb(229, 231, 235);
+      border-radius: 8px;
+      padding: 7px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .status-header {
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: rgb(107, 114, 128);
+    }
+    .status {
+      font-size: 0.82rem;
+      font-weight: 600;
+      min-height: 18px;
+      word-break: keep-all;
+      white-space: pre-wrap;
+      line-height: 1.5;
+    }
+    .err {
+      color: rgb(220, 38, 38);
+    }
+    .ok {
+      color: rgb(5, 150, 105);
+    }
+    .kibo {
+      height: 100px;
+      overflow-y: auto;
+      background: rgb(249, 250, 251);
+      border: 1px solid rgb(229, 231, 235);
+      border-radius: 6px;
+      padding: 6px;
+      font-family: monospace;
+      font-size: 0.8rem;
+      white-space: pre-wrap;
+    }
+    .p-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .p-card {
+      background: rgb(249, 250, 251);
+      border: 1px solid rgb(229, 231, 235);
+      border-radius: 6px;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .p-card textarea {
+      height: 80px;
+      font-size: 0.76rem;
+      background: white;
+      resize: none;
+    }
+    .score {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 4px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      background: rgb(248, 250, 252);
+      padding: 5px 8px;
+      border-radius: 6px;
+      border: 1px solid rgb(229, 231, 235);
+      flex-wrap: wrap;
+    }
+    .h-list {
+      width: 100%;
+      max-height: 130px;
+      overflow-y: auto;
+      overflow-x: auto;
+      border: 1px solid rgb(229, 231, 235);
+      border-radius: 6px;
+    }
+    table {
+      border-collapse: collapse;
+      font-size: 0.76rem;
+      width: 100%;
+      table-layout: auto;
+    }
+    th, td {
+      padding: 3px 4px;
+      border-bottom: 1px solid rgb(229, 231, 235);
+      height: 24px;
+      white-space: nowrap;
+      text-align: center;
+      vertical-align: middle;
+    }
+    th {
+      background: rgb(249, 250, 251);
+    }
+    td button {
+      padding: 3px 6px;
+      font-size: 0.74rem;
+      border-radius: 5px;
+    }
+    .date-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      vertical-align: middle;
+    }
+    .date-text {
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+    }
+    td button.info-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: rgb(209, 213, 219);
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+      line-height: 1;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      margin: 0;
+      flex-shrink: 0;
+    }
+    td button.info-btn:hover {
+      background: rgb(37, 99, 235);
+    }
+    .replay-controls {
+      display: none;
+      background: rgb(254, 243, 199);
+      border: 1px solid rgb(252, 211, 77);
+      padding: 6px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .name-edit-box {
+      display: none;
+      background: rgb(243, 244, 246);
+      border: 1px solid rgb(209, 213, 219);
+      padding: 6px 8px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.8rem;
+    }
+    .ai-eval-panel {
+      display: none;
+      background: rgb(248, 250, 252);
+      border: 1px solid rgb(203, 213, 225);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .eval-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .eval-bar-wrap {
+      width: 100%;
+      height: 16px;
+      background: rgb(243, 244, 246);
+      border-radius: 99px;
+      overflow: hidden;
+      display: flex;
+      border: 1px solid rgb(156, 163, 175);
+    }
+    .eval-bar-b {
+      background: rgb(31, 41, 55);
+      color: white;
+      font-size: 0.68rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      padding-left: 6px;
+      transition: width 0.25s ease;
+      white-space: nowrap;
+    }
+    .eval-bar-w {
+      background: rgb(255, 255, 255);
+      color: rgb(31, 41, 55);
+      font-size: 0.68rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 6px;
+      flex: 1;
+      white-space: nowrap;
+    }
+    .eval-bottom-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .rec-list {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      align-items: center;
+      flex: 1;
+      min-width: 0;
+    }
+    .rec-chip {
+      font-size: 0.74rem;
+      padding: 3px 6px;
+      border-radius: 5px;
+      border: 1px solid rgb(191, 219, 254);
+      background: rgb(239, 246, 255);
+      color: rgb(30, 64, 175);
+      cursor: pointer;
+      font-weight: 600;
+      -webkit-tap-highlight-color: transparent !important;
+    }
+    .rec-chip.rank1 {
+      background: rgb(220, 252, 231);
+      border-color: rgb(134, 239, 172);
+      color: rgb(22, 101, 52);
+    }
+    .eval-meta {
+      font-size: 0.74rem;
+      color: rgb(75, 85, 99);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .custom-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 16px;
+    }
+    .custom-modal-card {
+      background: white;
+      border-radius: 12px;
+      padding: 22px 24px 18px 24px;
+      max-width: 320px;
+      width: 100%;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      animation: modalFadeIn 0.15s ease-out;
+      text-align: center;
+    }
+    @keyframes modalFadeIn {
+      from { transform: scale(0.94); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .custom-modal-text {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: rgb(31, 41, 55);
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: keep-all;
+      text-align: center;
+      margin: 0 auto;
+    }
+    .custom-modal-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+    .modal-btn-cancel {
+      background: white;
+      border: 1px solid rgb(209, 213, 219);
+      color: rgb(31, 41, 55);
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 1;
+    }
     .modal-btn-cancel:hover { background: rgb(243, 244, 246); }
-    .modal-btn-ok { background: rgb(37, 99, 235); border: 1px solid rgb(37, 99, 235); color: white; padding: 6px 16px; border-radius: 6px; font-size: 0.84rem; font-weight: 600; cursor: pointer; flex: 1; }
+    .modal-btn-ok {
+      background: rgb(37, 99, 235);
+      border: 1px solid rgb(37, 99, 235);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 1;
+    }
     .modal-btn-ok:hover { background: rgb(29, 78, 216); }
   </style>
 </head>
@@ -97,6 +600,7 @@
     </div>
   </div>
 </div>
+
 <div class="wrap">
   <div class="card">
     <h1>
@@ -176,6 +680,7 @@
       <div id="statusMsg" class="status ok">새 대국 버튼을 눌러 대국을 시작해 주세요.</div>
     </div>
   </div>
+
   <div class="card">
     <h2>
       <span>수 입력 (Log 붙여넣기)</span>
@@ -185,6 +690,7 @@
       <button class="btn-pri" onclick="applyLog()">착수 실행</button>
     </div>
   </div>
+
   <div class="card" id="promptCard" style="display:none;">
     <h2>
       <span>시작 프롬프트</span>
@@ -199,8 +705,7 @@
         <textarea id="bPrompt" readonly="">오목 대국을 하자.
 15x15 오목판(가로 A~O, 세로 1~15, 중앙 H8)을 사용한다.
 너는 흑돌(B, 선공)이고 상대는 백돌(W, 후공)이다.
-렌주룰을 적용하여 흑돌은 쌍삼(3-3), 쌍사(4-4), 장목(6목 이상)이 금지되며 정확히 5목만 승리한다.
-상대 착수를 'W: (좌표)'로 알려주면 중복과 금수를 피해 다음 수를 둔다.
+상대 착수를 'W: (좌표)'로 알려주면 중복을 피해 다음 수를 둔다.
 답변은 설명 없이 첫 줄에 반드시 아래 형식으로만 출력한다.
 B: (H8)
 
@@ -214,7 +719,6 @@ B: (H8)
         <textarea id="wPrompt" readonly="">오목 대국을 하자.
 15x15 오목판(가로 A~O, 세로 1~15, 중앙 H8)을 사용한다.
 상대는 흑돌(B, 선공)이고 너는 백돌(W, 후공)이다.
-렌주룰을 적용하여 흑돌은 쌍삼(3-3), 쌍사(4-4), 장목(6목 이상)이 금지되며, 백돌은 금수가 없다.
 흑돌 착수를 'B: (좌표)'로 알려주면 중복을 피해 다음 수를 둔다.
 답변은 설명 없이 첫 줄에 반드시 아래 형식으로만 출력한다.
 W: (I8)
@@ -223,6 +727,7 @@ W: (I8)
       </div>
     </div>
   </div>
+
   <div class="card">
     <h2>
       <span>현재 기보 (<span id="mCount">0</span>수)</span>
@@ -234,6 +739,7 @@ W: (I8)
     </h2>
     <div id="kiboBox" class="kibo">아직 착수된 돌이 없습니다.</div>
   </div>
+
   <div class="card">
     <h2>
       <span>종료되지 않은 대국</span>
@@ -253,6 +759,7 @@ W: (I8)
       </table>
     </div>
   </div>
+
   <div class="card">
     <h2>
       <span>대국 기록</span>
@@ -274,6 +781,7 @@ W: (I8)
       </table>
     </div>
   </div>
+
   <div class="card">
     <div class="top-dl" style="margin-top:0;">
       <span>스마트폰에 파일로 보관하려면:</span>
@@ -281,6 +789,7 @@ W: (I8)
     </div>
   </div>
 </div>
+
 <script>
 let modalResolve = null;
 function showCustomModal(text, isConfirm = true) {
@@ -334,6 +843,7 @@ function saveStorageHist() {
     localStorage.setItem(STORAGE_KEY_HIST, JSON.stringify(histList));
   } catch (e) {}
 }
+
 function loadStorageUnfin() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_UNFIN);
@@ -452,7 +962,7 @@ function playStoneSound() {
   } catch (e) {}
 }
 
-function playErrorSound() {
+function playForbiddenSound() {
   if (!soundEnabled) return;
   try {
     const ac = getAudioCtx();
@@ -462,13 +972,13 @@ function playErrorSound() {
     const gain = ac.createGain();
     osc.type = "sawtooth";
     osc.frequency.setValueAtTime(180, now);
-    osc.frequency.setValueAtTime(140, now + 0.08);
-    gain.gain.setValueAtTime(0.22, now);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+    osc.frequency.linearRampToValueAtTime(110, now + 0.16);
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
     osc.connect(gain);
     gain.connect(ac.destination);
     osc.start(now);
-    osc.stop(now + 0.21);
+    osc.stop(now + 0.19);
   } catch (e) {}
 }
 
@@ -615,8 +1125,12 @@ function toggleNums() {
   drawBoard();
 }
 
+function isModeSwitchLocked() {
+  return gameStarted || moves.length > 0 || isReplaying || isAiThinking;
+}
+
 function toggleAiMode() {
-  if (gameStarted || moves.length > 0 || isReplaying) return;
+  if (isModeSwitchLocked()) return;
   document.getElementById("nameEditBox").style.display = "none";
   const btn = document.getElementById("aiModeBtn");
   const pCard = document.getElementById("promptCard");
@@ -659,7 +1173,7 @@ function toggleAiMode() {
 }
 
 function toggleVsAiMode() {
-  if (gameStarted || moves.length > 0 || isReplaying) return;
+  if (isModeSwitchLocked()) return;
   document.getElementById("nameEditBox").style.display = "none";
   const vsBtn = document.getElementById("vsAiBtn");
   const aiBtn = document.getElementById("aiModeBtn");
@@ -700,7 +1214,7 @@ function toggleVsAiMode() {
 }
 
 function toggleSpectate() {
-  if (gameStarted || moves.length > 0 || isReplaying || aiModeEnabled || vsAiMode) return;
+  if (isModeSwitchLocked() || aiModeEnabled || vsAiMode) return;
   spectateMode = !spectateMode;
   const btn = document.getElementById("spectateBtn");
   if (spectateMode) {
@@ -797,23 +1311,23 @@ function updatePrompts() {
   const bText = "오목 대국을 하자." + NL +
     "15x15 오목판(가로 A~O, 세로 1~15, 중앙 H8)을 사용한다." + NL +
     "너는 흑돌(B, 선공)이고 상대는 백돌(W, 후공)이다." + NL +
-    "렌주룰을 적용하여 흑돌은 쌍삼(3-3), 쌍사(4-4), 장목(6목 이상)이 금지되며 정확히 5목만 승리한다." + NL +
-    "상대 착수를 'W: (좌표)'로 알려주면 중복과 금수를 피해 다음 수를 둔다." + NL +
+    "상대 착수를 'W: (좌표)'로 알려주면 중복을 피해 다음 수를 둔다." + NL +
     "답변은 설명 없이 첫 줄에 반드시 아래 형식으로만 출력한다." + NL +
     "B: (H8)" + NL + NL + "첫 수를 착수해 줘.";
   const wText = "오목 대국을 하자." + NL +
     "15x15 오목판(가로 A~O, 세로 1~15, 중앙 H8)을 사용한다." + NL +
     "상대는 흑돌(B, 선공)이고 너는 백돌(W, 후공)이다." + NL +
-    "렌주룰을 적용하여 흑돌은 쌍삼(3-3), 쌍사(4-4), 장목(6목 이상)이 금지되며, 백돌은 금수가 없다." + NL +
     "흑돌 착수를 'B: (좌표)'로 알려주면 중복을 피해 다음 수를 둔다." + NL +
     "답변은 설명 없이 첫 줄에 반드시 아래 형식으로만 출력한다." + NL +
     "W: (I8)" + NL + NL + "흑돌의 첫 수를 알려주면 대국을 시작하자. 준비됐으면 짧게 대답해 줘.";
   const bEl = document.getElementById("bPrompt");
   const wEl = document.getElementById("wPrompt");
-  bEl.value = bText;
-  bEl.textContent = bText;
-  wEl.value = wText;
-  wEl.textContent = wText;
+  if (bEl && wEl) {
+    bEl.value = bText;
+    bEl.textContent = bText;
+    wEl.value = wText;
+    wEl.textContent = wText;
+  }
 }
 
 function updatePlayerBarLayout() {
@@ -870,23 +1384,16 @@ function applyPlayerNames() {
   setStatus("플레이어 이름이 수정되었습니다: 흑(" + players.B + ") vs 백(" + players.W + ")", false);
 }
 
-// --- 렌주룰 (흑돌 쌍삼, 쌍사, 장목 금지) 정밀 판별 함수 ---
-function getCellState(bState, r, c) {
-  if (r < 0 || r >= SIZE || c < 0 || c >= SIZE) return "OUT";
-  return bState[r][c]; // "B", "W", or null
-}
-
-function getContiguousBlackCount(bState, r, c, dr, dc) {
+function getContinuousCount(bState, r, c, dr, dc, color) {
   let count = 1;
   let nr = r + dr, nc = c + dc;
-  while (getCellState(bState, nr, nc) === "B") {
+  while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === color) {
     count++;
     nr += dr;
     nc += dc;
   }
-  nr = r - dr;
-  nc = c - dc;
-  while (getCellState(bState, nr, nc) === "B") {
+  nr = r - dr; nc = c - dc;
+  while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === color) {
     count++;
     nr -= dr;
     nc -= dc;
@@ -894,155 +1401,112 @@ function getContiguousBlackCount(bState, r, c, dr, dc) {
   return count;
 }
 
-// 특정 방향(dr, dc)에서 (r, c)를 포함하는 독립적인 '4(Four)'의 개수를 반환
-function countFoursInDirection(bState, r, c, dr, dc) {
-  const stoneSets = new Set();
-  // (r, c)를 포함하는 길이 5의 모든 윈도우(시작 오프셋 s: -4 ~ 0)를 검사
-  for (let s = -4; s <= 0; s++) {
-    let bCoords = [];
-    let emptyCount = 0;
-    let validWindow = true;
+function isOpenFour(bState, r, c, dr, dc) {
+  let forward = 0, backward = 0;
+  let nr = r + dr, nc = c + dc;
+  while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === "B") {
+    forward++;
+    nr += dr; nc += dc;
+  }
+  const fEndR = nr, fEndC = nc;
+  const fOpen = (fEndR >= 0 && fEndR < SIZE && fEndC >= 0 && fEndC < SIZE && bState[fEndR][fEndC] === null);
 
-    for (let k = 0; k < 5; k++) {
-      const nr = r + (s + k) * dr;
-      const nc = c + (s + k) * dc;
-      const cell = getCellState(bState, nr, nc);
-      if (cell === "B") {
-        bCoords.push(nr + "," + nc);
-      } else if (cell === null) {
-        emptyCount++;
+  nr = r - dr; nc = c - dc;
+  while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === "B") {
+    backward++;
+    nr -= dr; nc -= dc;
+  }
+  const bEndR = nr, bEndC = nc;
+  const bOpen = (bEndR >= 0 && bEndR < SIZE && bEndC >= 0 && bEndC < SIZE && bState[bEndR][bEndC] === null);
+
+  return (forward + backward === 3) && fOpen && bOpen;
+}
+
+function countFoursInLine(bState, r, c, dr, dc) {
+  let count = 0;
+  for (let shift = -4; shift <= 0; shift++) {
+    let blackCount = 0;
+    let whiteFound = false;
+    let emptyCands = [];
+    for (let i = 0; i < 5; i++) {
+      const step = shift + i;
+      const nr = r + step * dr;
+      const nc = c + step * dc;
+      if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) {
+        whiteFound = true;
+        break;
+      }
+      const st = (nr === r && nc === c) ? "B" : bState[nr][nc];
+      if (st === "W") {
+        whiteFound = true;
+        break;
+      } else if (st === "B") {
+        blackCount++;
       } else {
-        validWindow = false;
-        break;
+        emptyCands.push({ r: nr, c: nc });
       }
     }
-
-    if (!validWindow || bCoords.length !== 4 || emptyCount !== 1) continue;
-
-    // 5칸 윈도우 양 바깥쪽 칸이 흑돌이면 빈칸을 채웠을 때 6목 이상(장목)이 되므로 유효한 4가 아님
-    const beforeCell = getCellState(bState, r + (s - 1) * dr, c + (s - 1) * dc);
-    const afterCell = getCellState(bState, r + (s + 5) * dr, c + (s + 5) * dc);
-    if (beforeCell === "B" || afterCell === "B") continue;
-
-    // 동일한 4개의 흑돌로 이루어진 열린4(.BBBB.)는 2개의 윈도우에서 잡히지만 1개의 4로 취급
-    stoneSets.add(bCoords.join("|"));
-  }
-  return stoneSets.size;
-}
-
-// (r, c)와 (tr, tc)를 모두 포함하면서 양 끝이 열린 진짜 '열린 4(.BBBB.)'가 형성되었는지 확인
-function formsStraightFourWith(bState, r, c, tr, tc, dr, dc) {
-  for (let s = -3; s <= 0; s++) {
-    let allBlack = true;
-    let hasOrig = false;
-    let hasTarget = false;
-
-    for (let k = 0; k < 4; k++) {
-      const nr = r + (s + k) * dr;
-      const nc = c + (s + k) * dc;
-      if (getCellState(bState, nr, nc) !== "B") {
-        allBlack = false;
-        break;
+    if (!whiteFound && blackCount === 4 && emptyCands.length === 1) {
+      const p = emptyCands[0];
+      bState[p.r][p.c] = "B";
+      const totalLen = getContinuousCount(bState, p.r, p.c, dr, dc, "B");
+      bState[p.r][p.c] = null;
+      if (totalLen === 5) {
+        count++;
       }
-      if (nr === r && nc === c) hasOrig = true;
-      if (nr === tr && nc === tc) hasTarget = true;
     }
-
-    if (!allBlack || !hasOrig || !hasTarget) continue;
-
-    // 4칸 연속 흑돌의 양 끝 바로 옆 칸이 모두 빈칸이어야 함
-    const leftEmptyR = r + (s - 1) * dr, leftEmptyC = c + (s - 1) * dc;
-    const rightEmptyR = r + (s + 4) * dr, rightEmptyC = c + (s + 4) * dc;
-    if (getCellState(bState, leftEmptyR, leftEmptyC) !== null) continue;
-    if (getCellState(bState, rightEmptyR, rightEmptyC) !== null) continue;
-
-    // 양 끝 빈칸에 두었을 때 각각 장목(6목 이상)이 되지 않고 정확히 5목이 되어야 열린 4로 인정
-    const leftOuter = getCellState(bState, r + (s - 2) * dr, c + (s - 2) * dc);
-    const rightOuter = getCellState(bState, r + (s + 5) * dr, c + (s + 5) * dc);
-    if (leftOuter === "B" || rightOuter === "B") continue;
-
-    return true;
   }
-  return false;
+  return count > 0 ? 1 : 0;
 }
 
-// 특정 방향(dr, dc)에서 (r, c)에 착수했을 때 '열린 3(Open Three)'이 되는지 확인
-function hasOpenThreeInDirection(bState, r, c, dr, dc, depth) {
-  // 이미 이 방향에서 4 이상이 만들어졌다면 열린 3이 아님
-  if (countFoursInDirection(bState, r, c, dr, dc) > 0) return false;
-  if (getContiguousBlackCount(bState, r, c, dr, dc) >= 5) return false;
+function isOpenThreeInLine(bState, r, c, dr, dc) {
+  for (let step = -4; step <= 4; step++) {
+    if (step === 0) continue;
+    const nr = r + step * dr;
+    const nc = c + step * dc;
+    if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) continue;
+    if (bState[nr][nc] !== null) continue;
 
-  // (r, c) 주변 -3 ~ +3 이내의 빈칸 중 하나에 흑돌을 추가했을 때 진짜 열린 4(.BBBB.)가 되는지 검사
-  for (let offset = -3; offset <= 3; offset++) {
-    if (offset === 0) continue;
-    const tr = r + offset * dr;
-    const tc = c + offset * dc;
-    if (getCellState(bState, tr, tc) !== null) continue;
+    bState[nr][nc] = "B";
+    const formsOpen4 = isOpenFour(bState, nr, nc, dr, dc);
+    const wouldBeForbidden = isBlackForbidden(bState, nr, nc, true);
+    bState[nr][nc] = null;
 
-    bState[tr][tc] = "B";
-    const isStraight4 = formsStraightFourWith(bState, r, c, tr, tc, dr, dc);
-    bState[tr][tc] = null;
-
-    if (isStraight4) {
-      // 열린 4를 만드는 다음 수(tr, tc) 자체가 금수 자리면 유효한 열린 3으로 치지 않음
-      if (depth < 2 && getForbiddenReason(bState, tr, tc, depth + 1) !== null) {
-        continue;
-      }
+    if (formsOpen4 && !wouldBeForbidden) {
       return true;
     }
   }
   return false;
 }
 
-function getForbiddenReason(bState, r, c, depth = 0) {
-  if (bState[r][c] !== null) return null;
-  bState[r][c] = "B";
-
+function isBlackForbidden(bState, r, c, checkWinOnly = false) {
   const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
-  let hasExact5 = false;
+  let hasExactFive = false;
   let hasOverline = false;
 
   for (const [dr, dc] of dirs) {
-    const cnt = getContiguousBlackCount(bState, r, c, dr, dc);
-    if (cnt === 5) hasExact5 = true;
-    else if (cnt >= 6) hasOverline = true;
+    const len = getContinuousCount(bState, r, c, dr, dc, "B");
+    if (len === 5) hasExactFive = true;
+    else if (len > 5) hasOverline = true;
   }
 
-  // 렌주룰 우선순위 1: 정확히 5목이 완성되면 금수(3-3, 4-4, 다른 방향 장목)를 무시하고 즉시 승리 허용
-  if (hasExact5) {
-    bState[r][c] = null;
-    return null;
-  }
+  if (hasExactFive) return null;
+  if (hasOverline) return "장목";
+  if (checkWinOnly) return null;
 
-  // 렌주룰 우선순위 2: 6목 이상(장목) 금지
-  if (hasOverline) {
-    bState[r][c] = null;
-    return "장목(6목 이상)";
-  }
-
-  // 렌주룰 우선순위 3: 쌍사(4-4) 금지
-  let totalFours = 0;
+  let fourCount = 0;
   for (const [dr, dc] of dirs) {
-    totalFours += countFoursInDirection(bState, r, c, dr, dc);
+    fourCount += countFoursInLine(bState, r, c, dr, dc);
   }
-  if (totalFours >= 2) {
-    bState[r][c] = null;
-    return "쌍사(4-4)";
-  }
+  if (fourCount >= 2) return "쌍사";
 
-  // 렌주룰 우선순위 4: 쌍삼(3-3) 금지
-  let totalOpenThrees = 0;
+  let threeCount = 0;
   for (const [dr, dc] of dirs) {
-    if (hasOpenThreeInDirection(bState, r, c, dr, dc, depth)) {
-      totalOpenThrees++;
+    if (isOpenThreeInLine(bState, r, c, dr, dc)) {
+      threeCount++;
     }
   }
-
-  bState[r][c] = null;
-
-  if (totalOpenThrees >= 2) {
-    return "쌍삼(3-3)";
-  }
+  if (threeCount >= 2) return "쌍삼";
 
   return null;
 }
@@ -1053,23 +1517,19 @@ function evaluateLinePattern(bState, r, c, dr, dc, color) {
   let nr = r + dr, nc = c + dc;
   while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === color) {
     count++;
-    nr += dr;
-    nc += dc;
+    nr += dr; nc += dc;
   }
   if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === null) {
     openEnds++;
   }
-  nr = r - dr;
-  nc = c - dc;
+  nr = r - dr; nc = c - dc;
   while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === color) {
     count++;
-    nr -= dr;
-    nc -= dc;
+    nr -= dr; nc -= dc;
   }
   if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === null) {
     openEnds++;
   }
-  if (color === "B" && count > 5) return { score: 0, tag: "장목(금수)" };
   if (count >= 5) return { score: 10000000, tag: "5목 완성" };
   if (count === 4) {
     if (openEnds >= 2) return { score: 6000000, tag: "열린4(필승)" };
@@ -1160,6 +1620,12 @@ function getRecommendedMoves(bState, nextColor, topN = 3) {
   for (let r = 0; r < SIZE; r++) {
     for (let c = 0; c < SIZE; c++) {
       if (bState[r][c] !== null) continue;
+      if (nextColor === "B") {
+        bState[r][c] = "B";
+        const forb = isBlackForbidden(bState, r, c);
+        bState[r][c] = null;
+        if (forb) continue;
+      }
       let near = false;
       for (let dr = -2; dr <= 2 && !near; dr++) {
         for (let dc = -2; dc <= 2 && !near; dc++) {
@@ -1170,12 +1636,6 @@ function getRecommendedMoves(bState, nextColor, topN = 3) {
         }
       }
       if (!near) continue;
-
-      // 흑 차례일 때 금수 자리는 추천 및 AI 후보에서 제외
-      if (nextColor === "B" && getForbiddenReason(bState, r, c)) {
-        continue;
-      }
-
       bState[r][c] = nextColor;
       let myMaxScore = 0;
       let mySumScore = 0;
@@ -1190,21 +1650,17 @@ function getRecommendedMoves(bState, nextColor, topN = 3) {
         }
       }
       bState[r][c] = null;
-
+      bState[r][c] = oppColor;
       let oppMaxScore = 0;
       let oppSumScore = 0;
-      if (!(oppColor === "B" && getForbiddenReason(bState, r, c))) {
-        bState[r][c] = oppColor;
-        for (const [dr, dc] of dirs) {
-          const res = evaluateLinePattern(bState, r, c, dr, dc, oppColor);
-          oppSumScore += res.score;
-          if (res.score > oppMaxScore) {
-            oppMaxScore = res.score;
-          }
+      for (const [dr, dc] of dirs) {
+        const res = evaluateLinePattern(bState, r, c, dr, dc, oppColor);
+        oppSumScore += res.score;
+        if (res.score > oppMaxScore) {
+          oppMaxScore = res.score;
         }
-        bState[r][c] = null;
       }
-
+      bState[r][c] = null;
       let totalScore = myMaxScore * 1.3 + mySumScore * 0.25 + oppMaxScore * 1.8 + oppSumScore * 0.25;
       let reason = myTag;
       if (myMaxScore >= 10000000) {
@@ -1267,7 +1723,13 @@ function chooseBuiltInAiMove(bState, aiColor) {
   if (cands.length === 0) {
     for (let r = 0; r < SIZE; r++) {
       for (let c = 0; c < SIZE; c++) {
-        if (bState[r][c] === null && !(aiColor === "B" && getForbiddenReason(bState, r, c))) {
+        if (bState[r][c] === null) {
+          if (aiColor === "B") {
+            bState[r][c] = "B";
+            const f = isBlackForbidden(bState, r, c);
+            bState[r][c] = null;
+            if (f) continue;
+          }
           return { r, c };
         }
       }
@@ -1473,6 +1935,7 @@ function drawBoard() {
   ctx.font = "bold 10px sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
+
   for (let i = 0; i < SIZE; i++) {
     const p = Math.round(pad + i * cell);
     ctx.beginPath();
@@ -1488,6 +1951,7 @@ function drawBoard() {
     ctx.fillText(String(i + 1), 13, p);
     ctx.fillText(String(i + 1), LOGICAL_W - 13, p);
   }
+
   const stars = [[3, 3], [3, 11], [7, 7], [11, 3], [11, 11]];
   stars.forEach(([r, c]) => {
     ctx.beginPath();
@@ -1495,26 +1959,27 @@ function drawBoard() {
     ctx.fill();
   });
 
-  // 흑 차례일 때 금수 자리(쌍삼, 쌍사, 장목) X 표시
-  const nextTurn = (moves.length & 1) === 0 ? "B" : "W";
-  if ((gameStarted || isReplaying) && !gameOver && nextTurn === "B") {
+  const nextTurnColor = (moves.length & 1) === 0 ? "B" : "W";
+  if (!gameOver && (gameStarted || isReplaying) && nextTurnColor === "B") {
+    ctx.lineWidth = 1.6;
+    ctx.strokeStyle = "rgba(220, 38, 38, 0.72)";
     for (let r = 0; r < SIZE; r++) {
       for (let c = 0; c < SIZE; c++) {
-        if (board[r][c] === null && getForbiddenReason(board, r, c)) {
-          const x = Math.round(pad + c * cell);
-          const y = Math.round(pad + r * cell);
-          const s = cell * 0.22;
-          ctx.save();
-          ctx.strokeStyle = "rgba(220, 38, 38, 0.85)";
-          ctx.lineWidth = 2.2;
-          ctx.lineCap = "round";
-          ctx.beginPath();
-          ctx.moveTo(x - s, y - s);
-          ctx.lineTo(x + s, y + s);
-          ctx.moveTo(x + s, y - s);
-          ctx.lineTo(x - s, y + s);
-          ctx.stroke();
-          ctx.restore();
+        if (board[r][c] === null) {
+          board[r][c] = "B";
+          const forb = isBlackForbidden(board, r, c);
+          board[r][c] = null;
+          if (forb) {
+            const x = Math.round(pad + c * cell);
+            const y = Math.round(pad + r * cell);
+            const arm = 4.5;
+            ctx.beginPath();
+            ctx.moveTo(x - arm, y - arm);
+            ctx.lineTo(x + arm, y + arm);
+            ctx.moveTo(x + arm, y - arm);
+            ctx.lineTo(x - arm, y + arm);
+            ctx.stroke();
+          }
         }
       }
     }
@@ -1552,40 +2017,40 @@ function drawBoard() {
   moves.forEach((m, idx) => {
     const x = Math.round(pad + m.c * cell);
     const y = Math.round(pad + m.r * cell);
-    const rad = cell * 0.44;
+    const rad = cell * 0.43;
     const isWin = isWinningStone(m.r, m.c);
 
-    // 3D 입체 오목알 렌더링
     ctx.save();
+    ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetY = 2;
     ctx.beginPath();
     ctx.arc(x, y, rad, 0, Math.PI * 2);
 
     const grad = ctx.createRadialGradient(
-      x - rad / 3, y - rad / 3, rad / 10,
+      x - rad * 0.3, y - rad * 0.3, rad * 0.08,
       x, y, rad
     );
-    if (m.color === "B") {
-      grad.addColorStop(0, "#555");
-      grad.addColorStop(1, "#000");
-    } else {
-      grad.addColorStop(0, "#fff");
-      grad.addColorStop(1, "#ccc");
-    }
 
-    if (isWin) {
-      ctx.shadowColor = "rgb(255,235,120)";
-      ctx.shadowBlur = 4 + pulse * 4;
-      ctx.shadowOffsetX = 0;
-      ctx.shadowOffsetY = 0;
+    if (m.color === "B") {
+      grad.addColorStop(0, "#4b5563");
+      grad.addColorStop(0.35, "#1f2937");
+      grad.addColorStop(0.85, "#111827");
+      grad.addColorStop(1, "#000000");
     } else {
-      ctx.shadowColor = m.color === "B" ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.3)";
-      ctx.shadowBlur = 4;
-      ctx.shadowOffsetX = 1.5;
-      ctx.shadowOffsetY = 1.5;
+      grad.addColorStop(0, "#ffffff");
+      grad.addColorStop(0.55, "#f9fafb");
+      grad.addColorStop(0.85, "#e5e7eb");
+      grad.addColorStop(1, "#9ca3af");
     }
 
     ctx.fillStyle = grad;
     ctx.fill();
+
+    ctx.shadowColor = "transparent";
+    ctx.strokeStyle = m.color === "B" ? "rgba(255, 255, 255, 0.15)" : "rgba(100, 100, 100, 0.35)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
     ctx.restore();
 
     if (isWin) {
@@ -1600,22 +2065,19 @@ function drawBoard() {
       ctx.restore();
     } else if (idx === moves.length - 1) {
       ctx.save();
-      ctx.strokeStyle = "rgb(239,68,68)";
-      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(x, y, rad - 1, 0, Math.PI * 2);
-      ctx.stroke();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = "rgb(239, 68, 68)";
+      ctx.fill();
       ctx.restore();
     }
 
     if (showNums) {
-      ctx.save();
       ctx.fillStyle = isWin
         ? (m.color === "B" ? "rgb(254,240,138)" : "rgb(146,64,14)")
         : (m.color === "B" ? "white" : "black");
       ctx.font = "bold 9px sans-serif";
       ctx.fillText(String(idx + 1), x, y);
-      ctx.restore();
     }
   });
 
@@ -1712,13 +2174,20 @@ function placeStone(color, r, c) {
     return false;
   }
 
-  // 흑돌 렌주룰 금수(쌍삼, 쌍사, 장목) 검사
   if (color === "B") {
-    const forbiddenReason = getForbiddenReason(board, r, c);
+    board[r][c] = "B";
+    const forbiddenReason = isBlackForbidden(board, r, c);
+    board[r][c] = null;
+
     if (forbiddenReason) {
-      playErrorSound();
-      const josa = forbiddenReason === "쌍사(4-4)" ? "는" : "은";
-      setStatus(forbiddenReason + josa + " 금지수입니다. 다른 수를 두어 주세요.", true);
+      playForbiddenSound();
+      if (forbiddenReason === "쌍삼") {
+        setStatus("쌍삼(3-3)은 금지수입니다. 다른 수를 두어 주세요.", true);
+      } else if (forbiddenReason === "쌍사") {
+        setStatus("쌍사(4-4)는 금지수입니다. 다른 수를 두어 주세요.", true);
+      } else if (forbiddenReason === "장목") {
+        setStatus("장목(6목 이상)은 금지수입니다. 다른 수를 두어 주세요.", true);
+      }
       return false;
     }
   }
@@ -1729,6 +2198,7 @@ function placeStone(color, r, c) {
   board[r][c] = color;
   moves.push({ color, r, c });
   playStoneSound();
+
   const w = checkWin(r, c, color);
   if (w) {
     gameOver = true;
@@ -1742,8 +2212,10 @@ function placeStone(color, r, c) {
     winResultText = "만국(225수): 무승부로 대국이 종료되었습니다.";
     playGameEndSound("end");
   }
+
   updateUI();
   drawBoard();
+
   if (gameOver) {
     setStatus(winResultText, false);
     if (!isReplaying) {
@@ -1874,7 +2346,6 @@ function updateUI() {
   document.getElementById("copyKiboLineBtn").disabled = noMoves;
   document.getElementById("copyKiboOneBtn").disabled = noMoves;
 
-  // 새 대국을 눌러 gameStarted가 true가 되면 AI 모드, 관전 모드, AI와 대국 버튼이 모두 비활성화됨
   const hasStartedOrReplaying = (gameStarted || moves.length > 0 || isReplaying || isAiThinking);
   document.getElementById("aiModeBtn").disabled = hasStartedOrReplaying;
   document.getElementById("vsAiBtn").disabled = hasStartedOrReplaying;
@@ -2169,10 +2640,8 @@ function checkWin(r, c, color) {
       nc -= dc;
     }
     if (color === "B") {
-      // 흑돌은 렌주룰에 따라 정확히 5목만 승리
       if (line.length === 5) return line;
     } else {
-      // 백돌은 5목 이상(장목 포함) 모두 승리
       if (line.length >= 5) {
         if (line.length > 5) {
           const lastIdx = line.findIndex(p => p.r === r && p.c === c);
@@ -2578,20 +3047,6 @@ function replayNext() {
   setStatus("복기: " + replayStep + "수째 상태", false);
 }
 
-function resumePlay() {
-  if (!isReplaying) return;
-  renderReplayBoard(false);
-  if (gameOver) {
-    setStatus("이미 오목이 완성된 수순입니다. 이전 수로 이동한 뒤 이어 두세요.", true);
-    return;
-  }
-  isBranching = true;
-  document.getElementById("logInput").value = "";
-  updateUI();
-  drawBoard();
-  setStatus(replayStep + "수째 상태에서 이어 둡니다. (기록에는 저장되지 않습니다)", false);
-}
-
 async function deleteHistoryItem(id, silent) {
   if (!silent) {
     const ok = await showCustomModal("정말로 삭제하시겠습니까?", true);
@@ -2616,7 +3071,7 @@ async function clearHist() {
 
 function setStatus(m, err) {
   const el = document.getElementById("statusMsg");
-  const normalized = String(m || "").replace(/\n+/g, " ").trim();
+  const normalized = String(m).replace(/\n+/g, " ").trim();
   const sentences = normalized.split(/(?<=[다요음)\][!?]\.|[!?])\s+/);
   el.innerHTML = "";
   if (sentences.length <= 1) {
@@ -2652,11 +3107,6 @@ drawBoard();
 initialHTMLSnapshot = '<!DOCTYPE html>' + NL + '<html lang="ko">' + document.documentElement.innerHTML + '</html>';
 renderHist();
 renderUnfin();
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  });
-}
 </script>
 </body>
 </html>
