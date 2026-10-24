@@ -2064,12 +2064,11 @@ function drawBoard() {
       ctx.stroke();
       ctx.restore();
     } else if (idx === moves.length - 1) {
-      ctx.save();
+      ctx.strokeStyle = "rgb(239,68,68)";
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(x, y, 3, 0, Math.PI * 2);
-      ctx.fillStyle = "rgb(239, 68, 68)";
-      ctx.fill();
-      ctx.restore();
+      ctx.arc(x, y, rad - 1, 0, Math.PI * 2);
+      ctx.stroke();
     }
 
     if (showNums) {
