@@ -1384,99 +1384,92 @@ function applyPlayerNames() {
   setStatus("플레이어 이름이 수정되었습니다: 흑(" + players.B + ") vs 백(" + players.W + ")", false);
 }
 
-function getContinuousCount(bState, r, c, dr, dc, color) {
-  let count = 1;
+function getLineInfo(bState, r, c, dr, dc, color) {
+  let stones = [{r, c}];
   let nr = r + dr, nc = c + dc;
   while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === color) {
-    count++;
-    nr += dr;
-    nc += dc;
-  }
-  nr = r - dr; nc = c - dc;
-  while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === color) {
-    count++;
-    nr -= dr;
-    nc -= dc;
-  }
-  return count;
-}
-
-function isOpenFour(bState, r, c, dr, dc) {
-  let forward = 0, backward = 0;
-  let nr = r + dr, nc = c + dc;
-  while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === "B") {
-    forward++;
+    stones.push({r: nr, c: nc});
     nr += dr; nc += dc;
   }
-  const fEndR = nr, fEndC = nc;
-  const fOpen = (fEndR >= 0 && fEndR < SIZE && fEndC >= 0 && fEndC < SIZE && bState[fEndR][fEndC] === null);
+  let emptyFront = (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === null) ? {r: nr, c: nc} : null;
 
   nr = r - dr; nc = c - dc;
-  while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === "B") {
-    backward++;
+  while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === color) {
+    stones.unshift({r: nr, c: nc});
     nr -= dr; nc -= dc;
   }
-  const bEndR = nr, bEndC = nc;
-  const bOpen = (bEndR >= 0 && bEndR < SIZE && bEndC >= 0 && bEndC < SIZE && bState[bEndR][bEndC] === null);
+  let emptyBack = (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === null) ? {r: nr, c: nc} : null;
 
-  return (forward + backward === 3) && fOpen && bOpen;
+  return { len: stones.length, emptyFront, emptyBack, stones };
 }
 
 function countFoursInLine(bState, r, c, dr, dc) {
-  let count = 0;
+  let fours = 0;
   for (let shift = -4; shift <= 0; shift++) {
     let blackCount = 0;
-    let whiteFound = false;
-    let emptyCands = [];
+    let emptySpaces = [];
+    let blocked = false;
     for (let i = 0; i < 5; i++) {
-      const step = shift + i;
-      const nr = r + step * dr;
-      const nc = c + step * dc;
-      if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) {
-        whiteFound = true;
-        break;
-      }
-      const st = (nr === r && nc === c) ? "B" : bState[nr][nc];
-      if (st === "W") {
-        whiteFound = true;
-        break;
-      } else if (st === "B") {
-        blackCount++;
-      } else {
-        emptyCands.push({ r: nr, c: nc });
-      }
+      let nr = r + (shift + i) * dr;
+      let nc = c + (shift + i) * dc;
+      if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) { blocked = true; break; }
+      let stone = (nr === r && nc === c) ? "B" : bState[nr][nc];
+      if (stone === "W") { blocked = true; break; }
+      else if (stone === "B") { blackCount++; }
+      else { emptySpaces.push({r: nr, c: nc}); }
     }
-    if (!whiteFound && blackCount === 4 && emptyCands.length === 1) {
-      const p = emptyCands[0];
+    if (!blocked && blackCount === 4 && emptySpaces.length === 1) {
+      let p = emptySpaces[0];
       bState[p.r][p.c] = "B";
-      const totalLen = getContinuousCount(bState, p.r, p.c, dr, dc, "B");
+      let line = getLineInfo(bState, p.r, p.c, dr, dc, "B");
       bState[p.r][p.c] = null;
-      if (totalLen === 5) {
-        count++;
-      }
+      if (line.len === 5) fours++;
     }
   }
-  return count > 0 ? 1 : 0;
+  return fours > 0 ? 1 : 0;
 }
 
 function isOpenThreeInLine(bState, r, c, dr, dc) {
-  for (let step = -4; step <= 4; step++) {
-    if (step === 0) continue;
-    const nr = r + step * dr;
-    const nc = c + step * dc;
-    if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) continue;
-    if (bState[nr][nc] !== null) continue;
-
-    bState[nr][nc] = "B";
-    const formsOpen4 = isOpenFour(bState, nr, nc, dr, dc);
-    const wouldBeForbidden = isBlackForbidden(bState, nr, nc, true);
-    bState[nr][nc] = null;
-
-    if (formsOpen4 && !wouldBeForbidden) {
-      return true;
+  let threes = 0;
+  for (let shift = -3; shift <= 0; shift++) {
+    let blackCount = 0;
+    let emptySpaces = [];
+    let blocked = false;
+    for (let i = 0; i < 4; i++) {
+      let nr = r + (shift + i) * dr;
+      let nc = c + (shift + i) * dc;
+      if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) { blocked = true; break; }
+      let stone = (nr === r && nc === c) ? "B" : bState[nr][nc];
+      if (stone === "W") { blocked = true; break; }
+      else if (stone === "B") { blackCount++; }
+      else { emptySpaces.push({r: nr, c: nc}); }
+    }
+    
+    if (!blocked && blackCount === 3 && emptySpaces.length === 1) {
+      let beforeR = r + (shift - 1) * dr, beforeC = c + (shift - 1) * dc;
+      let afterR = r + (shift + 4) * dr, afterC = c + (shift + 4) * dc;
+      
+      let beforeEmpty = (beforeR >= 0 && beforeR < SIZE && beforeC >= 0 && beforeC < SIZE && bState[beforeR][beforeC] === null);
+      let afterEmpty = (afterR >= 0 && afterR < SIZE && afterC >= 0 && afterC < SIZE && bState[afterR][afterC] === null);
+      
+      if (beforeEmpty && afterEmpty) {
+        let p = emptySpaces[0];
+        bState[p.r][p.c] = "B";
+        let formsOpen4 = false;
+        let line = getLineInfo(bState, p.r, p.c, dr, dc, "B");
+        if (line.len === 4 && line.emptyFront && line.emptyBack) {
+          formsOpen4 = true;
+        }
+        let isForb = isBlackForbidden(bState, p.r, p.c, true);
+        bState[p.r][p.c] = null;
+        
+        if (formsOpen4 && !isForb) {
+          threes++;
+        }
+      }
     }
   }
-  return false;
+  return threes > 0 ? 1 : 0;
 }
 
 function isBlackForbidden(bState, r, c, checkWinOnly = false) {
@@ -1485,13 +1478,15 @@ function isBlackForbidden(bState, r, c, checkWinOnly = false) {
   let hasOverline = false;
 
   for (const [dr, dc] of dirs) {
-    const len = getContinuousCount(bState, r, c, dr, dc, "B");
-    if (len === 5) hasExactFive = true;
-    else if (len > 5) hasOverline = true;
+    let line = getLineInfo(bState, r, c, dr, dc, "B");
+    if (line.len === 5) hasExactFive = true;
+    else if (line.len > 5) hasOverline = true;
   }
 
   if (hasExactFive) return null;
+  
   if (hasOverline) return "장목";
+  
   if (checkWinOnly) return null;
 
   let fourCount = 0;
@@ -1502,9 +1497,7 @@ function isBlackForbidden(bState, r, c, checkWinOnly = false) {
 
   let threeCount = 0;
   for (const [dr, dc] of dirs) {
-    if (isOpenThreeInLine(bState, r, c, dr, dc)) {
-      threeCount++;
-    }
+    threeCount += isOpenThreeInLine(bState, r, c, dr, dc);
   }
   if (threeCount >= 2) return "쌍삼";
 
@@ -1699,13 +1692,11 @@ function getRecommendedMoves(bState, nextColor, topN = 3) {
   return candidates.slice(0, topN);
 }
 
-// 미니맥스(Minimax) 탐색 + 알파-베타 가지치기
 function minimax(bState, depth, alpha, beta, isMaximizing, currentTurnColor, aiSide) {
   const oppColor = currentTurnColor === "B" ? "W" : "B";
   const tB = getMaxThreatForColor(bState, "B");
   const tW = getMaxThreatForColor(bState, "W");
 
-  // 승패 판정 (말단 노드)
   if (aiSide === "B") {
     if (tB.maxScore >= 10000000) return 1000000 + depth;
     if (tW.maxScore >= 10000000) return -1000000 - depth;
@@ -1714,7 +1705,6 @@ function minimax(bState, depth, alpha, beta, isMaximizing, currentTurnColor, aiS
     if (tB.maxScore >= 10000000) return -1000000 - depth;
   }
 
-  // 지정된 깊이까지 도달했을 경우, 현재 판세의 근사치 점수 반환
   if (depth === 0) {
     const myCands = getRecommendedMoves(bState, aiSide, 1);
     const oppCands = getRecommendedMoves(bState, aiSide === "B" ? "W" : "B", 1);
@@ -1723,7 +1713,6 @@ function minimax(bState, depth, alpha, beta, isMaximizing, currentTurnColor, aiS
     return myScore - oppScore * 1.2;
   }
 
-  // 상위 5개의 유력 후보군만 탐색하여 연산량 최적화
   const cands = getRecommendedMoves(bState, currentTurnColor, 5);
   if (cands.length === 0) return 0;
 
@@ -1735,7 +1724,7 @@ function minimax(bState, depth, alpha, beta, isMaximizing, currentTurnColor, aiS
       bState[move.r][move.c] = null;
       maxEval = Math.max(maxEval, ev);
       alpha = Math.max(alpha, ev);
-      if (beta <= alpha) break; // 가지치기
+      if (beta <= alpha) break;
     }
     return maxEval;
   } else {
@@ -1746,7 +1735,7 @@ function minimax(bState, depth, alpha, beta, isMaximizing, currentTurnColor, aiS
       bState[move.r][move.c] = null;
       minEval = Math.min(minEval, ev);
       beta = Math.min(beta, ev);
-      if (beta <= alpha) break; // 가지치기
+      if (beta <= alpha) break;
     }
     return minEval;
   }
@@ -1756,7 +1745,6 @@ function chooseBuiltInAiMove(bState, aiColor) {
   if (moves.length === 0) {
     return { r: 7, c: 7 };
   }
-  // 2수째일 경우 천원 근처 랜덤 착수
   if (moves.length === 1) {
     const first = moves[0];
     const offsets = [[-1, -1], [-1, 1], [1, -1], [1, 1], [-1, 0], [1, 0], [0, -1], [0, 1]];
@@ -1774,7 +1762,6 @@ function chooseBuiltInAiMove(bState, aiColor) {
     }
   }
 
-  // 상위 6개 후보수 도출
   const cands = getRecommendedMoves(bState, aiColor, 6);
   if (cands.length === 0) {
     for (let r = 0; r < SIZE; r++) {
@@ -1793,7 +1780,6 @@ function chooseBuiltInAiMove(bState, aiColor) {
     return null;
   }
 
-  // 즉시 승리 또는 강제 방어가 필요한 경우 연산 스킵
   if (cands[0].score >= 30000000) {
     return { r: cands[0].r, c: cands[0].c };
   }
@@ -1802,13 +1788,11 @@ function chooseBuiltInAiMove(bState, aiColor) {
   let bestMove = cands[0];
   let bestVal = -Infinity;
 
-  // 미니맥스(Minimax) 탐색 시작 (Depth 2: AI -> Human -> AI)
   for (const cand of cands) {
     bState[cand.r][cand.c] = aiColor;
     let moveVal = minimax(bState, 2, -Infinity, Infinity, false, oppColor, aiColor);
     bState[cand.r][cand.c] = null;
 
-    // 기본 점수(cand.score)를 소수점 이하 가중치로 합산하여 동일 가치시 타이브레이커로 활용
     const combined = moveVal * 1000 + cand.score * 0.001;
     if (combined > bestVal) {
       bestVal = combined;
