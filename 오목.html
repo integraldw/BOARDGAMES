@@ -1699,10 +1699,64 @@ function getRecommendedMoves(bState, nextColor, topN = 3) {
   return candidates.slice(0, topN);
 }
 
+// 미니맥스(Minimax) 탐색 + 알파-베타 가지치기
+function minimax(bState, depth, alpha, beta, isMaximizing, currentTurnColor, aiSide) {
+  const oppColor = currentTurnColor === "B" ? "W" : "B";
+  const tB = getMaxThreatForColor(bState, "B");
+  const tW = getMaxThreatForColor(bState, "W");
+
+  // 승패 판정 (말단 노드)
+  if (aiSide === "B") {
+    if (tB.maxScore >= 10000000) return 1000000 + depth;
+    if (tW.maxScore >= 10000000) return -1000000 - depth;
+  } else {
+    if (tW.maxScore >= 10000000) return 1000000 + depth;
+    if (tB.maxScore >= 10000000) return -1000000 - depth;
+  }
+
+  // 지정된 깊이까지 도달했을 경우, 현재 판세의 근사치 점수 반환
+  if (depth === 0) {
+    const myCands = getRecommendedMoves(bState, aiSide, 1);
+    const oppCands = getRecommendedMoves(bState, aiSide === "B" ? "W" : "B", 1);
+    const myScore = myCands.length > 0 ? myCands[0].score : 0;
+    const oppScore = oppCands.length > 0 ? oppCands[0].score : 0;
+    return myScore - oppScore * 1.2;
+  }
+
+  // 상위 5개의 유력 후보군만 탐색하여 연산량 최적화
+  const cands = getRecommendedMoves(bState, currentTurnColor, 5);
+  if (cands.length === 0) return 0;
+
+  if (isMaximizing) {
+    let maxEval = -Infinity;
+    for (const move of cands) {
+      bState[move.r][move.c] = currentTurnColor;
+      let ev = minimax(bState, depth - 1, alpha, beta, false, oppColor, aiSide);
+      bState[move.r][move.c] = null;
+      maxEval = Math.max(maxEval, ev);
+      alpha = Math.max(alpha, ev);
+      if (beta <= alpha) break; // 가지치기
+    }
+    return maxEval;
+  } else {
+    let minEval = Infinity;
+    for (const move of cands) {
+      bState[move.r][move.c] = currentTurnColor;
+      let ev = minimax(bState, depth - 1, alpha, beta, true, oppColor, aiSide);
+      bState[move.r][move.c] = null;
+      minEval = Math.min(minEval, ev);
+      beta = Math.min(beta, ev);
+      if (beta <= alpha) break; // 가지치기
+    }
+    return minEval;
+  }
+}
+
 function chooseBuiltInAiMove(bState, aiColor) {
   if (moves.length === 0) {
     return { r: 7, c: 7 };
   }
+  // 2수째일 경우 천원 근처 랜덤 착수
   if (moves.length === 1) {
     const first = moves[0];
     const offsets = [[-1, -1], [-1, 1], [1, -1], [1, 1], [-1, 0], [1, 0], [0, -1], [0, 1]];
@@ -1719,6 +1773,8 @@ function chooseBuiltInAiMove(bState, aiColor) {
       return topPool[Math.floor(Math.random() * topPool.length)];
     }
   }
+
+  // 상위 6개 후보수 도출
   const cands = getRecommendedMoves(bState, aiColor, 6);
   if (cands.length === 0) {
     for (let r = 0; r < SIZE; r++) {
@@ -1736,18 +1792,24 @@ function chooseBuiltInAiMove(bState, aiColor) {
     }
     return null;
   }
+
+  // 즉시 승리 또는 강제 방어가 필요한 경우 연산 스킵
   if (cands[0].score >= 30000000) {
     return { r: cands[0].r, c: cands[0].c };
   }
+
   const oppColor = aiColor === "B" ? "W" : "B";
   let bestMove = cands[0];
   let bestVal = -Infinity;
+
+  // 미니맥스(Minimax) 탐색 시작 (Depth 2: AI -> Human -> AI)
   for (const cand of cands) {
     bState[cand.r][cand.c] = aiColor;
-    const oppReplies = getRecommendedMoves(bState, oppColor, 1);
-    const oppThreat = oppReplies.length > 0 ? oppReplies[0].score : 0;
+    let moveVal = minimax(bState, 2, -Infinity, Infinity, false, oppColor, aiColor);
     bState[cand.r][cand.c] = null;
-    const combined = cand.score - oppThreat * 0.35;
+
+    // 기본 점수(cand.score)를 소수점 이하 가중치로 합산하여 동일 가치시 타이브레이커로 활용
+    const combined = moveVal * 1000 + cand.score * 0.001;
     if (combined > bestVal) {
       bestVal = combined;
       bestMove = cand;
