@@ -1403,8 +1403,21 @@ function getLineInfo(bState, r, c, dr, dc, color) {
   return { len: stones.length, emptyFront, emptyBack, stones };
 }
 
+function isPureStraightFour(bState, r, c, dr, dc) {
+  let info = getLineInfo(bState, r, c, dr, dc, "B");
+  if (info.len !== 4 || !info.emptyFront || !info.emptyBack) return false;
+  let f = info.emptyFront;
+  let b = info.emptyBack;
+  let fNextR = f.r + dr, fNextC = f.c + dc;
+  let bNextR = b.r - dr, bNextC = b.c - dc;
+  let fOver = (fNextR >= 0 && fNextR < SIZE && fNextC >= 0 && fNextC < SIZE && bState[fNextR][fNextC] === "B");
+  let bOver = (bNextR >= 0 && bNextR < SIZE && bNextC >= 0 && bNextC < SIZE && bState[bNextR][bNextC] === "B");
+  return !fOver && !bOver;
+}
+
 function countFoursInLine(bState, r, c, dr, dc) {
-  let fours = 0;
+  if (isPureStraightFour(bState, r, c, dr, dc)) return 1;
+  let winPoints = new Set();
   for (let shift = -4; shift <= 0; shift++) {
     let blackCount = 0;
     let emptySpaces = [];
@@ -1423,56 +1436,41 @@ function countFoursInLine(bState, r, c, dr, dc) {
       bState[p.r][p.c] = "B";
       let line = getLineInfo(bState, p.r, p.c, dr, dc, "B");
       bState[p.r][p.c] = null;
-      if (line.len === 5) fours++;
-    }
-  }
-  return fours > 0 ? 1 : 0;
-}
-
-function isOpenThreeInLine(bState, r, c, dr, dc) {
-  let threes = 0;
-  for (let shift = -3; shift <= 0; shift++) {
-    let blackCount = 0;
-    let emptySpaces = [];
-    let blocked = false;
-    for (let i = 0; i < 4; i++) {
-      let nr = r + (shift + i) * dr;
-      let nc = c + (shift + i) * dc;
-      if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) { blocked = true; break; }
-      let stone = (nr === r && nc === c) ? "B" : bState[nr][nc];
-      if (stone === "W") { blocked = true; break; }
-      else if (stone === "B") { blackCount++; }
-      else { emptySpaces.push({r: nr, c: nc}); }
-    }
-    
-    if (!blocked && blackCount === 3 && emptySpaces.length === 1) {
-      let beforeR = r + (shift - 1) * dr, beforeC = c + (shift - 1) * dc;
-      let afterR = r + (shift + 4) * dr, afterC = c + (shift + 4) * dc;
-      
-      let beforeEmpty = (beforeR >= 0 && beforeR < SIZE && beforeC >= 0 && beforeC < SIZE && bState[beforeR][beforeC] === null);
-      let afterEmpty = (afterR >= 0 && afterR < SIZE && afterC >= 0 && afterC < SIZE && bState[afterR][afterC] === null);
-      
-      if (beforeEmpty && afterEmpty) {
-        let p = emptySpaces[0];
-        bState[p.r][p.c] = "B";
-        let formsOpen4 = false;
-        let line = getLineInfo(bState, p.r, p.c, dr, dc, "B");
-        if (line.len === 4 && line.emptyFront && line.emptyBack) {
-          formsOpen4 = true;
-        }
-        let isForb = isBlackForbidden(bState, p.r, p.c, true);
-        bState[p.r][p.c] = null;
-        
-        if (formsOpen4 && !isForb) {
-          threes++;
-        }
+      if (line.len === 5) {
+        winPoints.add(p.r + "," + p.c);
       }
     }
   }
-  return threes > 0 ? 1 : 0;
+  return winPoints.size;
 }
 
-function isBlackForbidden(bState, r, c, checkWinOnly = false) {
+function isOpenThreeInLine(bState, r, c, dr, dc, depth) {
+  for (let step = -3; step <= 3; step++) {
+    if (step === 0) continue;
+    let nr = r + step * dr;
+    let nc = c + step * dc;
+    if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) continue;
+    if (bState[nr][nc] !== null) continue;
+
+    bState[nr][nc] = "B";
+    let info = getLineInfo(bState, nr, nc, dr, dc, "B");
+    let includesOriginal = info.stones.some(s => s.r === r && s.c === c);
+    let formsStraight4 = includesOriginal && isPureStraightFour(bState, nr, nc, dr, dc);
+    let isForb = false;
+    if (formsStraight4) {
+      isForb = isBlackForbidden(bState, nr, nc, depth + 1) !== null;
+    }
+    bState[nr][nc] = null;
+
+    if (formsStraight4 && !isForb) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
+function isBlackForbidden(bState, r, c, depth = 0) {
+  if (depth > 4) return null;
   const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
   let hasExactFive = false;
   let hasOverline = false;
@@ -1484,10 +1482,7 @@ function isBlackForbidden(bState, r, c, checkWinOnly = false) {
   }
 
   if (hasExactFive) return null;
-  
   if (hasOverline) return "장목";
-  
-  if (checkWinOnly) return null;
 
   let fourCount = 0;
   for (const [dr, dc] of dirs) {
@@ -1497,7 +1492,7 @@ function isBlackForbidden(bState, r, c, checkWinOnly = false) {
 
   let threeCount = 0;
   for (const [dr, dc] of dirs) {
-    threeCount += isOpenThreeInLine(bState, r, c, dr, dc);
+    threeCount += isOpenThreeInLine(bState, r, c, dr, dc, depth);
   }
   if (threeCount >= 2) return "쌍삼";
 
@@ -2229,7 +2224,7 @@ function placeStone(color, r, c) {
       if (forbiddenReason === "쌍삼") {
         setStatus("쌍삼(3-3)은 금지수입니다. 다른 수를 두어 주세요.", true);
       } else if (forbiddenReason === "쌍사") {
-        setStatus("쌍사(4-4)는 금지수입니다. 다른 수를 두어 주세요.", true);
+        setStatus("쌍사(4-4)은 금지수입니다. 다른 수를 두어 주세요.", true);
       } else if (forbiddenReason === "장목") {
         setStatus("장목(6목 이상)은 금지수입니다. 다른 수를 두어 주세요.", true);
       }
