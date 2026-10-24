@@ -1,16 +1,2662 @@
 <!DOCTYPE html>
-<html lang="ko"><head>  <meta charset="UTF-8">  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">  <meta name="referrer" content="no-referrer">  <title>오목</title>  <link rel="manifest" href="manifest.json">  <link rel="apple-touch-icon" href="icon-192.png">  <meta name="theme-color" content="#E5B869">  <meta name="apple-mobile-web-app-capable" content="yes">  <meta name="apple-mobile-web-app-status-bar-style" content="default">  <meta name="apple-mobile-web-app-title" content="오목">  <style>    *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}    body{background:rgb(244,245,247);color:rgb(31,41,55);padding:8px;line-height:1.4;}    .wrap{max-width:600px;margin:0 auto;display:flex;flex-direction:column;gap:8px;}    .card{background:white;border:1px solid rgb(229,231,235);border-radius:10px;padding:10px;box-shadow:0 2px 4px rgba(0,0,0,0.03);}    h1{font-size:1.1rem;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px;}    h2{font-size:0.92rem;margin-bottom:6px;color:rgb(17,24,39);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px;}    .top-dl{background:rgb(239,246,255);border:1px solid rgb(191,219,254);padding:8px 10px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;font-size:0.82rem;font-weight:600;color:rgb(30,64,175);}    .players-bar{display:flex;align-items:center;justify-content:space-between;gap:6px;background:rgb(249,250,251);padding:8px;border-radius:8px;border:1px solid rgb(229,231,235);margin-bottom:8px;font-size:0.85rem;flex-wrap:wrap;}    .players-bar.long-names{display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;align-items:center;column-gap:8px;row-gap:5px;}    .players-bar.long-names #bBadge{grid-column:1;grid-row:1;justify-self:start;}    .players-bar.long-names #wBadge{grid-column:1;grid-row:2;justify-self:start;}    .players-bar.long-names #playerBtns{grid-column:2;grid-row:1 / span 2;justify-self:end;align-self:center;}    .badge{display:inline-flex;align-items:center;gap:6px;font-weight:700;width:fit-content;max-width:100%;padding:4px 9px;border-radius:7px;background:white;border:1.5px solid rgb(209,213,219);color:rgb(31,41,55);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:all 0.2s ease;}    .badge.active-turn{background:linear-gradient(135deg,rgb(254,243,199),rgb(253,230,138));border:1.5px solid rgb(245,158,11);color:rgb(146,64,14);box-shadow:0 1px 4px rgba(245,158,11,0.25);}    .player-btns{display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap;padding:3px 5px;border-radius:7px;background:white;border:1px solid rgb(229,231,235);}    .dot-b{width:14px;height:14px;border-radius:99px;background:black;display:inline-block;flex-shrink:0;}    .dot-w{width:14px;height:14px;border-radius:99px;background:white;border:1px solid rgb(156,163,175);display:inline-block;flex-shrink:0;}    .turn-pill{padding:3px 8px;border-radius:99px;font-size:0.78rem;font-weight:600;background:rgb(219,234,254);color:rgb(30,64,175);}    .win-banner{display:none;background:linear-gradient(135deg,rgb(254,243,199),rgb(253,230,138));border:2px solid rgb(245,158,11);color:rgb(146,64,14);padding:8px;border-radius:8px;text-align:center;font-weight:800;font-size:0.98rem;margin-bottom:8px;}    button{cursor:pointer;border:1px solid rgb(209,213,219);background:white;color:rgb(31,41,55);padding:5px 9px;border-radius:6px;font-size:0.8rem;font-weight:600;transition:all 0.15s ease;touch-action:manipulation;user-select:none;outline:none;}    button:disabled{opacity:0.4;cursor:not-allowed;}    .btn-pri{background:rgb(37,99,235);color:white;border-color:rgb(37,99,235);}    .btn-danger{color:rgb(220,38,38);border-color:rgb(254,202,202);background:rgb(254,242,242);}    .btn-copied{background:rgb(5,150,105)!important;color:white!important;border-color:rgb(5,150,105)!important;}    .btn-off{background:rgb(243,244,246);color:rgb(31,41,55);border-color:rgb(209,213,219);}    .btn-on{background:rgb(37,99,235);color:white;border-color:rgb(37,99,235);}    .btn-right{margin-left:auto;}    .board-box{display:flex;justify-content:center;margin-top:4px;margin-bottom:8px;position:relative;}    canvas{background:rgb(220,179,92);border-radius:8px;box-shadow:0 3px 10px rgba(0,0,0,0.12);max-width:calc(100vw - 32px);width:100%;height:auto;touch-action:pan-y !important;user-select:none;-webkit-user-select:none;outline:none;}    .row{display:flex;gap:6px;align-items:stretch;}    textarea{flex:1;padding:6px 8px;border:1px solid rgb(209,213,219);border-radius:6px;font-size:0.82rem;outline:none;resize:none;}    input[type="text"]{padding:5px 8px;border:1px solid rgb(209,213,219);border-radius:6px;font-size:0.8rem;outline:none;width:100px;}    input[type="text"]:disabled{background:rgb(229,231,235);color:rgb(107,114,128);cursor:not-allowed;}    .status-panel{margin-top:8px;background:rgb(249,250,251);border:1px solid rgb(229,231,235);border-radius:8px;padding:7px 10px;display:flex;flex-direction:column;gap:3px;}    .status-header{font-size:0.76rem;font-weight:700;color:rgb(107,114,128);}    .status{font-size:0.82rem;font-weight:600;min-height:18px;word-break:keep-all;}    .err{color:rgb(220,38,38);}    .ok{color:rgb(5,150,105);}    .kibo{height:100px;overflow-y:auto;background:rgb(249,250,251);border:1px solid rgb(229,231,235);border-radius:6px;padding:6px;font-family:monospace;font-size:0.8rem;white-space:pre-wrap;}    .p-grid{display:flex;flex-direction:column;gap:6px;}    .p-card{background:rgb(249,250,251);border:1px solid rgb(229,231,235);border-radius:6px;padding:6px;display:flex;flex-direction:column;gap:4px;}    .p-card textarea{height:80px;font-size:0.76rem;background:white;resize:none;}    .score{display:flex;gap:8px;margin-bottom:4px;font-size:0.82rem;font-weight:700;background:rgb(248,250,252);padding:5px 8px;border-radius:6px;border:1px solid rgb(229,231,235);flex-wrap:wrap;}    .h-list{width:100%;max-height:130px;overflow-y:auto;overflow-x:auto;border:1px solid rgb(229,231,235);border-radius:6px;}    table{border-collapse:collapse;font-size:0.76rem;width:100%;table-layout:auto;}    th,td{padding:3px 4px;border-bottom:1px solid rgb(229,231,235);height:24px;white-space:nowrap;text-align:center;vertical-align:middle;}    th{background:rgb(249,250,251);}    td button{padding:3px 6px;font-size:0.74rem;border-radius:5px;}    .date-wrap{display:inline-flex;align-items:center;justify-content:center;gap:4px;vertical-align:middle;}    .date-text{line-height:1;display:inline-flex;align-items:center;}    td button.info-btn{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:rgb(209,213,219);color:white;font-size:10px;font-weight:bold;line-height:1;border:none;cursor:pointer;padding:0;margin:0;flex-shrink:0;}    td button.info-btn:hover{background:rgb(37,99,235);}    .replay-controls{display:none;background:rgb(254,243,199);border:1px solid rgb(252,211,77);padding:6px;border-radius:6px;margin-bottom:8px;align-items:center;justify-content:space-between;gap:4px;flex-wrap:wrap;}    .name-edit-box{display:none;background:rgb(243,244,246);border:1px solid rgb(209,213,219);padding:6px 8px;border-radius:6px;margin-bottom:8px;flex-direction:column;gap:6px;font-size:0.8rem;}    .ai-eval-panel{display:none;background:rgb(248,250,252);border:1px solid rgb(203,213,225);border-radius:8px;padding:8px 10px;margin-bottom:8px;flex-direction:column;gap:6px;}    .eval-header{display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;font-weight:700;flex-wrap:wrap;gap:4px;}    .eval-bar-wrap{width:100%;height:16px;background:rgb(243,244,246);border-radius:99px;overflow:hidden;display:flex;border:1px solid rgb(156,163,175);}    .eval-bar-b{background:rgb(31,41,55);color:white;font-size:0.68rem;font-weight:700;display:flex;align-items:center;padding-left:6px;transition:width 0.25s ease;white-space:nowrap;}    .eval-bar-w{background:rgb(255,255,255);color:rgb(31,41,55);font-size:0.68rem;font-weight:700;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;flex:1;white-space:nowrap;}    .eval-bottom-row{display:flex;justify-content:space-between;align-items:flex-end;gap:6px;flex-wrap:wrap;}    .rec-list{display:flex;gap:4px;flex-wrap:wrap;align-items:center;flex:1;min-width:0;}    .rec-chip{font-size:0.74rem;padding:3px 6px;border-radius:5px;border:1px solid rgb(191,219,254);background:rgb(239,246,255);color:rgb(30,64,175);cursor:pointer;font-weight:600;}    .rec-chip.rank1{background:rgb(220,252,231);border-color:rgb(134,239,172);color:rgb(22,101,52);}    .eval-meta{font-size:0.74rem;color:rgb(75,85,99);display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;}    .custom-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 16px; }    .custom-modal-card { background: white; border-radius: 12px; padding: 22px 24px 18px 24px; max-width: 320px; width: 100%; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18); display: flex; flex-direction: column; gap: 18px; animation: modalFadeIn 0.15s ease-out; text-align: center; }    @keyframes modalFadeIn { from { transform: scale(0.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }    .custom-modal-text { font-size: 0.92rem; font-weight: 600; color: rgb(31, 41, 55); line-height: 1.5; white-space: pre-wrap; word-break: keep-all; text-align: center; margin: 0 auto; }    .custom-modal-actions { display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; }    .modal-btn-cancel { background: white; border: 1px solid rgb(209, 213, 219); color: rgb(31, 41, 55); padding: 6px 14px; border-radius: 6px; font-size: 0.84rem; font-weight: 600; cursor: pointer; flex: 1; }    .modal-btn-cancel:hover { background: rgb(243, 244, 246); }    .modal-btn-ok { background: rgb(37, 99, 235); border: 1px solid rgb(37, 99, 235); color: white; padding: 6px 16px; border-radius: 6px; font-size: 0.84rem; font-weight: 600; cursor: pointer; flex: 1; }    .modal-btn-ok:hover { background: rgb(29, 78, 216); }  </style></head><body><div id="customModalOverlay" class="custom-modal-overlay" style="display:none;" onclick="if(event.target===this)closeCustomModal(false)">  <div class="custom-modal-card">    <div id="customModalText" class="custom-modal-text">양측 합의하에 무승부로 처리하시겠습니까?</div>    <div class="custom-modal-actions">      <button id="customModalCancelBtn" class="modal-btn-cancel" onclick="closeCustomModal(false)">취소</button>      <button id="customModalOkBtn" class="modal-btn-ok" onclick="closeCustomModal(true)">확인</button>    </div>  </div></div><div class="wrap">  <div class="card">    <h1>      <span>오목</span>      <span id="turnBadge" class="turn-pill">대국 전 (새 대국을 눌러 시작)</span>    </h1>    <div id="playersBar" class="players-bar">      <div id="bBadge" class="badge"><span class="dot-b"></span><span style="overflow:hidden;text-overflow:ellipsis;">흑: <strong id="bName">흑</strong></span></div>      <div id="playerBtns" class="player-btns">        <button id="swapBtn" onclick="swapPlayers()">흑백 교체</button>        <button id="editNameBtn" onclick="toggleNameEdit()">이름 수정</button>        <button id="resetNameBtn" onclick="resetPlayerNames()" title="플레이어 이름을 기본값으로 초기화">이름 초기화</button>      </div>      <div id="wBadge" class="badge"><span class="dot-w"></span><span style="overflow:hidden;text-overflow:ellipsis;">백: <strong id="wName">백</strong></span></div>    </div>    <div id="nameEditBox" class="name-edit-box">      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">        <label><strong>흑:</strong> <input type="text" id="bNameInput" maxlength="7" oninput="limitInputLength(this, 7)" placeholder="흑 (최대 7글자)"></label>        <label><strong>백:</strong> <input type="text" id="wNameInput" maxlength="7" oninput="limitInputLength(this, 7)" placeholder="백 (최대 7글자)"></label>      </div>      <div id="nameEditHint" style="font-size:0.72rem;color:rgb(107,114,128);">이름은 최대 7자까지 가능합니다.</div>      <div style="display:flex;gap:4px;justify-content:flex-end;">        <button class="btn-pri" onclick="applyPlayerNames()">저장</button>        <button onclick="toggleNameEdit()">닫기</button>      </div>    </div>    <div id="winBanner" class="win-banner"></div>    <div id="aiEvalPanel" class="ai-eval-panel">      <div class="eval-header">        <span id="evalTitle">AI 형세 분석 및 추천 수</span>        <span id="evalScoreBadge" style="color:rgb(30,64,175);">평가치: 0 (균형)</span>      </div>      <div class="eval-bar-wrap">        <div id="evalBarB" class="eval-bar-b" style="width:50%;">흑 50%</div>        <div id="evalBarW" class="eval-bar-w">백 50%</div>      </div>      <div class="eval-meta">        <span id="evalComment">대국이 시작되면 분석이 시작됩니다.</span>        <span id="evalActualCompare"></span>      </div>      <div class="eval-bottom-row">        <div class="rec-list" id="recMovesBox"></div>        <button onclick="toggleAiHint()" id="spectateAiHintBtn" class="btn-on" style="display:none;flex-shrink:0;margin-left:auto;">추천 표시</button>      </div>    </div>    <div class="board-box">      <canvas id="boardCanvas" width="900" height="900" style="max-width: 450px;"></canvas>    </div>    <div id="replayPanel" class="replay-controls">      <span id="replayStatus" style="font-weight:700;font-size:0.8rem;color:rgb(146,64,14);">복기 모드</span>      <div style="display:flex;gap:4px;flex-wrap:wrap;">        <button onclick="replayFirst()">처음으로</button>        <button onclick="replayPrev()">이전 수</button>        <button onclick="replayNext()">다음 수</button>        <button onclick="toggleAiHint()" id="aiHintBtn" class="btn-on">추천 표시</button>      </div>    </div>    <div style="display:flex;flex-direction:column;gap:5px;margin-top:6px;">      <div class="btn-group" style="display:flex;gap:4px;flex-wrap:wrap;width:100%;align-items:center;">        <button class="btn-danger" onclick="resetBoard()">새 대국</button>        <button onclick="undoMove()" id="undoBtn" disabled="">무르기</button>        <button onclick="requestDraw()" id="drawBtn" disabled="">무승부</button>        <button class="btn-danger" onclick="resignGame('B')" id="resignBBtn" disabled="">흑 기권</button>        <button class="btn-danger" onclick="resignGame('W')" id="resignWBtn" disabled="">백 기권</button>        <button class="btn-danger btn-right" onclick="endGame()" id="endGameBtn" disabled="">대국 종료</button>      </div>      <div class="btn-group" style="display:flex;gap:4px;flex-wrap:wrap;width:100%;align-items:center;">        <button onclick="toggleNums()" id="numBtn" class="btn-on">수순</button>        <button onclick="toggleSound()" id="soundBtn" class="btn-on">효과음</button>        <button onclick="toggleAiMode()" id="aiModeBtn" class="btn-off">AI 모드</button>        <button onclick="toggleSpectate()" id="spectateBtn" class="btn-off">관전 모드</button>        <button onclick="toggleVsAiMode()" id="vsAiBtn" class="btn-off btn-right">AI와 대국</button>      </div>    </div>    <div class="status-panel">      <div class="status-header">상태 메시지</div>      <div id="statusMsg" class="status ok">새 대국 버튼을 눌러 대국을 시작해 주세요.</div>    </div>  </div>  <div class="card">    <h2>      <span>수 입력 (Log 붙여넣기)</span>    </h2>    <div class="row">      <textarea id="logInput" rows="2" placeholder="예: B: (H8) 또는 W: (I9) 또는 B: (8, 8)" onkeydown="handleEnter(event)"></textarea>      <button class="btn-pri" onclick="applyLog()">착수 실행</button>    </div>  </div>  <div class="card" id="promptCard" style="display:none;">    <h2>      <span>시작 프롬프트</span>      <button onclick="copyState(this)">현재 판 상태 요약 복사</button>    </h2>    <div class="p-grid">      <div class="p-card">        <div style="display:flex;justify-content:space-between;align-items:center;">          <strong style="font-size:0.8rem;"><span id="pBTitle">흑</span></strong>          <button onclick="copyText('bPrompt', this)">복사</button>        </div>        <textarea id="bPrompt" readonly="">오목 대국을 하자.
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+  <meta name="referrer" content="no-referrer">
+  <title>오목</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="theme-color" content="#E5B869">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="오목">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+    body{background:rgb(244,245,247);color:rgb(31,41,55);padding:8px;line-height:1.4;}
+    .wrap{max-width:600px;margin:0 auto;display:flex;flex-direction:column;gap:8px;}
+    .card{background:white;border:1px solid rgb(229,231,235);border-radius:10px;padding:10px;box-shadow:0 2px 4px rgba(0,0,0,0.03);}
+    h1{font-size:1.1rem;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px;}
+    h2{font-size:0.92rem;margin-bottom:6px;color:rgb(17,24,39);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px;}
+    .top-dl{background:rgb(239,246,255);border:1px solid rgb(191,219,254);padding:8px 10px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;font-size:0.82rem;font-weight:600;color:rgb(30,64,175);}
+    .players-bar{display:flex;align-items:center;justify-content:space-between;gap:6px;background:rgb(249,250,251);padding:8px;border-radius:8px;border:1px solid rgb(229,231,235);margin-bottom:8px;font-size:0.85rem;flex-wrap:wrap;}
+    .players-bar.long-names{display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;align-items:center;column-gap:8px;row-gap:5px;}
+    .players-bar.long-names #bBadge{grid-column:1;grid-row:1;justify-self:start;}
+    .players-bar.long-names #wBadge{grid-column:1;grid-row:2;justify-self:start;}
+    .players-bar.long-names #playerBtns{grid-column:2;grid-row:1 / span 2;justify-self:end;align-self:center;}
+    .badge{display:inline-flex;align-items:center;gap:6px;font-weight:700;width:fit-content;max-width:100%;padding:4px 9px;border-radius:7px;background:white;border:1.5px solid rgb(209,213,219);color:rgb(31,41,55);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:all 0.2s ease;}
+    .badge.active-turn{background:linear-gradient(135deg,rgb(254,243,199),rgb(253,230,138));border:1.5px solid rgb(245,158,11);color:rgb(146,64,14);box-shadow:0 1px 4px rgba(245,158,11,0.25);}
+    .player-btns{display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap;padding:3px 5px;border-radius:7px;background:white;border:1px solid rgb(229,231,235);}
+    .dot-b{width:14px;height:14px;border-radius:99px;background:radial-gradient(circle at 35% 35%, #666, #000);box-shadow:1px 1px 2px rgba(0,0,0,0.4);display:inline-block;flex-shrink:0;}
+    .dot-w{width:14px;height:14px;border-radius:99px;background:radial-gradient(circle at 35% 35%, #fff, #ccc);border:1px solid rgb(180,185,195);box-shadow:1px 1px 2px rgba(0,0,0,0.2);display:inline-block;flex-shrink:0;}
+    .turn-pill{padding:3px 8px;border-radius:99px;font-size:0.78rem;font-weight:600;background:rgb(219,234,254);color:rgb(30,64,175);}
+    .win-banner{display:none;background:linear-gradient(135deg,rgb(254,243,199),rgb(253,230,138));border:2px solid rgb(245,158,11);color:rgb(146,64,14);padding:8px;border-radius:8px;text-align:center;font-weight:800;font-size:0.98rem;margin-bottom:8px;}
+    button{cursor:pointer;border:1px solid rgb(209,213,219);background:white;color:rgb(31,41,55);padding:5px 9px;border-radius:6px;font-size:0.8rem;font-weight:600;transition:all 0.15s ease;touch-action:manipulation;user-select:none;outline:none;}
+    button:disabled{opacity:0.4;cursor:not-allowed;}
+    .btn-pri{background:rgb(37,99,235);color:white;border-color:rgb(37,99,235);}
+    .btn-danger{color:rgb(220,38,38);border-color:rgb(254,202,202);background:rgb(254,242,242);}
+    .btn-copied{background:rgb(5,150,105)!important;color:white!important;border-color:rgb(5,150,105)!important;}
+    .btn-off{background:rgb(243,244,246);color:rgb(31,41,55);border-color:rgb(209,213,219);}
+    .btn-on{background:rgb(37,99,235);color:white;border-color:rgb(37,99,235);}
+    .btn-right{margin-left:auto;}
+    .board-box{display:flex;justify-content:center;margin-top:4px;margin-bottom:8px;position:relative;}
+    canvas{background:rgb(220,179,92);border-radius:8px;box-shadow:0 3px 10px rgba(0,0,0,0.12);max-width:calc(100vw - 32px);width:100%;height:auto;touch-action:pan-y !important;user-select:none;-webkit-user-select:none;outline:none;}
+    .row{display:flex;gap:6px;align-items:stretch;}
+    textarea{flex:1;padding:6px 8px;border:1px solid rgb(209,213,219);border-radius:6px;font-size:0.82rem;outline:none;resize:none;}
+    input[type="text"]{padding:5px 8px;border:1px solid rgb(209,213,219);border-radius:6px;font-size:0.8rem;outline:none;width:100px;}
+    input[type="text"]:disabled{background:rgb(229,231,235);color:rgb(107,114,128);cursor:not-allowed;}
+    .status-panel{margin-top:8px;background:rgb(249,250,251);border:1px solid rgb(229,231,235);border-radius:8px;padding:7px 10px;display:flex;flex-direction:column;gap:3px;}
+    .status-header{font-size:0.76rem;font-weight:700;color:rgb(107,114,128);}
+    .status{font-size:0.82rem;font-weight:600;min-height:18px;word-break:keep-all;white-space:pre-wrap;line-height:1.5;}
+    .err{color:rgb(220,38,38);}
+    .ok{color:rgb(5,150,105);}
+    .kibo{height:100px;overflow-y:auto;background:rgb(249,250,251);border:1px solid rgb(229,231,235);border-radius:6px;padding:6px;font-family:monospace;font-size:0.8rem;white-space:pre-wrap;}
+    .p-grid{display:flex;flex-direction:column;gap:6px;}
+    .p-card{background:rgb(249,250,251);border:1px solid rgb(229,231,235);border-radius:6px;padding:6px;display:flex;flex-direction:column;gap:4px;}
+    .p-card textarea{height:80px;font-size:0.76rem;background:white;resize:none;}
+    .score{display:flex;gap:8px;margin-bottom:4px;font-size:0.82rem;font-weight:700;background:rgb(248,250,252);padding:5px 8px;border-radius:6px;border:1px solid rgb(229,231,235);flex-wrap:wrap;}
+    .h-list{width:100%;max-height:130px;overflow-y:auto;overflow-x:auto;border:1px solid rgb(229,231,235);border-radius:6px;}
+    table{border-collapse:collapse;font-size:0.76rem;width:100%;table-layout:auto;}
+    th,td{padding:3px 4px;border-bottom:1px solid rgb(229,231,235);height:24px;white-space:nowrap;text-align:center;vertical-align:middle;}
+    th{background:rgb(249,250,251);}
+    td button{padding:3px 6px;font-size:0.74rem;border-radius:5px;}
+    .date-wrap{display:inline-flex;align-items:center;justify-content:center;gap:4px;vertical-align:middle;}
+    .date-text{line-height:1;display:inline-flex;align-items:center;}
+    td button.info-btn{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:rgb(209,213,219);color:white;font-size:10px;font-weight:bold;line-height:1;border:none;cursor:pointer;padding:0;margin:0;flex-shrink:0;}
+    td button.info-btn:hover{background:rgb(37,99,235);}
+    .replay-controls{display:none;background:rgb(254,243,199);border:1px solid rgb(252,211,77);padding:6px;border-radius:6px;margin-bottom:8px;align-items:center;justify-content:space-between;gap:4px;flex-wrap:wrap;}
+    .name-edit-box{display:none;background:rgb(243,244,246);border:1px solid rgb(209,213,219);padding:6px 8px;border-radius:6px;margin-bottom:8px;flex-direction:column;gap:6px;font-size:0.8rem;}
+    .ai-eval-panel{display:none;background:rgb(248,250,252);border:1px solid rgb(203,213,225);border-radius:8px;padding:8px 10px;margin-bottom:8px;flex-direction:column;gap:6px;}
+    .eval-header{display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;font-weight:700;flex-wrap:wrap;gap:4px;}
+    .eval-bar-wrap{width:100%;height:16px;background:rgb(243,244,246);border-radius:99px;overflow:hidden;display:flex;border:1px solid rgb(156,163,175);}
+    .eval-bar-b{background:rgb(31,41,55);color:white;font-size:0.68rem;font-weight:700;display:flex;align-items:center;padding-left:6px;transition:width 0.25s ease;white-space:nowrap;}
+    .eval-bar-w{background:rgb(255,255,255);color:rgb(31,41,55);font-size:0.68rem;font-weight:700;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;flex:1;white-space:nowrap;}
+    .eval-bottom-row{display:flex;justify-content:space-between;align-items:flex-end;gap:6px;flex-wrap:wrap;}
+    .rec-list{display:flex;gap:4px;flex-wrap:wrap;align-items:center;flex:1;min-width:0;}
+    .rec-chip{font-size:0.74rem;padding:3px 6px;border-radius:5px;border:1px solid rgb(191,219,254);background:rgb(239,246,255);color:rgb(30,64,175);cursor:pointer;font-weight:600;}
+    .rec-chip.rank1{background:rgb(220,252,231);border-color:rgb(134,239,172);color:rgb(22,101,52);}
+    .eval-meta{font-size:0.74rem;color:rgb(75,85,99);display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;}
+    .custom-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 16px; }
+    .custom-modal-card { background: white; border-radius: 12px; padding: 22px 24px 18px 24px; max-width: 320px; width: 100%; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18); display: flex; flex-direction: column; gap: 18px; animation: modalFadeIn 0.15s ease-out; text-align: center; }
+    @keyframes modalFadeIn { from { transform: scale(0.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .custom-modal-text { font-size: 0.92rem; font-weight: 600; color: rgb(31, 41, 55); line-height: 1.5; white-space: pre-wrap; word-break: keep-all; text-align: center; margin: 0 auto; }
+    .custom-modal-actions { display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; }
+    .modal-btn-cancel { background: white; border: 1px solid rgb(209, 213, 219); color: rgb(31, 41, 55); padding: 6px 14px; border-radius: 6px; font-size: 0.84rem; font-weight: 600; cursor: pointer; flex: 1; }
+    .modal-btn-cancel:hover { background: rgb(243, 244, 246); }
+    .modal-btn-ok { background: rgb(37, 99, 235); border: 1px solid rgb(37, 99, 235); color: white; padding: 6px 16px; border-radius: 6px; font-size: 0.84rem; font-weight: 600; cursor: pointer; flex: 1; }
+    .modal-btn-ok:hover { background: rgb(29, 78, 216); }
+  </style>
+</head>
+<body>
+<div id="customModalOverlay" class="custom-modal-overlay" style="display:none;" onclick="if(event.target===this)closeCustomModal(false)">
+  <div class="custom-modal-card">
+    <div id="customModalText" class="custom-modal-text">양측 합의하에 무승부로 처리하시겠습니까?</div>
+    <div class="custom-modal-actions">
+      <button id="customModalCancelBtn" class="modal-btn-cancel" onclick="closeCustomModal(false)">취소</button>
+      <button id="customModalOkBtn" class="modal-btn-ok" onclick="closeCustomModal(true)">확인</button>
+    </div>
+  </div>
+</div>
+<div class="wrap">
+  <div class="card">
+    <h1>
+      <span>오목</span>
+      <span id="turnBadge" class="turn-pill">대국 전 (새 대국을 눌러 시작)</span>
+    </h1>
+    <div id="playersBar" class="players-bar">
+      <div id="bBadge" class="badge"><span class="dot-b"></span><span style="overflow:hidden;text-overflow:ellipsis;">흑: <strong id="bName">흑</strong></span></div>
+      <div id="playerBtns" class="player-btns">
+        <button id="swapBtn" onclick="swapPlayers()">흑백 교체</button>
+        <button id="editNameBtn" onclick="toggleNameEdit()">이름 수정</button>
+        <button id="resetNameBtn" onclick="resetPlayerNames()" title="플레이어 이름을 기본값으로 초기화">이름 초기화</button>
+      </div>
+      <div id="wBadge" class="badge"><span class="dot-w"></span><span style="overflow:hidden;text-overflow:ellipsis;">백: <strong id="wName">백</strong></span></div>
+    </div>
+    <div id="nameEditBox" class="name-edit-box">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        <label><strong>흑:</strong> <input type="text" id="bNameInput" maxlength="7" oninput="limitInputLength(this, 7)" placeholder="흑 (최대 7글자)"></label>
+        <label><strong>백:</strong> <input type="text" id="wNameInput" maxlength="7" oninput="limitInputLength(this, 7)" placeholder="백 (최대 7글자)"></label>
+      </div>
+      <div id="nameEditHint" style="font-size:0.72rem;color:rgb(107,114,128);">이름은 최대 7자까지 가능합니다.</div>
+      <div style="display:flex;gap:4px;justify-content:flex-end;">
+        <button class="btn-pri" onclick="applyPlayerNames()">저장</button>
+        <button onclick="toggleNameEdit()">닫기</button>
+      </div>
+    </div>
+    <div id="winBanner" class="win-banner"></div>
+    <div id="aiEvalPanel" class="ai-eval-panel">
+      <div class="eval-header">
+        <span id="evalTitle">AI 형세 분석 및 추천 수</span>
+        <span id="evalScoreBadge" style="color:rgb(30,64,175);">평가치: 0 (균형)</span>
+      </div>
+      <div class="eval-bar-wrap">
+        <div id="evalBarB" class="eval-bar-b" style="width:50%;">흑 50%</div>
+        <div id="evalBarW" class="eval-bar-w">백 50%</div>
+      </div>
+      <div class="eval-meta">
+        <span id="evalComment">대국이 시작되면 분석이 시작됩니다.</span>
+        <span id="evalActualCompare"></span>
+      </div>
+      <div class="eval-bottom-row">
+        <div class="rec-list" id="recMovesBox"></div>
+        <button onclick="toggleAiHint()" id="spectateAiHintBtn" class="btn-on" style="display:none;flex-shrink:0;margin-left:auto;">추천 표시</button>
+      </div>
+    </div>
+    <div class="board-box">
+      <canvas id="boardCanvas" width="900" height="900" style="max-width: 450px;"></canvas>
+    </div>
+    <div id="replayPanel" class="replay-controls">
+      <span id="replayStatus" style="font-weight:700;font-size:0.8rem;color:rgb(146,64,14);">복기 모드</span>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">
+        <button onclick="replayFirst()">처음으로</button>
+        <button onclick="replayPrev()">이전 수</button>
+        <button onclick="replayNext()">다음 수</button>
+        <button onclick="toggleAiHint()" id="aiHintBtn" class="btn-on">추천 표시</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:5px;margin-top:6px;">
+      <div class="btn-group" style="display:flex;gap:4px;flex-wrap:wrap;width:100%;align-items:center;">
+        <button class="btn-danger" onclick="resetBoard()">새 대국</button>
+        <button onclick="undoMove()" id="undoBtn" disabled="">무르기</button>
+        <button onclick="requestDraw()" id="drawBtn" disabled="">무승부</button>
+        <button class="btn-danger" onclick="resignGame('B')" id="resignBBtn" disabled="">흑 기권</button>
+        <button class="btn-danger" onclick="resignGame('W')" id="resignWBtn" disabled="">백 기권</button>
+        <button class="btn-danger btn-right" onclick="endGame()" id="endGameBtn" disabled="">대국 종료</button>
+      </div>
+      <div class="btn-group" style="display:flex;gap:4px;flex-wrap:wrap;width:100%;align-items:center;">
+        <button onclick="toggleNums()" id="numBtn" class="btn-on">수순</button>
+        <button onclick="toggleSound()" id="soundBtn" class="btn-on">효과음</button>
+        <button onclick="toggleAiMode()" id="aiModeBtn" class="btn-off">AI 모드</button>
+        <button onclick="toggleSpectate()" id="spectateBtn" class="btn-off">관전 모드</button>
+        <button onclick="toggleVsAiMode()" id="vsAiBtn" class="btn-off btn-right">AI와 대국</button>
+      </div>
+    </div>
+    <div class="status-panel">
+      <div class="status-header">상태 메시지</div>
+      <div id="statusMsg" class="status ok">새 대국 버튼을 눌러 대국을 시작해 주세요.</div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>
+      <span>수 입력 (Log 붙여넣기)</span>
+    </h2>
+    <div class="row">
+      <textarea id="logInput" rows="2" placeholder="예: B: (H8) 또는 W: (I9) 또는 B: (8, 8)" onkeydown="handleEnter(event)"></textarea>
+      <button class="btn-pri" onclick="applyLog()">착수 실행</button>
+    </div>
+  </div>
+  <div class="card" id="promptCard" style="display:none;">
+    <h2>
+      <span>시작 프롬프트</span>
+      <button onclick="copyState(this)">현재 판 상태 요약 복사</button>
+    </h2>
+    <div class="p-grid">
+      <div class="p-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong style="font-size:0.8rem;"><span id="pBTitle">흑</span></strong>
+          <button onclick="copyText('bPrompt', this)">복사</button>
+        </div>
+        <textarea id="bPrompt" readonly="">오목 대국을 하자.
 15x15 오목판(가로 A~O, 세로 1~15, 중앙 H8)을 사용한다.
 너는 흑돌(B, 선공)이고 상대는 백돌(W, 후공)이다.
-상대 착수를 'W: (좌표)'로 알려주면 중복을 피해 다음 수를 둔다.
+렌주룰을 적용하여 흑돌은 쌍삼(3-3), 쌍사(4-4), 장목(6목 이상)이 금지되며 정확히 5목만 승리한다.
+상대 착수를 'W: (좌표)'로 알려주면 중복과 금수를 피해 다음 수를 둔다.
 답변은 설명 없이 첫 줄에 반드시 아래 형식으로만 출력한다.
 B: (H8)
 
-첫 수를 착수해 줘.</textarea>      </div>      <div class="p-card">        <div style="display:flex;justify-content:space-between;align-items:center;">          <strong style="font-size:0.8rem;"><span id="pWTitle">백</span></strong>          <button onclick="copyText('wPrompt', this)">복사</button>        </div>        <textarea id="wPrompt" readonly="">오목 대국을 하자.
+첫 수를 착수해 줘.</textarea>
+      </div>
+      <div class="p-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong style="font-size:0.8rem;"><span id="pWTitle">백</span></strong>
+          <button onclick="copyText('wPrompt', this)">복사</button>
+        </div>
+        <textarea id="wPrompt" readonly="">오목 대국을 하자.
 15x15 오목판(가로 A~O, 세로 1~15, 중앙 H8)을 사용한다.
 상대는 흑돌(B, 선공)이고 너는 백돌(W, 후공)이다.
+렌주룰을 적용하여 흑돌은 쌍삼(3-3), 쌍사(4-4), 장목(6목 이상)이 금지되며, 백돌은 금수가 없다.
 흑돌 착수를 'B: (좌표)'로 알려주면 중복을 피해 다음 수를 둔다.
 답변은 설명 없이 첫 줄에 반드시 아래 형식으로만 출력한다.
 W: (I8)
 
-흑돌의 첫 수를 알려주면 대국을 시작하자. 준비됐으면 짧게 대답해 줘.</textarea>      </div>    </div>  </div>  <div class="card">    <h2>      <span>현재 기보 (<span id="mCount">0</span>수)</span>      <div style="display:flex;gap:4px;flex-wrap:wrap;">        <button onclick="copyLast(this)" id="copyKiboLastBtn" disabled="">마지막 수 복사</button>        <button onclick="copyKibo(false, this)" id="copyKiboLineBtn" disabled="">줄바꿈 복사</button>        <button onclick="copyKibo(true, this)" id="copyKiboOneBtn" disabled="">한 줄 복사</button>      </div>    </h2>    <div id="kiboBox" class="kibo">아직 착수된 돌이 없습니다.</div>  </div>  <div class="card">    <h2>      <span>종료되지 않은 대국</span>      <button class="btn-danger" id="clearUnfinBtn" onclick="clearUnfinished()" disabled="">전체 삭제</button>    </h2>    <div class="h-list">      <table>        <thead>          <tr>            <th>저장 일시</th>            <th>흑/백</th>            <th>진행 수순</th>            <th>관리</th>          </tr>        </thead>        <tbody id="unfinBody"><tr><td colspan="4" style="text-align:center;color:rgb(107,114,128);">저장된 미완료 대국이 없습니다.</td></tr></tbody>      </table>    </div>  </div>  <div class="card">    <h2>      <span>대국 기록</span>      <button class="btn-danger" id="clearHistBtn" onclick="clearHist()" disabled="">전체 삭제</button>    </h2>    <div class="score" id="scoreBox">흑: 0승 | 백: 0승 | 무승부: 0회</div>    <div class="h-list">      <table>        <thead>          <tr>            <th>일시</th>            <th>흑/백</th>            <th>결과</th>            <th>수순</th>            <th>관리</th>          </tr>        </thead>        <tbody id="hBody"><tr><td colspan="5" style="text-align:center;color:rgb(107,114,128);">저장된 대국 기록이 없습니다.</td></tr></tbody>      </table>    </div>  </div>  <div class="card">    <div class="top-dl" style="margin-top:0;">      <span>스마트폰에 파일로 보관하려면:</span>      <button class="btn-pri" onclick="downloadHTML()">파일로 저장 (오목.html)</button>    </div>  </div></div><script>let modalResolve = null;function showCustomModal(text, isConfirm = true) {  return new Promise((resolve) => {    modalResolve = resolve;    document.getElementById("customModalText").textContent = text;    const cancelBtn = document.getElementById("customModalCancelBtn");    cancelBtn.style.display = isConfirm ? "inline-block" : "none";    document.getElementById("customModalOverlay").style.display = "flex";  });}function closeCustomModal(result) {  document.getElementById("customModalOverlay").style.display = "none";  if (modalResolve) {    modalResolve(result);    modalResolve = null;  }}const SIZE = 15;const COLS = "ABCDEFGHIJKLMNO";const NL = String.fromCharCode(10);const canvas = document.getElementById("boardCanvas");const ctx = canvas.getContext("2d");const LOGICAL_W = 450;const LOGICAL_H = 450;let currentDpr = 2;function initCanvasResolution() {  currentDpr = Math.min(2, Math.max(1.5, window.devicePixelRatio || 1));  canvas.style.maxWidth = LOGICAL_W + "px";  canvas.width = Math.round(LOGICAL_W * currentDpr);  canvas.height = Math.round(LOGICAL_H * currentDpr);  ctx.setTransform(currentDpr, 0, 0, currentDpr, 0, 0);}initCanvasResolution();const STORAGE_KEY_HIST = "omok_saved_hist";const STORAGE_KEY_UNFIN = "omok_saved_unfin";function loadStorageHist() {  try {    const raw = localStorage.getItem(STORAGE_KEY_HIST);    return raw ? JSON.parse(raw) : [];  } catch (e) {    return [];  }}function saveStorageHist() {  try {    localStorage.setItem(STORAGE_KEY_HIST, JSON.stringify(histList));  } catch (e) {}}function loadStorageUnfin() {  try {    const raw = localStorage.getItem(STORAGE_KEY_UNFIN);    return raw ? JSON.parse(raw) : [];  } catch (e) {    return [];  }}function saveStorageUnfin() {  try {    localStorage.setItem(STORAGE_KEY_UNFIN, JSON.stringify(unfinList));  } catch (e) {}}let board = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));let moves = [];let players = { B: "흑", W: "백" };let userCustomPlayers = { B: "흑", W: "백" };let aiSessionPlayers = { B: "Gemini", W: "ChatGPT" };let vsAiSessionPlayers = { B: "흑", W: "AI" };let showNums = true;let soundEnabled = true;let showAiHints = true;let spectateMode = false;let aiModeEnabled = false;let vsAiMode = false;let aiSide = "W";let isAiThinking = false;let aiMoveTimer = null;let gameOver = false;let gameStarted = false;let winLine = null;let winResultText = "";let animId = null;let glowPhase = 0;let currentSavedId = null;let currentUnfinId = null;let isReplaying = false;let isBranching = false;let allReplayMoves = [];let replayStep = 0;let isResigned = false;let isDrawed = false;let histList = loadStorageHist();let unfinList = loadStorageUnfin();let currentRecommendations = [];let initialHTMLSnapshot = "";window.addEventListener("beforeunload", () => {  if (gameStarted && !gameOver && moves.length > 0 && !isReplaying) {    saveUnfinished();  }});function limitInputLength(element, maxLength) {  if (element.value.length > maxLength) {    element.value = element.value.slice(0, maxLength);  }}function getPlayerLabel(color, bracketType) {  const name = players[color];  const cKor = color === "B" ? "흑" : "백";  if (name === cKor) return name;  return bracketType === "square" ? name + " [" + cKor + "]" : name + " (" + cKor + ")";}function getTurnPlayerText(color) {  const cKor = color === "B" ? "흑" : "백";  const pName = players[color];  if (!pName || pName === cKor) return cKor + " 차례";  return cKor + " (" + pName + ") 차례";}$("audioCtx", null);let audioCtx = null;function getAudioCtx() {  if (!audioCtx) {    const AC = window.AudioContext || window.webkitAudioContext;    if (AC) audioCtx = new AC();  }  if (audioCtx && audioCtx.state === "suspended") {    audioCtx.resume();  }  return audioCtx;}function playStoneSound() {  if (!soundEnabled) return;  try {    const ac = getAudioCtx();    if (!ac) return;    const now = ac.currentTime;    const osc = ac.createOscillator();    const gain = ac.createGain();    osc.type = "triangle";    osc.frequency.setValueAtTime(320, now);    osc.frequency.exponentialRampToValueAtTime(95, now + 0.045);    gain.gain.setValueAtTime(0.45, now);    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);    osc.connect(gain);    gain.connect(ac.destination);    osc.start(now);    osc.stop(now + 0.06);    const clickOsc = ac.createOscillator();    const clickGain = ac.createGain();    clickOsc.type = "sine";    clickOsc.frequency.setValueAtTime(1400, now);    clickOsc.frequency.exponentialRampToValueAtTime(280, now + 0.018);    clickGain.gain.setValueAtTime(0.25, now);    clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);    clickOsc.connect(clickGain);    clickGain.connect(ac.destination);    clickOsc.start(now);    clickOsc.stop(now + 0.022);  } catch (e) {}}function playToggleOnSound() {  if (!soundEnabled) return;  try {    const ac = getAudioCtx();    if (!ac) return;    const now = ac.currentTime;    const notes = [523.25, 659.25, 783.99];    notes.forEach((freq, idx) => {      const osc = ac.createOscillator();      const gain = ac.createGain();      const start = now + idx * 0.07;      const dur = 0.15;      osc.type = "sine";      osc.frequency.setValueAtTime(freq, start);      gain.gain.setValueAtTime(0.001, start);      gain.gain.linearRampToValueAtTime(0.2, start + 0.01);      gain.gain.exponentialRampToValueAtTime(0.001, start + dur);      osc.connect(gain);      gain.connect(ac.destination);      osc.start(start);      osc.stop(start + dur + 0.02);    });  } catch (e) {}}function playToggleOffSound(forcePlay = false) {  if (!soundEnabled && !forcePlay) return;  try {    const ac = getAudioCtx();    if (!ac) return;    const now = ac.currentTime;    const notes = [659.25, 523.25, 392.00];    notes.forEach((freq, idx) => {      const osc = ac.createOscillator();      const gain = ac.createGain();      const start = now + idx * 0.07;      const dur = 0.15;      osc.type = "sine";      osc.frequency.setValueAtTime(freq, start);      gain.gain.setValueAtTime(0.001, start);      gain.gain.linearRampToValueAtTime(0.18, start + 0.01);      gain.gain.exponentialRampToValueAtTime(0.001, start + dur);      osc.connect(gain);      gain.connect(ac.destination);      osc.start(start);      osc.stop(start + dur + 0.02);    });  } catch (e) {}}function playGameEndSound(type) {  if (!soundEnabled) return;  try {    const ac = getAudioCtx();    if (!ac) return;    const now = ac.currentTime;    if (type === "win") {      const notes = [523.25, 659.25, 783.99, 1046.50];      notes.forEach((freq, idx) => {        const osc = ac.createOscillator();        const gain = ac.createGain();        const start = now + idx * 0.09;        const dur = idx === notes.length - 1 ? 0.45 : 0.18;        osc.type = "triangle";        osc.frequency.setValueAtTime(freq, start);        gain.gain.setValueAtTime(0.001, start);        gain.gain.linearRampToValueAtTime(0.3, start + 0.015);        gain.gain.exponentialRampToValueAtTime(0.001, start + dur);        osc.connect(gain);        gain.connect(ac.destination);        osc.start(start);        osc.stop(start + dur + 0.02);      });    } else {      const notes = [440, 329.63];      notes.forEach((freq, idx) => {        const osc = ac.createOscillator();        const gain = ac.createGain();        const start = now + idx * 0.14;        const dur = 0.3;        osc.type = "sine";        osc.frequency.setValueAtTime(freq, start);        gain.gain.setValueAtTime(0.25, start);        gain.gain.exponentialRampToValueAtTime(0.001, start + dur);        osc.connect(gain);        gain.connect(ac.destination);        osc.start(start);        osc.stop(start + dur + 0.02);      });    }  } catch (e) {}}function toggleSound() {  soundEnabled = !soundEnabled;  const btn = document.getElementById("soundBtn");  if (soundEnabled) {    btn.className = "btn-on";    playToggleOnSound();    setStatus("효과음이 켜졌습니다.", false);  } else {    btn.className = "btn-off";    playToggleOffSound(true);    setStatus("효과음이 꺼졌습니다.", false);  }}function syncAiHintButtons() {  const replayBtn = document.getElementById("aiHintBtn");  const specBtn = document.getElementById("spectateAiHintBtn");  const cls = showAiHints ? "btn-on" : "btn-off";  if (replayBtn) replayBtn.className = cls;  if (specBtn) specBtn.className = cls;}function toggleAiHint() {  showAiHints = !showAiHints;  syncAiHintButtons();  if (showAiHints) {    playToggleOnSound();    setStatus("AI 추천 수 표시가 켜졌습니다.", false);  } else {    playToggleOffSound();    setStatus("AI 추천 수 표시가 꺼졌습니다.", false);  }  updateAiAnalysisPanel();  drawBoard();}function toggleNums() {  showNums = !showNums;  const btn = document.getElementById("numBtn");  btn.className = showNums ? "btn-on" : "btn-off";  if (showNums) {    playToggleOnSound();    setStatus("수순 표시가 켜졌습니다.", false);  } else {    playToggleOffSound();    setStatus("수순 표시가 꺼졌습니다.", false);  }  drawBoard();}function toggleAiMode() {  if (gameStarted || moves.length > 0 || isReplaying) return;  document.getElementById("nameEditBox").style.display = "none";  const btn = document.getElementById("aiModeBtn");  const pCard = document.getElementById("promptCard");  const sBtn = document.getElementById("spectateBtn");  const vsBtn = document.getElementById("vsAiBtn");  if (!aiModeEnabled) {    if (vsAiMode) {      vsAiMode = false;      vsBtn.className = "btn-off btn-right";      players.B = userCustomPlayers.B;      players.W = userCustomPlayers.W;    } else {      userCustomPlayers = { B: players.B, W: players.W };    }    aiModeEnabled = true;    btn.className = "btn-on";    pCard.style.display = "block";    playToggleOnSound();    aiSessionPlayers = { B: "Gemini", W: "ChatGPT" };    players.B = "Gemini";    players.W = "ChatGPT";    spectateMode = true;    sBtn.className = "btn-on";    syncPlayerDOM();    drawBoard();    setStatus("AI 모드(Gemini vs ChatGPT) 및 관전 모드가 켜졌습니다.", false);  } else {    aiModeEnabled = false;    btn.className = "btn-off";    pCard.style.display = "none";    playToggleOffSound();    players.B = userCustomPlayers.B;    players.W = userCustomPlayers.W;    spectateMode = false;    sBtn.className = "btn-off";    syncPlayerDOM();    drawBoard();    setStatus("AI 모드가 꺼졌습니다.", false);  }}function toggleVsAiMode() {  if (gameStarted || moves.length > 0 || isReplaying) return;  document.getElementById("nameEditBox").style.display = "none";  const vsBtn = document.getElementById("vsAiBtn");  const aiBtn = document.getElementById("aiModeBtn");  const pCard = document.getElementById("promptCard");  const sBtn = document.getElementById("spectateBtn");  if (!vsAiMode) {    if (aiModeEnabled) {      aiModeEnabled = false;      aiBtn.className = "btn-off";      pCard.style.display = "none";      players.B = userCustomPlayers.B;      players.W = userCustomPlayers.W;    } else {      userCustomPlayers = { B: players.B, W: players.W };    }    spectateMode = false;    sBtn.className = "btn-off";    vsAiMode = true;    aiSide = "W";    vsBtn.className = "btn-on btn-right";    playToggleOnSound();    players.B = userCustomPlayers.B;    players.W = "AI";    vsAiSessionPlayers = { B: players.B, W: "AI" };    syncPlayerDOM();    drawBoard();    setStatus("AI와 대국 모드가 켜졌습니다. '새 대국'을 누르면 자체 AI와 대국합니다.", false);  } else {    vsAiMode = false;    vsBtn.className = "btn-off btn-right";    playToggleOffSound();    players.B = userCustomPlayers.B;    players.W = userCustomPlayers.W;    syncPlayerDOM();    drawBoard();    setStatus("AI와 대국 모드가 꺼졌습니다.", false);  }}function toggleSpectate() {  if (gameStarted || moves.length > 0 || isReplaying || aiModeEnabled || vsAiMode) return;  spectateMode = !spectateMode;  const btn = document.getElementById("spectateBtn");  if (spectateMode) {    btn.className = "btn-on";    playToggleOnSound();    setStatus("관전 모드가 켜졌습니다. 오목판을 직접 클릭할 수 없으며, 수 입력으로만 진행됩니다.", false);  } else {    btn.className = "btn-off";    playToggleOffSound();    setStatus("관전 모드가 해제되었습니다.", false);  }  updateAiAnalysisPanel();  drawBoard();}function syncNameEditInputs() {  const bInput = document.getElementById("bNameInput");  const wInput = document.getElementById("wNameInput");  const hint = document.getElementById("nameEditHint");  if (!bInput || !wInput) return;  bInput.value = players.B;  wInput.value = players.W;  if (vsAiMode) {    if (aiSide === "B") {      bInput.disabled = true;      bInput.value = "AI";      wInput.disabled = false;    } else {      bInput.disabled = false;      wInput.disabled = true;      wInput.value = "AI";    }    if (hint) hint.textContent = "이름은 최대 7자까지 가능합니다. (AI의 이름은 수정할 수 없습니다.)";  } else {    bInput.disabled = false;    wInput.disabled = false;    if (hint) hint.textContent = "이름은 최대 7자까지 가능합니다.";  }}function toggleNameEdit() {  if (gameStarted || moves.length > 0 || isReplaying) {    setStatus("대국 시작 후에는 이름을 수정할 수 없습니다.", true);    return;  }  const box = document.getElementById("nameEditBox");  const isHidden = box.style.display === "" || box.style.display === "none";  if (isHidden) {    syncNameEditInputs();    box.style.display = "flex";    if (vsAiMode && aiSide === "B") {      document.getElementById("wNameInput").focus();    } else {      document.getElementById("bNameInput").focus();    }  } else {    box.style.display = "none";  }}function resetPlayerNames() {  if (gameStarted || moves.length > 0 || isReplaying) {    setStatus("대국 시작 후에는 이름을 초기화할 수 없습니다.", true);    return;  }  document.getElementById("nameEditBox").style.display = "none";  if (aiModeEnabled) {    players.B = "Gemini";    players.W = "ChatGPT";    aiSessionPlayers = { B: "Gemini", W: "ChatGPT" };    syncPlayerDOM();    drawBoard();    setStatus("AI 플레이어 이름이 초기화되었습니다: Gemini vs ChatGPT", false);  } else if (vsAiMode) {    aiSide = "W";    players.B = "흑";    players.W = "AI";    vsAiSessionPlayers = { B: "흑", W: "AI" };    userCustomPlayers = { B: "흑", W: "백" };    syncPlayerDOM();    drawBoard();    setStatus("AI와 대국 이름이 초기화되었습니다: 흑 vs AI", false);  } else {    players.B = "흑";    players.W = "백";    userCustomPlayers = { B: "흑", W: "백" };    syncPlayerDOM();    drawBoard();    setStatus("플레이어 이름이 초기화되었습니다: 흑 vs 백", false);  }}function updatePrompts() {  const bText = "오목 대국을 하자." + NL +    "15x15 오목판(가로 A~O, 세로 1~15, 중앙 H8)을 사용한다." + NL +    "너는 흑돌(B, 선공)이고 상대는 백돌(W, 후공)이다." + NL +    "상대 착수를 'W: (좌표)'로 알려주면 중복을 피해 다음 수를 둔다." + NL +    "답변은 설명 없이 첫 줄에 반드시 아래 형식으로만 출력한다." + NL +    "B: (H8)" + NL + NL + "첫 수를 착수해 줘.";  const wText = "오목 대국을 하자." + NL +    "15x15 오목판(가로 A~O, 세로 1~15, 중앙 H8)을 사용한다." + NL +    "상대는 흑돌(B, 선공)이고 너는 백돌(W, 후공)이다." + NL +    "흑돌 착수를 'B: (좌표)'로 알려주면 중복을 피해 다음 수를 둔다." + NL +    "답변은 설명 없이 첫 줄에 반드시 아래 형식으로만 출력한다." + NL +    "W: (I8)" + NL + NL + "흑돌의 첫 수를 알려주면 대국을 시작하자. 준비됐으면 짧게 대답해 줘.";  const bEl = document.getElementById("bPrompt");  const wEl = document.getElementById("wPrompt");  bEl.value = bText;  bEl.textContent = bText;  wEl.value = wText;  wEl.textContent = wText;}function updatePlayerBarLayout() {  const bar = document.getElementById("playersBar");  if (!bar) return;  const totalLen = (players.B ? players.B.length : 0) + (players.W ? players.W.length : 0);  if (totalLen >= 8) {    bar.classList.add("long-names");  } else {    bar.classList.remove("long-names");  }}function syncPlayerDOM() {  document.getElementById("bName").textContent = players.B;  document.getElementById("wName").textContent = players.W;  document.getElementById("pBTitle").textContent = players.B;  document.getElementById("pWTitle").textContent = players.W;  updatePlayerBarLayout();  updatePrompts();  renderHist();  updateUI();}function applyPlayerNames() {  if (vsAiMode) {    if (aiSide === "W") {      const newB = document.getElementById("bNameInput").value.trim() || "흑";      players.B = newB;      players.W = "AI";      userCustomPlayers.B = newB;    } else {      const newW = document.getElementById("wNameInput").value.trim() || "백";      players.B = "AI";      players.W = newW;      userCustomPlayers.W = newW;    }    vsAiSessionPlayers = { B: players.B, W: players.W };  } else if (aiModeEnabled) {    const newB = document.getElementById("bNameInput").value.trim() || "Gemini";    const newW = document.getElementById("wNameInput").value.trim() || "ChatGPT";    players.B = newB;    players.W = newW;    aiSessionPlayers = { B: newB, W: newW };  } else {    const newB = document.getElementById("bNameInput").value.trim() || "흑";    const newW = document.getElementById("wNameInput").value.trim() || "백";    players.B = newB;    players.W = newW;    userCustomPlayers = { B: newB, W: newW };  }  document.getElementById("nameEditBox").style.display = "none";  syncPlayerDOM();  setStatus("플레이어 이름이 수정되었습니다: 흑(" + players.B + ") vs 백(" + players.W + ")", false);}function evaluateLinePattern(bState, r, c, dr, dc, color) {  let count = 1;  let openEnds = 0;  let nr = r + dr, nc = c + dc;  while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === color) {    count++;    nr += dr;    nc += dc;  }  if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === null) {    openEnds++;  }  nr = r - dr;  nc = c - dc;  while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === color) {    count++;    nr -= dr;    nc -= dc;  }  if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === null) {    openEnds++;  }  if (count >= 5) return { score: 10000000, tag: "5목 완성", count, openEnds };  if (count === 4) {    if (openEnds >= 2) return { score: 6000000, tag: "열린4(필승)", count, openEnds };    if (openEnds === 1) return { score: 5000000, tag: "4목", count, openEnds };  }  if (count === 3) {    if (openEnds >= 2) return { score: 120000, tag: "열린3", count, openEnds };    if (openEnds === 1) return { score: 15000, tag: "닫힌3", count, openEnds };  }  if (count === 2) {    if (openEnds >= 2) return { score: 3000, tag: "열린2", count, openEnds };    if (openEnds === 1) return { score: 400, tag: "닫힌2", count, openEnds };  }  return { score: 20, tag: "연결", count, openEnds };}function checkDoubleThree(bState, r, c) {  const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];  let openThreeCount = 0;  for (const [dr, dc] of dirs) {    const res = evaluateLinePattern(bState, r, c, dr, dc, "B");    if (res.count === 3 && res.openEnds >= 2) {      openThreeCount++;    }  }  return openThreeCount >= 2;}function checkDoubleFour(bState, r, c) {  const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];  let fourCount = 0;  for (const [dr, dc] of dirs) {    const res = evaluateLinePattern(bState, r, c, dr, dc, "B");    if ((res.count === 4 && res.openEnds >= 1) || res.count >= 5) {      fourCount++;    }  }  return fourCount >= 2;}function checkOverline(bState, r, c) {  const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];  for (const [dr, dc] of dirs) {    let count = 1;    let nr = r + dr, nc = c + dc;    while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === "B") {      count++;      nr += dr;      nc += dc;    }    nr = r - dr;    nc = c - dc;    while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === "B") {      count++;      nr -= dr;      nc -= dc;    }    if (count > 5) return true;  }  return false;}function isBlackFoul(bState, r, c) {  if (checkOverline(bState, r, c)) return "육목(6목 이상) 금지수";  if (checkDoubleThree(bState, r, c)) return "쌍삼(Double Three) 금지수";  if (checkDoubleFour(bState, r, c)) return "쌍사(Double Four) 금지수";  return null;}.getMaxThreatForColor = function(bState, color) {  let maxScore = 0;  let bestTag = "";  for (let r = 0; r < SIZE; r++) {    for (let c = 0; c < SIZE; c++) {      if (bState[r][c] === color) {        const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];        for (const [dr, dc] of dirs) {          const res = evaluateLinePattern(bState, r, c, dr, dc, color);          if (res.score > maxScore) {            maxScore = res.score;            bestTag = res.tag;          }        }      }    }  }  return { maxScore, bestTag };};function evaluateBoardState(bState, nextTurn) {  let scoreB = 0;  let scoreW = 0;  for (let r = 0; r < SIZE; r++) {    for (let c = 0; c < SIZE; c++) {      const stone = bState[r][c];      if (!stone) continue;      const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];      let maxPointScore = 0;      for (const [dr, dc] of dirs) {        const res = evaluateLinePattern(bState, r, c, dr, dc, stone);        if (res.score > maxPointScore) maxPointScore = res.score;      }      if (stone === "B") scoreB += maxPointScore;      else scoreW += maxPointScore;    }  }  const tB = getMaxThreatForColor(bState, "B");  const tW = getMaxThreatForColor(bState, "W");  if (nextTurn === "B") scoreB = Math.round(scoreB * 1.08);  else scoreW = Math.round(scoreW * 1.08);  const rawDiff = Math.round((scoreB - scoreW) / 5000);  const winProbB = Math.min(99, Math.max(1, Math.round(50 + 49 * Math.tanh((scoreB - scoreW) / 250000))));  let comment = "팽팽한 균형 상태입니다.";  if (tB.maxScore >= 10000000) comment = "흑 오목 완성!";  else if (tW.maxScore >= 10000000) comment = "백 오목 완성!";  else if (tW.maxScore >= 5000000) comment = "백 4목 완성 (즉시 방어 필요!)";  else if (tB.maxScore >= 5000000) comment = "흑 4목 완성 (즉시 방어 필요!)";  else if (winProbB >= 75) comment = "흑 주도권 압도 (" + tB.bestTag + ")";  else if (winProbB <= 25) comment = "백 주도권 압도 (" + tW.bestTag + ")";  else if (winProbB >= 56) comment = "흑 미세한 우세";  else if (winProbB <= 44) comment = "백 미세한 우세";  return { diff: rawDiff, winProbB, winProbW: 100 - winProbB, comment };}function getRecommendedMoves(bState, nextColor, topN = 3) {  let hasStone = false;  for (let r = 0; r < SIZE && !hasStone; r++) {    for (let c = 0; c < SIZE && !hasStone; c++) {      if (bState[r][c] !== null) hasStone = true;    }  }  if (!hasStone) {    return [      { r: 7, c: 7, coord: "H8", score: 100000, reason: "천원(중앙 첫 수)" },      { r: 7, c: 8, coord: "I8", score: 95000, reason: "중앙 인접 제어" },      { r: 8, c: 8, coord: "I9", score: 90000, reason: "중앙 대각 포석" }    ].slice(0, topN);  }  const oppColor = nextColor === "B" ? "W" : "B";  const candidates = [];  for (let r = 0; r < SIZE; r++) {    for (let c = 0; c < SIZE; c++) {      if (bState[r][c] !== null) continue;      if (nextColor === "B" && isBlackFoul(bState, r, c)) continue;      let near = false;      for (let dr = -2; dr <= 2 && !near; dr++) {        for (let dc = -2; dc <= 2 && !near; dc++) {          const nr = r + dr, nc = c + dc;          if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] !== null) {            near = true;          }        }      }      if (!near) continue;      bState[r][c] = nextColor;      let myMaxScore = 0;      let mySumScore = 0;      let myTag = "일반 전개";      const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];      for (const [dr, dc] of dirs) {        const res = evaluateLinePattern(bState, r, c, dr, dc, nextColor);        mySumScore += res.score;        if (res.score > myMaxScore) {          myMaxScore = res.score;          myTag = res.tag;        }      }      bState[r][c] = null;      bState[r][c] = oppColor;      let oppMaxScore = 0;      let oppSumScore = 0;      for (const [dr, dc] of dirs) {        const res = evaluateLinePattern(bState, r, c, dr, dc, oppColor);        oppSumScore += res.score;        if (res.score > oppMaxScore) {          oppMaxScore = res.score;        }      }      bState[r][c] = null;      let totalScore = myMaxScore * 1.35 + mySumScore * 0.25 + oppMaxScore * 1.85 + oppSumScore * 0.25;      let reason = myTag;      if (myMaxScore >= 10000000) {        totalScore += 50000000;        reason = "승리 결정수(5목 완성)";      } else if (oppMaxScore >= 10000000) {        totalScore += 45000000;        reason = "상대 5목 절대 방어";      } else if (myMaxScore >= 6000000) {        totalScore += 35000000;        reason = "열린4 필승 공격";      } else if (oppMaxScore >= 5000000) {        totalScore += 30000000;        reason = "상대 4목 긴급 방어";      } else if (oppMaxScore >= 120000) {        totalScore += 10000000;        reason = "상대 열린3 긴급 차단";      }      const distCenter = Math.abs(r - 7) + Math.abs(c - 7);      totalScore += Math.max(0, 30 - distCenter * 2);      candidates.push({        r,        c,        coord: toCoord(r, c),        score: totalScore,        reason      });    }  }  candidates.sort((a, b) => b.score - a.score);  return candidates.slice(0, topN);}function chooseBuiltInAiMove(bState, aiColor) {  if (moves.length === 0) {    return { r: 7, c: 7 };  }  if (moves.length === 1) {    const first = moves[0];    const offsets = [[-1, -1], [-1, 1], [1, -1], [1, 1], [-1, 0], [1, 0], [0, -1], [0, 1]];    const valid = [];    for (const [dr, dc] of offsets) {      const nr = first.r + dr, nc = first.c + dc;      if (nr >= 2 && nr < SIZE - 2 && nc >= 2 && nc < SIZE - 2 && bState[nr][nc] === null) {        if (aiColor !== "B" || !isBlackFoul(bState, nr, nc)) valid.push({ r: nr, c: nc });      }    }    if (valid.length > 0) {      valid.sort((a, b) => (Math.abs(a.r - 7) + Math.abs(a.c - 7)) - (Math.abs(b.r - 7) + Math.abs(b.c - 7)));      const topPool = valid.slice(0, Math.min(4, valid.length));      return topPool[Math.floor(Math.random() * topPool.length)];    }  }  const cands = getRecommendedMoves(bState, aiColor, 8);  if (cands.length === 0) {    for (let r = 0; r < SIZE; r++) {      for (let c = 0; c < SIZE; c++) {        if (bState[r][c] === null && (aiColor !== "B" || !isBlackFoul(bState, r, c))) return { r, c };      }    }    return null;  }  if (cands[0].score >= 30000000) {    return { r: cands[0].r, c: cands[0].c };  }  const oppColor = aiColor === "B" ? "W" : "B";  let bestMove = cands[0];  let bestVal = -Infinity;  for (const cand of cands) {    bState[cand.r][cand.c] = aiColor;    const oppReplies = getRecommendedMoves(bState, oppColor, 1);    const oppThreat = oppReplies.length > 0 ? oppReplies[0].score : 0;    bState[cand.r][cand.c] = null;    const combined = cand.score - oppThreat * 0.4;    if (combined > bestVal) {      bestVal = combined;      bestMove = cand;    }  }  return { r: bestMove.r, c: bestMove.c };}function triggerAiMoveIfNeeded() {  if (!vsAiMode || !gameStarted || gameOver || isReplaying) return;  const next = (moves.length & 1) === 0 ? "B" : "W";  if (next !== aiSide) return;  isAiThinking = true;  updateUI();  setStatus("AI가 다음 수를 생각 중입니다...", false);  if (aiMoveTimer) clearTimeout(aiMoveTimer);  const delay = 700;  aiMoveTimer = setTimeout(() => {    aiMoveTimer = null;    if (!vsAiMode || !gameStarted || gameOver || isReplaying) {      isAiThinking = false;      updateUI();      return;    }    const move = chooseBuiltInAiMove(board, aiSide);    isAiThinking = false;    if (move) {      placeStone(aiSide, move.r, move.c);    }  }, delay);}function updateAiAnalysisPanel() {  const panel = document.getElementById("aiEvalPanel");  const specHintBtn = document.getElementById("spectateAiHintBtn");  if (!isReplaying && !spectateMode) {    panel.style.display = "none";    if (specHintBtn) specHintBtn.style.display = "none";    currentRecommendations = [];    return;  }  panel.style.display = "flex";  if (!isReplaying && spectateMode) {    document.getElementById("evalTitle").textContent = "관전 모드 AI 실시간 분석";    if (specHintBtn) {      specHintBtn.style.display = "inline-block";      specHintBtn.className = showAiHints ? "btn-on" : "btn-off";    }  } else {    document.getElementById("evalTitle").textContent = "복기 모드 AI 딥 엔진 분석";    if (specHintBtn) {      specHintBtn.style.display = "none";    }  }  const nextColor = (moves.length & 1) === 0 ? "B" : "W";  const evalRes = evaluateBoardState(board, nextColor);  const sign = evalRes.diff > 0 ? "+" : "";  const advText = evalRes.diff > 50 ? "흑 우세" : (evalRes.diff < -50 ? "백 우세" : "균형");  document.getElementById("evalScoreBadge").textContent =    "평가치: " + sign + evalRes.diff.toLocaleString() + " (" + advText + ")";  const barB = document.getElementById("evalBarB");  const barW = document.getElementById("evalBarW");  barB.style.width = evalRes.winProbB + "%";  barB.textContent = "흑 " + evalRes.winProbB + "%";  barW.textContent = "백 " + evalRes.winProbW + "%";  document.getElementById("evalComment").textContent = evalRes.comment;  const recBox = document.getElementById("recMovesBox");  const compareEl = document.getElementById("evalActualCompare");  if (gameOver) {    currentRecommendations = [];    recBox.innerHTML = "<span style='font-size:0.78rem;color:rgb(107,114,128);'>대국이 종료된 수순입니다.</span>";    compareEl.textContent = "";    return;  }  currentRecommendations = getRecommendedMoves(board, nextColor, 3);  const nextKor = nextColor === "B" ? "흑" : "백";  if (!showAiHints) {    recBox.innerHTML = "<span style='font-size:0.78rem;color:rgb(107,114,128);'>추천 수 표시가 꺼져 있습니다.</span>";  } else {    recBox.innerHTML =      "<strong style='font-size:0.78rem;color:rgb(31,41,55);'>" + nextKor + " 추천 수:</strong> " +      currentRecommendations.map((rec, idx) => {        const cls = idx === 0 ? "rec-chip rank1" : "rec-chip";        const clickAction = spectateMode ? "showCustomModal('관전 모드에서는 직접 둘 수 없습니다. 수 입력을 사용해 주세요.', false)" : "playRecommendedMove(" + rec.r + "," + rec.c + ")";        return '<span class="' + cls + '" onclick="' + clickAction + '" title="AI 추천 좌표">' +          (idx + 1) + "순위 " + rec.coord + " (" + rec.reason + ")" +          "</span>";      }).join("");  }  if (!isReplaying && spectateMode) {    compareEl.textContent = showAiHints ? "관전 중 실시간 추천 수 표시 중" : "관전 중 (추천 표시 꺼짐)";  } else if (!isBranching && replayStep < allReplayMoves.length) {    const actualNext = allReplayMoves[replayStep];    const actualCoord = toCoord(actualNext.r, actualNext.c);    const matchIdx = currentRecommendations.findIndex(x => x.r === actualNext.r && x.c === actualNext.c);    if (matchIdx === 0) {      compareEl.innerHTML = "<strong style='color:rgb(5,150,105);'>실전 다음 수: " + actualCoord + " (AI 1순위 일치!)</strong>";    } else if (matchIdx > 0) {      compareEl.innerHTML = "<strong style='color:rgb(37,99,235);'>실전 다음 수: " + actualCoord + " (AI " + (matchIdx + 1) + "순위)</strong>";    } else {      compareEl.textContent = "실전 다음 수: " + actualCoord;    }  } else {    compareEl.textContent = "";  }}function playRecommendedMove(r, c) {  if (!isReplaying || gameOver) return;  isBranching = true;  const next = (moves.length & 1) === 0 ? "B" : "W";  placeStone(next, r, c);}function startWinAnim() {  if (animId) cancelAnimationFrame(animId);  function loop() {    if (!gameOver || !winLine) {      animId = null;      return;    }    glowPhase += 0.12;    drawBoard();    animId = requestAnimationFrame(loop);  }  animId = requestAnimationFrame(loop);}function stopWinAnim() {  if (animId) {    cancelAnimationFrame(animId);    animId = null;  }}function swapPlayers() {  if (gameStarted || moves.length > 0 || isReplaying) {    setStatus("대국 시작 후에는 흑백을 교체할 수 없습니다.", true);    return;  }  if (vsAiMode) {    const oldHumanSide = aiSide === "B" ? "W" : "B";    let humanName = players[oldHumanSide];    aiSide = aiSide === "B" ? "W" : "B";    const newHumanSide = aiSide === "B" ? "W" : "B";    if (oldHumanSide === "B" && humanName === "흑") humanName = "백";    else if (oldHumanSide === "W" && humanName === "백") humanName = "흑";    players[aiSide] = "AI";    players[newHumanSide] = humanName;    vsAiSessionPlayers = { B: players.B, W: players.W };  } else if (aiModeEnabled) {    const t = players.B;    players.B = players.W;    players.W = t;    aiSessionPlayers = { B: players.B, W: players.W };  } else {    const t = players.B;    players.B = players.W;    players.W = t;    userCustomPlayers = { B: players.B, W: players.W };  }  if (document.getElementById("nameEditBox").style.display === "flex") {    syncNameEditInputs();  }  syncPlayerDOM();  setStatus("흑백이 교체되었습니다.", false);}function isWinningStone(r, c) {  if (!winLine) return false;  return winLine.some(p => p.r === r && p.c === c);}function drawBoard() {  ctx.clearRect(0, 0, LOGICAL_W, LOGICAL_H);  const pad = 32;  const cell = (LOGICAL_W - pad * 2) / (SIZE - 1);  ctx.strokeStyle = "rgb(60, 42, 14)";  ctx.lineWidth = 1.5;  ctx.fillStyle = "rgb(50, 35, 10)";  ctx.font = "bold 10px sans-serif";  ctx.textAlign = "center";  ctx.textBaseline = "middle";  for (let i = 0; i < SIZE; i++) {    const p = Math.round(pad + i * cell);    ctx.beginPath();    ctx.moveTo(pad, p);    ctx.lineTo(LOGICAL_W - pad, p);    ctx.stroke();    ctx.beginPath();    ctx.moveTo(p, pad);    ctx.lineTo(p, LOGICAL_H - pad);    ctx.stroke();    ctx.fillText(COLS[i], p, 13);    ctx.fillText(COLS[i], p, LOGICAL_H - 13);    ctx.fillText(String(i + 1), 13, p);    ctx.fillText(String(i + 1), LOGICAL_W - 13, p);  }  const stars = [[3, 3], [3, 11], [7, 7], [11, 3], [11, 11]];  stars.forEach(([r, c]) => {    ctx.beginPath();    ctx.arc(Math.round(pad + c * cell), Math.round(pad + r * cell), 3.5, 0, Math.PI * 2);    ctx.fill();  });  if ((isReplaying || spectateMode) && showAiHints && !gameOver && currentRecommendations.length > 0) {    currentRecommendations.forEach((rec, idx) => {      const x = Math.round(pad + rec.c * cell);      const y = Math.round(pad + rec.r * cell);      const rad = cell * 0.41;      ctx.save();      ctx.beginPath();      ctx.arc(x, y, rad, 0, Math.PI * 2);      if (idx === 0) {        ctx.fillStyle = "rgba(16, 185, 129, 0.32)";        ctx.strokeStyle = "rgb(5, 150, 105)";        ctx.lineWidth = 2.2;      } else {        ctx.fillStyle = "rgba(59, 130, 246, 0.24)";        ctx.strokeStyle = "rgb(37, 99, 235)";        ctx.lineWidth = 1.6;      }      ctx.setLineDash([3, 2]);      ctx.fill();      ctx.stroke();      ctx.setLineDash([]);      ctx.fillStyle = idx === 0 ? "rgb(6, 95, 70)" : "rgb(30, 64, 175)";      ctx.font = "bold 9px sans-serif";      ctx.fillText(idx === 0 ? "★1" : String(idx + 1), x, y);      ctx.restore();    });  }  const pulse = (Math.sin(glowPhase) + 1) / 2;  moves.forEach((m, idx) => {    const x = Math.round(pad + m.c * cell);    const y = Math.round(pad + m.r * cell);    const rad = cell * 0.43;    const isWin = isWinningStone(m.r, m.c);    ctx.save();    ctx.beginPath();    ctx.arc(x, y, rad, 0, Math.PI * 2);    ctx.fillStyle = m.color === "B" ? "rgb(20,20,20)" : "rgb(250,250,250)";    if (isWin) {      ctx.shadowColor = "rgb(255,235,120)";      ctx.shadowBlur = 4 + pulse * 4;    }    ctx.fill();    ctx.strokeStyle = "rgb(100,100,100)";    ctx.lineWidth = 1;    ctx.stroke();    ctx.restore();    if (isWin) {      ctx.save();      ctx.beginPath();      ctx.arc(x, y, rad + 1.5, 0, Math.PI * 2);      ctx.strokeStyle = "rgb(255,235,120)";      ctx.lineWidth = 2 + pulse * 0.8;      ctx.shadowColor = "rgb(255,215,0)";      ctx.shadowBlur = 6 + pulse * 4;      ctx.stroke();      ctx.restore();    } else if (idx === moves.length - 1) {      ctx.strokeStyle = "rgb(239,68,68)";      ctx.lineWidth = 2;      ctx.beginPath();      ctx.arc(x, y, rad - 1, 0, Math.PI * 2);      ctx.stroke();    }    if (showNums) {      ctx.fillStyle = isWin        ? (m.color === "B" ? "rgb(254,240,138)" : "rgb(146,64,14)")        : (m.color === "B" ? "white" : "black");      ctx.font = "bold 9px sans-serif";      ctx.fillText(String(idx + 1), x, y);    }  });  if (winLine && winLine.length >= 5) {    const first = winLine[0];    const last = winLine[winLine.length - 1];    const x1 = Math.round(pad + first.c * cell);    const y1 = Math.round(pad + first.r * cell);    const x2 = Math.round(pad + last.c * cell);    const y2 = Math.round(pad + last.r * cell);    ctx.save();    ctx.beginPath();    ctx.moveTo(x1, y1);    ctx.lineTo(x2, y2);    ctx.strokeStyle = "rgb(255,235,120)";    ctx.lineWidth = 3.5 + pulse * 1.0;    ctx.lineCap = "round";    ctx.shadowColor = "rgb(255,215,0)";    ctx.shadowBlur = 8 + pulse * 4;    ctx.stroke();    ctx.restore();  }}let pointerStart = null;canvas.addEventListener("pointerdown", (e) => {  pointerStart = { x: e.clientX, y: e.clientY };});canvas.addEventListener("pointerup", (e) => {  if (!pointerStart) return;  const dx = e.clientX - pointerStart.x;  const dy = e.clientY - pointerStart.y;  pointerStart = null;  if (Math.hypot(dx, dy) > 10) return;  handleBoardTap(e.clientX, e.clientY);});function handleBoardTap(clientX, clientY) {  if (!gameStarted) {    setStatus("먼저 '새 대국' 버튼을 눌러 대국을 시작해 주세요.", true);    return;  }  if (spectateMode) {    setStatus("관전 모드 켜짐: 오목판을 직접 클릭할 수 없습니다. '수 입력'을 이용하세요.", true);    return;  }  if (gameOver) {    setStatus("종료된 상태입니다. 이전 수로 이동하거나 새 대국을 눌러주세요.", true);    return;  }  if (vsAiMode && !isReplaying) {    const next = (moves.length & 1) === 0 ? "B" : "W";    if (isAiThinking || next === aiSide) {      setStatus("AI가 다음 수를 생각 중입니다. 잠시만 기다려 주세요.", true);      return;    }  }  const rect = canvas.getBoundingClientRect();  const x = (clientX - rect.left) * (LOGICAL_W / rect.width);  const y = (clientY - rect.top) * (LOGICAL_H / rect.height);  const pad = 32;  const cell = (LOGICAL_W - pad * 2) / (SIZE - 1);  const c = Math.round((x - pad) / cell);  const r = Math.round((y - pad) / cell);  if (r >= 0 && r < SIZE && c >= 0 && c < SIZE) {    if (isReplaying) {      isBranching = true;    }    const next = (moves.length & 1) === 0 ? "B" : "W";    placeStone(next, r, c);  }}function placeStone(color, r, c) {  if (!gameStarted) {    setStatus("먼저 '새 대국' 버튼을 눌러 대국을 시작해 주세요.", true);    return false;  }  if (gameOver) {    setStatus("이미 종료된 상태입니다.", true);    return false;  }  const expectedColor = (moves.length & 1) === 0 ? "B" : "W";  if (color !== expectedColor) {    setStatus("현재는 " + (expectedColor === "B" ? "흑" : "백") + " 차례입니다.", true);    return false;  }  if (r < 0 || r >= SIZE || c < 0 || c >= SIZE) {    setStatus("좌표 범위를 벗어났습니다.", true);    return false;  }  if (board[r][c] !== null) {    setStatus("이미 돌이 놓인 자리입니다: " + toCoord(r, c), true);    return false;  }  if (color === "B") {    const foulName = isBlackFoul(board, r, c);    if (foulName) {      setStatus("금지수(" + foulName + ")입니다! 다른 곳에 두어 주세요.", true);      return false;    }  }  if (isReplaying) {    isBranching = true;  }  board[r][c] = color;  moves.push({ color, r, c });  playStoneSound();  const w = checkWin(r, c, color);  if (w) {    gameOver = true;    winLine = w;    winResultText = getPlayerLabel(color, "square") + " 승리 (" + moves.length + "수 오목 완성)";    startWinAnim();    playGameEndSound("win");  } else if (moves.length >= SIZE * SIZE) {    gameOver = true;    isDrawed = true;    winResultText = "만국(225수): 무승부로 대국이 종료되었습니다.";    playGameEndSound("end");  }  updateUI();  drawBoard();  if (gameOver) {    setStatus(winResultText, false);    if (!isReplaying) {      saveHist(isDrawed ? "무승부" : getPlayerLabel(color, "round") + " 승");    }  } else {    setStatus("착수 완료: " + color + ": (" + toCoord(r, c) + ")", false);    if (vsAiMode && !isReplaying) {      triggerAiMoveIfNeeded();    }  }  return true;}function parseCoord(str) {  const s = str.replace(/[()[\]]/g, "").trim().toUpperCase();  const m1 = s.match(/^([A-O])\s*(\d{1,2})$/);  if (m1) {    const c = COLS.indexOf(m1[1]);    const r = parseInt(m1[2], 10) - 1;    if (r >= 0 && r < SIZE && c >= 0 && c < SIZE) return { r, c };  }  const m2 = s.match(/^(\d{1,2})\s*[,/]\s*(\d{1,2})$/);  if (m2) {    const r = parseInt(m2[1], 10) - 1;    const c = parseInt(m2[2], 10) - 1;    if (r >= 0 && r < SIZE && c >= 0 && c < SIZE) return { r, c };  }  return null;}function parseKiboText(kiboStr) {  const list = [];  if (!kiboStr) return list;  const re = /([BW흑백])\s*[:：]?\s*\(?\s*([A-O]\s*\d{1,2}|\d{1,2}\s*[,，\s]\s*(\d{1,2}))\s*\)?/gi;  const matches = [...kiboStr.matchAll(re)];  for (const m of matches) {    const rawC = m[1].toUpperCase();    const color = (rawC === "B" || rawC === "흑") ? "B" : "W";    const p = parseCoord(m[2]);    if (p) {      list.push({ color, r: p.r, c: p.c });    }  }  return list;}function applyLog() {  if (!gameStarted) {    setStatus("먼저 '새 대국' 버튼을 눌러 대국을 시작해 주세요.", true);    return;  }  if (gameOver) {    setStatus("대국이 종료되어 수를 입력할 수 없습니다.", true);    return;  }  if (vsAiMode && !isReplaying && isAiThinking) {    setStatus("AI가 다음 수를 생각 중입니다. 잠시만 기다려 주세요.", true);    return;  }  const raw = document.getElementById("logInput").value.trim();  if (!raw) {    setStatus("좌표 로그를 입력해 주세요.", true);    return;  }  const re = /([BW흑백])\s*[:：]?\s*\(?\s*([A-O]\s*\d{1,2}|\d{1,2}\s*[,，\s]\s*(\d{1,2}))\s*\)?/gi;  const matches = [...raw.matchAll(re)];  let cnt = 0;  if (matches.length > 0) {    for (const m of matches) {      if (gameOver) break;      const rawC = m[1].toUpperCase();      const color = (rawC === "B" || rawC === "흑") ? "B" : "W";      const p = parseCoord(m[2]);      if (!p) {        setStatus("좌표 인식 실패: " + m[2], true);        return;      }      if (!placeStone(color, p.r, p.c)) return;      cnt++;    }  } else {    const p = parseCoord(raw);    if (p) {      const next = (moves.length & 1) === 0 ? "B" : "W";      if (placeStone(next, p.r, p.c)) cnt++;      else return;    } else {      setStatus("형식 오류. 예: B: (H8) 또는 W: (I9)", true);      return;    }  }  if (cnt > 0) {    document.getElementById("logInput").value = "";  }}function handleEnter(e) {  if (e.key === "Enter" && !e.shiftKey) {    e.preventDefault();    applyLog();  }}function updateUI() {  const noMoves = moves.length === 0;  const lockSetup = gameStarted || !noMoves || isReplaying || isAiThinking;  document.getElementById("swapBtn").disabled = lockSetup || (vsAiMode && gameStarted);  document.getElementById("editNameBtn").disabled = lockSetup;  document.getElementById("resetNameBtn").disabled = lockSetup;  if (lockSetup) {    document.getElementById("nameEditBox").style.display = "none";  }  let disableUndo = noMoves;  if (isReplaying) {    disableUndo = moves.length <= replayStep;  } else if (vsAiMode) {    if (isAiThinking) disableUndo = true;    else if (aiSide === "B" && moves.length <= 1 && !isResigned && !isDrawed) disableUndo = true;  }  document.getElementById("undoBtn").disabled = disableUndo;  const baseResignDisabled = noMoves || gameOver || isReplaying || isAiThinking;  document.getElementById("resignBBtn").disabled = baseResignDisabled || (vsAiMode && aiSide === "B");  document.getElementById("resignWBtn").disabled = baseResignDisabled || (vsAiMode && aiSide === "W");  document.getElementById("drawBtn").disabled = baseResignDisabled || vsAiMode;  document.getElementById("endGameBtn").disabled = !gameStarted && !isReplaying;  document.getElementById("copyKiboLastBtn").disabled = noMoves;  document.getElementById("copyKiboLineBtn").disabled = noMoves;  document.getElementById("copyKiboOneBtn").disabled = noMoves;  const hasStartedOrReplaying = (gameStarted || moves.length > 0 || isReplaying || isAiThinking);  document.getElementById("aiModeBtn").disabled = hasStartedOrReplaying;  document.getElementById("vsAiBtn").disabled = hasStartedOrReplaying;  const specBtn = document.getElementById("spectateBtn");  if (aiModeEnabled) {    specBtn.disabled = true;    specBtn.className = "btn-on";  } else if (vsAiMode) {    specBtn.disabled = true;    specBtn.className = "btn-off";  } else {    specBtn.disabled = hasStartedOrReplaying;    specBtn.className = spectateMode ? "btn-on" : "btn-off";  }  syncAiHintButtons();  updatePlayerBarLayout();  document.getElementById("mCount").textContent = String(moves.length);  const badge = document.getElementById("turnBadge");  const banner = document.getElementById("winBanner");  const replayPanel = document.getElementById("replayPanel");  const replayStatus = document.getElementById("replayStatus");  const bBadge = document.getElementById("bBadge");  const wBadge = document.getElementById("wBadge");  const next = (moves.length & 1) === 0 ? "B" : "W";  const showTurnHighlight = (gameStarted || isReplaying) && !gameOver;  if (bBadge && wBadge) {    bBadge.classList.toggle("active-turn", showTurnHighlight && next === "B");    wBadge.classList.toggle("active-turn", showTurnHighlight && next === "W");  }  replayPanel.style.display = isReplaying ? "flex" : "none";  if (isReplaying) {    if (isBranching) {      replayStatus.textContent = "복기 중 이어 두기 (기준: " + replayStep + "수)";      badge.textContent = gameOver        ? "이어 두기 종료"        : "이어 두기 " + (moves.length + 1) + "수째: " + getTurnPlayerText(next);    } else {      replayStatus.textContent = "복기 모드 (" + replayStep + " / " + allReplayMoves.length + "수)";      badge.textContent = "복기 모드 (" + replayStep + " / " + allReplayMoves.length + "수)";    }    badge.style.background = "rgb(254,243,199)";    badge.style.color = "rgb(146,64,14)";    if (gameOver && winResultText) {      banner.style.display = "block";      banner.textContent = winResultText;    } else {      banner.style.display = "none";    }  } else {    if (!gameStarted) {      badge.textContent = "대국 전 (새 대국을 눌러 시작)";      badge.style.background = "rgb(219,234,254)";      badge.style.color = "rgb(30,64,175)";      banner.style.display = "none";    } else if (gameOver) {      badge.textContent = "대국 종료";      badge.style.background = "rgb(254,243,199)";      badge.style.color = "rgb(146,64,14)";      banner.style.display = "block";      banner.textContent = winResultText;    } else {      badge.textContent = (moves.length + 1) + "수째: " + getTurnPlayerText(next);      badge.style.background = "rgb(219,234,254)";      badge.style.color = "rgb(30,64,175)";      banner.style.display = "none";    }  }  const kb = document.getElementById("kiboBox");  if (noMoves) {    kb.textContent = "아직 착수된 돌이 없습니다.";  } else {    kb.textContent = moves.map((m, i) => (i + 1) + ". " + m.color + ": (" + toCoord(m.r, m.c) + ") [" + players[m.color] + "]").join(NL);    kb.scrollTop = kb.scrollHeight;  }  updateAiAnalysisPanel();}async function resignGame(color, isAi = false) {  if (gameOver || moves.length === 0 || isReplaying) return;  if (!isAi && isAiThinking) return;  if (vsAiMode && color === aiSide) return;  const pName = players[color];  if (!isAi) {    const ok = await showCustomModal(pName + "님, 정말 기권하시겠습니까?", true);    if (!ok) return;  }  if (aiMoveTimer) {    clearTimeout(aiMoveTimer);    aiMoveTimer = null;  }  isAiThinking = false;  gameOver = true;  isResigned = true;  const wColor = color === "B" ? "W" : "B";  winResultText = getPlayerLabel(color, "square") + " 기권 - " + getPlayerLabel(wColor, "square") + " 승리";  playGameEndSound("end");  setStatus(winResultText, false);  if (!isReplaying) {    saveHist(getPlayerLabel(wColor, "round") + " 승");  }  updateUI();  drawBoard();}async function requestDraw() {  if (gameOver || moves.length === 0 || isReplaying || isAiThinking || vsAiMode) return;  const ok = await showCustomModal("양측 합의하에 무승부로 처리하시겠습니까?", true);  if (ok) {    if (aiMoveTimer) {      clearTimeout(aiMoveTimer);      aiMoveTimer = null;    }    isAiThinking = false;    gameOver = true;    isDrawed = true;    winResultText = "양측 합의: 무승부로 대국이 종료되었습니다.";    playGameEndSound("end");    setStatus(winResultText, false);    if (!isReplaying) {      saveHist("무승부");    }    updateUI();    drawBoard();  }}function undoMove() {  if (moves.length === 0 || isAiThinking) return;  if (isReplaying && moves.length <= replayStep) return;  if (!isReplaying && currentSavedId !== null) {    deleteHistoryItem(currentSavedId, true);    currentSavedId = null;  }  if (isResigned) {    gameOver = false;    isResigned = false;    winLine = null;    winResultText = "";    stopWinAnim();    updateUI();    drawBoard();    setStatus("기권이 취소되었습니다. 대국을 이어가세요.", false);    return;  }  if (isDrawed && winResultText.includes("합의")) {    gameOver = false;    isDrawed = false;    winResultText = "";    updateUI();    drawBoard();    setStatus("무승부가 취소되었습니다. 대국을 이어가세요.", false);    return;  }  if (vsAiMode && !isReplaying) {    const lastStone = moves[moves.length - 1];    if (lastStone.color === aiSide && moves.length >= 2) {      const aiLast = moves.pop();      board[aiLast.r][aiLast.c] = null;      const humanLast = moves.pop();      board[humanLast.r][humanLast.c] = null;      gameOver = false;      winLine = null;      winResultText = "";      stopWinAnim();      updateUI();      drawBoard();      setStatus("무르기 완료 (AI 및 내 착수 취소): " + toCoord(humanLast.r, humanLast.c), false);      return;    }  }  const last = moves.pop();  board[last.r][last.c] = null;  gameOver = false;  winLine = null;  winResultText = "";  stopWinAnim();  updateUI();  drawBoard();  setStatus("무르기 완료: " + toCoord(last.r, last.c), false);}function restoreActiveModePlayers() {  if (aiModeEnabled) {    players.B = aiSessionPlayers.B;    players.W = aiSessionPlayers.W;  } else if (vsAiMode) {    players.B = vsAiSessionPlayers.B;    players.W = vsAiSessionPlayers.W;  } else {    players.B = userCustomPlayers.B;    players.W = userCustomPlayers.W;  }}function endGame() {  if (!gameStarted && !isReplaying) return;  if (aiMoveTimer) {    clearTimeout(aiMoveTimer);    aiMoveTimer = null;  }  isAiThinking = false;  let savedUnfin = false;  if (gameStarted && !gameOver && moves.length > 0 && !isReplaying) {    saveUnfinished();    savedUnfin = true;  }  stopWinAnim();  board = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));  moves = [];  gameOver = false;  gameStarted = false;  winLine = null;  winResultText = "";  currentSavedId = null;  currentUnfinId = null;  isResigned = false;  isDrawed = false;  isReplaying = false;  isBranching = false;  allReplayMoves = [];  replayStep = 0;  restoreActiveModePlayers();  syncPlayerDOM();  document.getElementById("logInput").value = "";  updateUI();  drawBoard();  if (savedUnfin) {    setStatus("대국이 종료되었습니다. (진행 중이던 대국은 미완료 대국에 저장되었습니다.)", false);  } else {    setStatus("대국이 종료되어 대기 상태로 돌아왔습니다.", false);  }}function resetBoard() {  if (aiMoveTimer) {    clearTimeout(aiMoveTimer);    aiMoveTimer = null;  }  isAiThinking = false;  if (gameStarted && !gameOver && moves.length > 0 && !isReplaying) {    saveUnfinished();  }  stopWinAnim();  board = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));  moves = [];  gameOver = false;  gameStarted = true;  winLine = null;  winResultText = "";  currentSavedId = null;  currentUnfinId = null;  isResigned = false;  isDrawed = false;  if (isReplaying) {    isReplaying = false;    isBranching = false;  }  restoreActiveModePlayers();  if (aiModeEnabled) {    spectateMode = true;    document.getElementById("spectateBtn").className = "btn-on";  } else if (vsAiMode) {    spectateMode = false;    document.getElementById("spectateBtn").className = "btn-off";  }  syncPlayerDOM();  document.getElementById("logInput").value = "";  updateUI();  drawBoard();  setStatus("새 대국이 시작되었습니다. 착수해 주세요.", false);  if (vsAiMode) {    triggerAiMoveIfNeeded();  }}function checkWin(r, c, color) {  const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];  for (const [dr, dc] of dirs) {    const line = [{ r, c }];    let nr = r + dr, nc = c + dc;    while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === color) {      line.push({ r: nr, c: nc });      nr += dr;      nc += dc;    }    nr = r - dr;    nc = c - dc;    while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === color) {      line.unshift({ r: nr, c: nc });      nr -= dr;      nc -= dc;    }    if (line.length === 5) {      return line;    } else if (line.length > 5) {      if (color === "W") {        const lastIdx = line.findIndex(p => p.r === r && p.c === c);        const distFromStart = lastIdx;        const distFromEnd = (line.length - 1) - lastIdx;        if (distFromStart <= distFromEnd) {          const startIdx = Math.max(0, lastIdx - 4);          return line.slice(startIdx, startIdx + 5);        } else {          const endIdx = Math.min(line.length, lastIdx + 5);          return line.slice(endIdx - 5, endIdx);        }      }    }  }  return null;}function flashCopyBtn(btn) {  if (!btn) return;  if (!btn.dataset.origText) {    btn.dataset.origText = btn.textContent;  }  btn.textContent = "복사됨!";  btn.classList.add("btn-copied");  if (btn._copyTimer) clearTimeout(btn._copyTimer);  btn._copyTimer = setTimeout(() => {    btn.textContent = btn.dataset.origText;    btn.classList.remove("btn-copied");  }, 1200);}function fallbackCopyText(text) {  const ta = document.createElement("textarea");  ta.value = text;  ta.setAttribute("readonly", "");  ta.style.position = "fixed";  ta.style.top = "-9999px";  ta.style.left = "-9999px";  document.body.appendChild(ta);  ta.focus();  ta.select();  ta.setSelectionRange(0, text.length);  let ok = false;  try {    ok = document.execCommand("copy");  } catch (e) {}  document.body.removeChild(ta);  return ok;}function copyToClipboard(text, successMsg, btn) {  if (!text) {    setStatus("복사할 내용이 없습니다.", true);    return;  }  const onSuccess = () => {    setStatus(successMsg, false);    flashCopyBtn(btn);  };  const onFail = () => {    if (fallbackCopyText(text)) {      onSuccess();    } else {      setStatus("복사에 실패했습니다. 직접 선택해 복사해 주세요.", true);    }  };  if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {    navigator.clipboard.writeText(text).then(onSuccess).catch(onFail);  } else {    onFail();  }}function copyText(id, btn) {  const el = document.getElementById(id);  if (!el) return;  copyToClipboard(el.value, "시작 프롬프트가 복사되었습니다.", btn);}function copyLast(btn) {  if (moves.length === 0) {    setStatus("아직 착수된 돌이 없습니다.", true);    return;  }  const l = moves[moves.length - 1];  const t = l.color + ": (" + toCoord(l.r, l.c) + ")";  copyToClipboard(t, "마지막 수 복사 완료: " + t, btn);}function copyState(btn) {  if (moves.length === 0) {    const initSummary = "[현재 오목판 상태]" + NL +      "- 흑: 없음" + NL +      "- 백: 없음" + NL +      "- 직전 수: 없음" + NL +      "현재 빈 오목판입니다. 'B: (좌표)' 형식으로 첫 수를 답해줘.";    copyToClipboard(initSummary, "현재 판 상태 요약(초기 상태)이 복사되었습니다.", btn);    return;  }  const b = moves.filter(m => m.color === "B").map(m => toCoord(m.r, m.c)).join(", ");  const w = moves.filter(m => m.color === "W").map(m => toCoord(m.r, m.c)).join(", ");  const l = moves[moves.length - 1];  const s = "[현재 오목판 상태]" + NL +    "- 흑: " + (b || "없음") + NL +    "- 백: " + (w || "없음") + NL +    "- 직전 수: " + l.color + ": (" + toCoord(l.r, l.c) + ")" + NL +    "위 좌표는 이미 돌이 있으니 피해서 'B: (좌표)' 또는 'W: (좌표)' 형식으로 다음 수를 답해줘.";  copyToClipboard(s, "판 상태 요약이 복사되었습니다.", btn);}function copyKibo(one, btn) {  if (moves.length === 0) {    setStatus("아직 복사할 기보가 없습니다.", true);    return;  }  const t = moves.map(m => m.color + ": (" + toCoord(m.r, m.c) + ")").join(one ? ", " : NL);  copyToClipboard(t, (one ? "한 줄 기보" : "줄바꿈 기보") + "가 복사되었습니다.", btn);}function getHist() {  return histList;}function formatFullDate(timestamp) {  const d = new Date(timestamp);  const yyyy = d.getFullYear();  const mm = String(d.getMonth() + 1).padStart(2, '0');  const dd = String(d.getDate()).padStart(2, '0');  const timeStr = d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });  return yyyy + ". " + mm + ". " + dd + ". " + timeStr;}async function showFullDateModal(timestamp) {  await showCustomModal("전체 날짜 및 시간:" + NL + formatFullDate(timestamp), false);}function saveHist(res) {  if (isReplaying) return;  const newId = Date.now();  const record = {    id: newId,    timestamp: newId,    date: new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" }),    b: players.B,    w: players.W,    res,    cnt: moves.length,    kibo: moves.map(m => m.color + ": (" + toCoord(m.r, m.c) + ")").join(NL)  };  histList.unshift(record);  currentSavedId = newId;  saveStorageHist();  renderHist();}function renderHist() {  const h = getHist();  document.getElementById("clearHistBtn").disabled = h.length === 0;  let bWins = 0, wWins = 0, draws = 0;  h.forEach(x => {    if (x.res === "무승부") {      draws++;    } else if (x.res.includes("흑 승") || x.res.includes("(흑) 승")) {      bWins++;    } else if (x.res.includes("백 승") || x.res.includes("(백) 승")) {      wWins++;    } else {      if (x.res.includes(x.b)) bWins++;      else if (x.res.includes(x.w)) wWins++;      else bWins++;    }  });  document.getElementById("scoreBox").textContent = "흑: " + bWins + "승 | 백: " + wWins + "승 | 무승부: " + draws + "회";  const tb = document.getElementById("hBody");  if (h.length === 0) {    tb.innerHTML = "<tr><td colspan='5' style='text-align:center;color:rgb(107,114,128);'>저장된 대국 기록이 없습니다.</td></tr>";    return;  }  tb.innerHTML = h.map(x => {    const cleanRes = x.res.replace("(B)", "(흑)").replace("(W)", "(백)");    const ts = x.timestamp || x.id;    return "<tr>" +      "<td><div class='date-wrap'><span class='date-text'>" + x.date + "</span><button class='info-btn' onclick='showFullDateModal(" + ts + ")' title='상세 날짜 확인'>i</button></div></td>" +      "<td>" + x.b + "/" + x.w + "</td>" +      "<td>" + cleanRes + "</td>" +      "<td>" + x.cnt + "수</td>" +      "<td><button onclick='loadHist(" + x.id + ")'>복기</button> <button class='btn-danger' onclick='deleteHistoryItem(" + x.id + ", false)'>삭제</button></td>" +    "</tr>";  }).join("");}function getUnfin() {  return unfinList;}function saveUnfinished() {  if (isReplaying) return;  const newId = Date.now();  const record = {    id: newId,    timestamp: newId,    date: new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" }),    b: players.B,    w: players.W,    vsAiMode: vsAiMode,    aiSide: aiSide,    aiModeEnabled: aiModeEnabled,    spectateMode: spectateMode,    cnt: moves.length,    kibo: moves.map(m => m.color + ": (" + toCoord(m.r, m.c) + ")").join(NL)  };  unfinList.unshift(record);  saveStorageUnfin();  renderUnfin();}function renderUnfin() {  const unfin = getUnfin();  document.getElementById("clearUnfinBtn").disabled = unfin.length === 0;  const tb = document.getElementById("unfinBody");  if (unfin.length === 0) {    tb.innerHTML = "<tr><td colspan='4' style='text-align:center;color:rgb(107,114,128);'>저장된 미완료 대국이 없습니다.</td></tr>";    return;  }  tb.innerHTML = unfin.map(x => {    const ts = x.timestamp || x.id;    return "<tr>" +      "<td><div class='date-wrap'><span class='date-text'>" + x.date + "</span><button class='info-btn' onclick='showFullDateModal(" + ts + ")' title='상세 날짜 확인'>i</button></div></td>" +      "<td>" + x.b + "/" + x.w + "</td>" +      "<td>" + x.cnt + "수</td>" +      "<td><button onclick='loadUnfin(" + x.id + ")'>이어 두기</button> <button class='btn-danger' onclick='deleteUnfin(" + x.id + ", false)'>삭제</button></td>" +    "</tr>";  }).join("");}function loadUnfin(id) {  const unfin = getUnfin();  const item = unfin.find(x => x.id === id);  if (!item) return;  if (aiMoveTimer) {    clearTimeout(aiMoveTimer);    aiMoveTimer = null;  }  isAiThinking = false;  if (gameStarted && !gameOver && moves.length > 0 && !isReplaying) {    saveUnfinished();  }  stopWinAnim();  board = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));  moves = [];  gameOver = false;  gameStarted = true;  winLine = null;  winResultText = "";  isReplaying = false;  isBranching = false;  allReplayMoves = [];  replayStep = 0;  isResigned = false;  isDrawed = false;  currentUnfinId = item.id;  players.B = item.b;  players.W = item.w;  vsAiMode = Boolean(item.vsAiMode);  aiSide = item.aiSide || "W";  aiModeEnabled = Boolean(item.aiModeEnabled);  spectateMode = Boolean(item.spectateMode);  if (vsAiMode) {    vsAiSessionPlayers = { B: players.B, W: players.W };  } else if (aiModeEnabled) {    aiSessionPlayers = { B: players.B, W: players.W };  } else {    userCustomPlayers = { B: players.B, W: players.W };  }  document.getElementById("vsAiBtn").className = (vsAiMode ? "btn-on" : "btn-off") + " btn-right";  document.getElementById("aiModeBtn").className = aiModeEnabled ? "btn-on" : "btn-off";  document.getElementById("promptCard").style.display = aiModeEnabled ? "block" : "none";  document.getElementById("spectateBtn").className = spectateMode ? "btn-on" : "btn-off";  syncPlayerDOM();  document.getElementById("logInput").value = "";  const parsedMoves = parseKiboText(item.kibo);  parsedMoves.forEach(m => {    board[m.r][m.c] = m.color;    moves.push({ color: m.color, r: m.r, c: m.c });  });  deleteUnfin(id, true);  updateUI();  drawBoard();  setStatus("미완료 대국을 불러왔습니다. 이어서 두세요.", false);  if (vsAiMode) {    triggerAiMoveIfNeeded();  }}async function deleteUnfin(id, silent) {  if (!silent) {    const ok = await showCustomModal("정말로 삭제하시겠습니까?", true);    if (!ok) return;  }  unfinList = unfinList.filter(x => x.id !== id);  saveStorageUnfin();  renderUnfin();  if (!silent) setStatus("미완료 대국이 삭제되었습니다.", false);}async function clearUnfinished() {  if (unfinList.length === 0) return;  const ok = await showCustomModal("정말로 삭제하시겠습니까?", true);  if (!ok) return;  unfinList = [];  saveStorageUnfin();  renderUnfin();  setStatus("모든 미완료 대국이 삭제되었습니다.", false);}function renderReplayBoard(playSfx) {  stopWinAnim();  board = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));  moves = allReplayMoves.slice(0, replayStep).map(m => ({ color: m.color, r: m.r, c: m.c }));  moves.forEach(m => {    board[m.r][m.c] = m.color;  });  gameOver = false;  winLine = null;  winResultText = "";  isResigned = false;  isDrawed = false;  if (moves.length > 0) {    const last = moves[moves.length - 1];    const w = checkWin(last.r, last.c, last.color);    if (w) {      gameOver = true;      winLine = w;      winResultText = getPlayerLabel(last.color, "square") + " 승리 (" + moves.length + "수 오목 완성)";      startWinAnim();      if (playSfx) playGameEndSound("win");    } else if (playSfx) {      playStoneSound();    }  }  updateUI();  drawBoard();}function loadHist(id) {  const item = getHist().find(x => x.id === id);  if (!item) return;  if (aiMoveTimer) {    clearTimeout(aiMoveTimer);    aiMoveTimer = null;  }  isAiThinking = false;  if (gameStarted && !gameOver && moves.length > 0 && !isReplaying) {    saveUnfinished();  }  stopWinAnim();  players.B = item.b;  players.W = item.w;  syncPlayerDOM();  document.getElementById("logInput").value = "";  allReplayMoves = parseKiboText(item.kibo);  isReplaying = true;  isBranching = false;  gameStarted = true;  currentSavedId = null;  replayStep = 0;  spectateMode = false;  document.getElementById("spectateBtn").className = "btn-off";  renderReplayBoard(true);  setStatus("복기 모드 시작: 엔진 분석 결과가 적용되었습니다.", false);}function replayFirst() {  if (!isReplaying) return;  isBranching = false;  replayStep = 0;  document.getElementById("logInput").value = "";  renderReplayBoard(true);  setStatus("복기 처음 상태(" + replayStep + "수)로 돌아왔습니다.", false);}function replayPrev() {  if (!isReplaying) return;  if (replayStep <= 0) return;  isBranching = false;  replayStep--;  document.getElementById("logInput").value = "";  renderReplayBoard(true);  setStatus("복기: " + replayStep + "수째 상태", false);}function replayNext() {  if (!isReplaying) return;  if (replayStep >= allReplayMoves.length) return;  isBranching = false;  replayStep++;  document.getElementById("logInput").value = "";  renderReplayBoard(true);  setStatus("복기: " + replayStep + "수째 상태", false);}function resumePlay() {  if (!isReplaying) return;  renderReplayBoard(false);  if (gameOver) {    setStatus("이미 오목이 완성된 수순입니다. 이전 수로 이동한 뒤 이어 두세요.", true);    return;  }  isBranching = true;  document.getElementById("logInput").value = "";  updateUI();  drawBoard();  setStatus(replayStep + "수째 상태에서 이어 둡니다. (기록에는 저장되지 않습니다)", false);}async function deleteHistoryItem(id, silent) {  if (!silent) {    const ok = await showCustomModal("정말로 삭제하시겠습니까?", true);    if (!ok) return;  }  histList = histList.filter(h => h.id !== id);  saveStorageHist();  renderHist();  if (!silent) setStatus("대국 기록이 삭제되었습니다.", false);}async function clearHist() {  if (histList.length === 0) return;  const ok = await showCustomModal("정말로 삭제하시겠습니까?", true);  if (!ok) return;  histList = [];  currentSavedId = null;  saveStorageHist();  renderHist();  setStatus("모든 대국 기록이 삭제되었습니다.", false);}function setStatus(m, err) {  const el = document.getElementById("statusMsg");  el.textContent = m;  el.className = "status " + (err ? "err" : "ok");}function downloadHTML() {  const html = initialHTMLSnapshot || ('<!DOCTYPE html>' + NL + '<html lang="ko">' + document.documentElement.innerHTML + '</html>');  const blob = new Blob([html], { type: "text/html;charset=utf-8" });  const a = document.createElement("a");  a.href = URL.createObjectURL(blob);  a.download = "오목.html";  document.body.appendChild(a);  a.click();  document.body.removeChild(a);}updatePlayerBarLayout();updatePrompts();drawBoard();initialHTMLSnapshot = '<!DOCTYPE html>' + NL + '<html lang="ko">' + document.documentElement.innerHTML + '</html>';renderHist();renderUnfin();if ('serviceWorker' in navigator) {  window.addEventListener('load', () => {    navigator.serviceWorker.register('sw.js').catch(() => {});  });}</script></body></html>
+흑돌의 첫 수를 알려주면 대국을 시작하자. 준비됐으면 짧게 대답해 줘.</textarea>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>
+      <span>현재 기보 (<span id="mCount">0</span>수)</span>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;">
+        <button onclick="copyLast(this)" id="copyKiboLastBtn" disabled="">마지막 수 복사</button>
+        <button onclick="copyKibo(false, this)" id="copyKiboLineBtn" disabled="">줄바꿈 복사</button>
+        <button onclick="copyKibo(true, this)" id="copyKiboOneBtn" disabled="">한 줄 복사</button>
+      </div>
+    </h2>
+    <div id="kiboBox" class="kibo">아직 착수된 돌이 없습니다.</div>
+  </div>
+  <div class="card">
+    <h2>
+      <span>종료되지 않은 대국</span>
+      <button class="btn-danger" id="clearUnfinBtn" onclick="clearUnfinished()" disabled="">전체 삭제</button>
+    </h2>
+    <div class="h-list">
+      <table>
+        <thead>
+          <tr>
+            <th>저장 일시</th>
+            <th>흑/백</th>
+            <th>진행 수순</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody id="unfinBody"><tr><td colspan="4" style="text-align:center;color:rgb(107,114,128);">저장된 미완료 대국이 없습니다.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <h2>
+      <span>대국 기록</span>
+      <button class="btn-danger" id="clearHistBtn" onclick="clearHist()" disabled="">전체 삭제</button>
+    </h2>
+    <div class="score" id="scoreBox">흑: 0승 | 백: 0승 | 무승부: 0회</div>
+    <div class="h-list">
+      <table>
+        <thead>
+          <tr>
+            <th>일시</th>
+            <th>흑/백</th>
+            <th>결과</th>
+            <th>수순</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody id="hBody"><tr><td colspan="5" style="text-align:center;color:rgb(107,114,128);">저장된 대국 기록이 없습니다.</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="top-dl" style="margin-top:0;">
+      <span>스마트폰에 파일로 보관하려면:</span>
+      <button class="btn-pri" onclick="downloadHTML()">파일로 저장 (오목.html)</button>
+    </div>
+  </div>
+</div>
+<script>
+let modalResolve = null;
+function showCustomModal(text, isConfirm = true) {
+  return new Promise((resolve) => {
+    modalResolve = resolve;
+    document.getElementById("customModalText").textContent = text;
+    const cancelBtn = document.getElementById("customModalCancelBtn");
+    cancelBtn.style.display = isConfirm ? "inline-block" : "none";
+    document.getElementById("customModalOverlay").style.display = "flex";
+  });
+}
+function closeCustomModal(result) {
+  document.getElementById("customModalOverlay").style.display = "none";
+  if (modalResolve) {
+    modalResolve(result);
+    modalResolve = null;
+  }
+}
+
+const SIZE = 15;
+const COLS = "ABCDEFGHIJKLMNO";
+const NL = String.fromCharCode(10);
+const canvas = document.getElementById("boardCanvas");
+const ctx = canvas.getContext("2d");
+const LOGICAL_W = 450;
+const LOGICAL_H = 450;
+let currentDpr = 2;
+
+function initCanvasResolution() {
+  currentDpr = Math.min(2, Math.max(1.5, window.devicePixelRatio || 1));
+  canvas.style.maxWidth = LOGICAL_W + "px";
+  canvas.width = Math.round(LOGICAL_W * currentDpr);
+  canvas.height = Math.round(LOGICAL_H * currentDpr);
+  ctx.setTransform(currentDpr, 0, 0, currentDpr, 0, 0);
+}
+initCanvasResolution();
+
+const STORAGE_KEY_HIST = "omok_saved_hist";
+const STORAGE_KEY_UNFIN = "omok_saved_unfin";
+
+function loadStorageHist() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_HIST);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+function saveStorageHist() {
+  try {
+    localStorage.setItem(STORAGE_KEY_HIST, JSON.stringify(histList));
+  } catch (e) {}
+}
+function loadStorageUnfin() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_UNFIN);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+function saveStorageUnfin() {
+  try {
+    localStorage.setItem(STORAGE_KEY_UNFIN, JSON.stringify(unfinList));
+  } catch (e) {}
+}
+
+let board = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));
+let moves = [];
+let players = { B: "흑", W: "백" };
+let userCustomPlayers = { B: "흑", W: "백" };
+let aiSessionPlayers = { B: "Gemini", W: "ChatGPT" };
+let vsAiSessionPlayers = { B: "흑", W: "AI" };
+let showNums = true;
+let soundEnabled = true;
+let showAiHints = true;
+let spectateMode = false;
+let aiModeEnabled = false;
+let vsAiMode = false;
+let aiSide = "W";
+let isAiThinking = false;
+let aiMoveTimer = null;
+let gameOver = false;
+let gameStarted = false;
+let winLine = null;
+let winResultText = "";
+let animId = null;
+let glowPhase = 0;
+let currentSavedId = null;
+let currentUnfinId = null;
+let isReplaying = false;
+let isBranching = false;
+let allReplayMoves = [];
+let replayStep = 0;
+let isResigned = false;
+let isDrawed = false;
+let histList = loadStorageHist();
+let unfinList = loadStorageUnfin();
+let currentRecommendations = [];
+let initialHTMLSnapshot = "";
+
+window.addEventListener("beforeunload", () => {
+  if (gameStarted && !gameOver && moves.length > 0 && !isReplaying) {
+    saveUnfinished();
+  }
+});
+
+function limitInputLength(element, maxLength) {
+  if (element.value.length > maxLength) {
+    element.value = element.value.slice(0, maxLength);
+  }
+}
+
+function getPlayerLabel(color, bracketType) {
+  const name = players[color];
+  const cKor = color === "B" ? "흑" : "백";
+  if (name === cKor) return name;
+  return bracketType === "square" ? name + " [" + cKor + "]" : name + " (" + cKor + ")";
+}
+
+function getTurnPlayerText(color) {
+  const cKor = color === "B" ? "흑" : "백";
+  const pName = players[color];
+  if (!pName || pName === cKor) return cKor + " 차례";
+  return cKor + " (" + pName + ") 차례";
+}
+
+let audioCtx = null;
+function getAudioCtx() {
+  if (!audioCtx) {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) audioCtx = new AC();
+  }
+  if (audioCtx && audioCtx.state === "suspended") {
+    audioCtx.resume();
+  }
+  return audioCtx;
+}
+
+function playStoneSound() {
+  if (!soundEnabled) return;
+  try {
+    const ac = getAudioCtx();
+    if (!ac) return;
+    const now = ac.currentTime;
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(320, now);
+    osc.frequency.exponentialRampToValueAtTime(95, now + 0.045);
+    gain.gain.setValueAtTime(0.45, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
+    osc.connect(gain);
+    gain.connect(ac.destination);
+    osc.start(now);
+    osc.stop(now + 0.06);
+
+    const clickOsc = ac.createOscillator();
+    const clickGain = ac.createGain();
+    clickOsc.type = "sine";
+    clickOsc.frequency.setValueAtTime(1400, now);
+    clickOsc.frequency.exponentialRampToValueAtTime(280, now + 0.018);
+    clickGain.gain.setValueAtTime(0.25, now);
+    clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
+    clickOsc.connect(clickGain);
+    clickGain.connect(ac.destination);
+    clickOsc.start(now);
+    clickOsc.stop(now + 0.022);
+  } catch (e) {}
+}
+
+function playErrorSound() {
+  if (!soundEnabled) return;
+  try {
+    const ac = getAudioCtx();
+    if (!ac) return;
+    const now = ac.currentTime;
+    const osc = ac.createOscillator();
+    const gain = ac.createGain();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(180, now);
+    osc.frequency.setValueAtTime(140, now + 0.08);
+    gain.gain.setValueAtTime(0.22, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+    osc.connect(gain);
+    gain.connect(ac.destination);
+    osc.start(now);
+    osc.stop(now + 0.21);
+  } catch (e) {}
+}
+
+function playToggleOnSound() {
+  if (!soundEnabled) return;
+  try {
+    const ac = getAudioCtx();
+    if (!ac) return;
+    const now = ac.currentTime;
+    const notes = [523.25, 659.25, 783.99];
+    notes.forEach((freq, idx) => {
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      const start = now + idx * 0.07;
+      const dur = 0.15;
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, start);
+      gain.gain.setValueAtTime(0.001, start);
+      gain.gain.linearRampToValueAtTime(0.2, start + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.start(start);
+      osc.stop(start + dur + 0.02);
+    });
+  } catch (e) {}
+}
+
+function playToggleOffSound(forcePlay = false) {
+  if (!soundEnabled && !forcePlay) return;
+  try {
+    const ac = getAudioCtx();
+    if (!ac) return;
+    const now = ac.currentTime;
+    const notes = [659.25, 523.25, 392.00];
+    notes.forEach((freq, idx) => {
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      const start = now + idx * 0.07;
+      const dur = 0.15;
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, start);
+      gain.gain.setValueAtTime(0.001, start);
+      gain.gain.linearRampToValueAtTime(0.18, start + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+      osc.connect(gain);
+      gain.connect(ac.destination);
+      osc.start(start);
+      osc.stop(start + dur + 0.02);
+    });
+  } catch (e) {}
+}
+
+function playGameEndSound(type) {
+  if (!soundEnabled) return;
+  try {
+    const ac = getAudioCtx();
+    if (!ac) return;
+    const now = ac.currentTime;
+    if (type === "win") {
+      const notes = [523.25, 659.25, 783.99, 1046.50];
+      notes.forEach((freq, idx) => {
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        const start = now + idx * 0.09;
+        const dur = idx === notes.length - 1 ? 0.45 : 0.18;
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.001, start);
+        gain.gain.linearRampToValueAtTime(0.3, start + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+        osc.connect(gain);
+        gain.connect(ac.destination);
+        osc.start(start);
+        osc.stop(start + dur + 0.02);
+      });
+    } else {
+      const notes = [440, 329.63];
+      notes.forEach((freq, idx) => {
+        const osc = ac.createOscillator();
+        const gain = ac.createGain();
+        const start = now + idx * 0.14;
+        const dur = 0.3;
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.25, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+        osc.connect(gain);
+        gain.connect(ac.destination);
+        osc.start(start);
+        osc.stop(start + dur + 0.02);
+      });
+    }
+  } catch (e) {}
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  const btn = document.getElementById("soundBtn");
+  if (soundEnabled) {
+    btn.className = "btn-on";
+    playToggleOnSound();
+    setStatus("효과음이 켜졌습니다.", false);
+  } else {
+    btn.className = "btn-off";
+    playToggleOffSound(true);
+    setStatus("효과음이 꺼졌습니다.", false);
+  }
+}
+
+function syncAiHintButtons() {
+  const replayBtn = document.getElementById("aiHintBtn");
+  const specBtn = document.getElementById("spectateAiHintBtn");
+  const cls = showAiHints ? "btn-on" : "btn-off";
+  if (replayBtn) replayBtn.className = cls;
+  if (specBtn) specBtn.className = cls;
+}
+
+function toggleAiHint() {
+  showAiHints = !showAiHints;
+  syncAiHintButtons();
+  if (showAiHints) {
+    playToggleOnSound();
+    setStatus("AI 추천 수 표시가 켜졌습니다.", false);
+  } else {
+    playToggleOffSound();
+    setStatus("AI 추천 수 표시가 꺼졌습니다.", false);
+  }
+  updateAiAnalysisPanel();
+  drawBoard();
+}
+
+function toggleNums() {
+  showNums = !showNums;
+  const btn = document.getElementById("numBtn");
+  btn.className = showNums ? "btn-on" : "btn-off";
+  if (showNums) {
+    playToggleOnSound();
+    setStatus("수순 표시가 켜졌습니다.", false);
+  } else {
+    playToggleOffSound();
+    setStatus("수순 표시가 꺼졌습니다.", false);
+  }
+  drawBoard();
+}
+
+function toggleAiMode() {
+  if (gameStarted || moves.length > 0 || isReplaying) return;
+  document.getElementById("nameEditBox").style.display = "none";
+  const btn = document.getElementById("aiModeBtn");
+  const pCard = document.getElementById("promptCard");
+  const sBtn = document.getElementById("spectateBtn");
+  const vsBtn = document.getElementById("vsAiBtn");
+  if (!aiModeEnabled) {
+    if (vsAiMode) {
+      vsAiMode = false;
+      vsBtn.className = "btn-off btn-right";
+      players.B = userCustomPlayers.B;
+      players.W = userCustomPlayers.W;
+    } else {
+      userCustomPlayers = { B: players.B, W: players.W };
+    }
+    aiModeEnabled = true;
+    btn.className = "btn-on";
+    pCard.style.display = "block";
+    playToggleOnSound();
+    aiSessionPlayers = { B: "Gemini", W: "ChatGPT" };
+    players.B = "Gemini";
+    players.W = "ChatGPT";
+    spectateMode = true;
+    sBtn.className = "btn-on";
+    syncPlayerDOM();
+    drawBoard();
+    setStatus("AI 모드(Gemini vs ChatGPT) 및 관전 모드가 켜졌습니다.", false);
+  } else {
+    aiModeEnabled = false;
+    btn.className = "btn-off";
+    pCard.style.display = "none";
+    playToggleOffSound();
+    players.B = userCustomPlayers.B;
+    players.W = userCustomPlayers.W;
+    spectateMode = false;
+    sBtn.className = "btn-off";
+    syncPlayerDOM();
+    drawBoard();
+    setStatus("AI 모드가 꺼졌습니다.", false);
+  }
+}
+
+function toggleVsAiMode() {
+  if (gameStarted || moves.length > 0 || isReplaying) return;
+  document.getElementById("nameEditBox").style.display = "none";
+  const vsBtn = document.getElementById("vsAiBtn");
+  const aiBtn = document.getElementById("aiModeBtn");
+  const pCard = document.getElementById("promptCard");
+  const sBtn = document.getElementById("spectateBtn");
+  if (!vsAiMode) {
+    if (aiModeEnabled) {
+      aiModeEnabled = false;
+      aiBtn.className = "btn-off";
+      pCard.style.display = "none";
+      players.B = userCustomPlayers.B;
+      players.W = userCustomPlayers.W;
+    } else {
+      userCustomPlayers = { B: players.B, W: players.W };
+    }
+    spectateMode = false;
+    sBtn.className = "btn-off";
+    vsAiMode = true;
+    aiSide = "W";
+    vsBtn.className = "btn-on btn-right";
+    playToggleOnSound();
+    players.B = userCustomPlayers.B;
+    players.W = "AI";
+    vsAiSessionPlayers = { B: players.B, W: "AI" };
+    syncPlayerDOM();
+    drawBoard();
+    setStatus("AI와 대국 모드가 켜졌습니다. '새 대국'을 누르면 자체 AI와 대국합니다.", false);
+  } else {
+    vsAiMode = false;
+    vsBtn.className = "btn-off btn-right";
+    playToggleOffSound();
+    players.B = userCustomPlayers.B;
+    players.W = userCustomPlayers.W;
+    syncPlayerDOM();
+    drawBoard();
+    setStatus("AI와 대국 모드가 꺼졌습니다.", false);
+  }
+}
+
+function toggleSpectate() {
+  if (gameStarted || moves.length > 0 || isReplaying || aiModeEnabled || vsAiMode) return;
+  spectateMode = !spectateMode;
+  const btn = document.getElementById("spectateBtn");
+  if (spectateMode) {
+    btn.className = "btn-on";
+    playToggleOnSound();
+    setStatus("관전 모드가 켜졌습니다. 오목판을 직접 클릭할 수 없으며, 수 입력으로만 진행됩니다.", false);
+  } else {
+    btn.className = "btn-off";
+    playToggleOffSound();
+    setStatus("관전 모드가 해제되었습니다.", false);
+  }
+  updateAiAnalysisPanel();
+  drawBoard();
+}
+
+function syncNameEditInputs() {
+  const bInput = document.getElementById("bNameInput");
+  const wInput = document.getElementById("wNameInput");
+  const hint = document.getElementById("nameEditHint");
+  if (!bInput || !wInput) return;
+  bInput.value = players.B;
+  wInput.value = players.W;
+  if (vsAiMode) {
+    if (aiSide === "B") {
+      bInput.disabled = true;
+      bInput.value = "AI";
+      wInput.disabled = false;
+    } else {
+      bInput.disabled = false;
+      wInput.disabled = true;
+      wInput.value = "AI";
+    }
+    if (hint) hint.textContent = "이름은 최대 7자까지 가능합니다. (AI의 이름은 수정할 수 없습니다.)";
+  } else {
+    bInput.disabled = false;
+    wInput.disabled = false;
+    if (hint) hint.textContent = "이름은 최대 7자까지 가능합니다.";
+  }
+}
+
+function toggleNameEdit() {
+  if (gameStarted || moves.length > 0 || isReplaying) {
+    setStatus("대국 시작 후에는 이름을 수정할 수 없습니다.", true);
+    return;
+  }
+  const box = document.getElementById("nameEditBox");
+  const isHidden = box.style.display === "" || box.style.display === "none";
+  if (isHidden) {
+    syncNameEditInputs();
+    box.style.display = "flex";
+    if (vsAiMode && aiSide === "B") {
+      document.getElementById("wNameInput").focus();
+    } else {
+      document.getElementById("bNameInput").focus();
+    }
+  } else {
+    box.style.display = "none";
+  }
+}
+
+function resetPlayerNames() {
+  if (gameStarted || moves.length > 0 || isReplaying) {
+    setStatus("대국 시작 후에는 이름을 초기화할 수 없습니다.", true);
+    return;
+  }
+  document.getElementById("nameEditBox").style.display = "none";
+  if (aiModeEnabled) {
+    players.B = "Gemini";
+    players.W = "ChatGPT";
+    aiSessionPlayers = { B: "Gemini", W: "ChatGPT" };
+    syncPlayerDOM();
+    drawBoard();
+    setStatus("AI 플레이어 이름이 초기화되었습니다: Gemini vs ChatGPT", false);
+  } else if (vsAiMode) {
+    aiSide = "W";
+    players.B = "흑";
+    players.W = "AI";
+    vsAiSessionPlayers = { B: "흑", W: "AI" };
+    userCustomPlayers = { B: "흑", W: "백" };
+    syncPlayerDOM();
+    drawBoard();
+    setStatus("AI와 대국 이름이 초기화되었습니다: 흑 vs AI", false);
+  } else {
+    players.B = "흑";
+    players.W = "백";
+    userCustomPlayers = { B: "흑", W: "백" };
+    syncPlayerDOM();
+    drawBoard();
+    setStatus("플레이어 이름이 초기화되었습니다: 흑 vs 백", false);
+  }
+}
+
+function updatePrompts() {
+  const bText = "오목 대국을 하자." + NL +
+    "15x15 오목판(가로 A~O, 세로 1~15, 중앙 H8)을 사용한다." + NL +
+    "너는 흑돌(B, 선공)이고 상대는 백돌(W, 후공)이다." + NL +
+    "렌주룰을 적용하여 흑돌은 쌍삼(3-3), 쌍사(4-4), 장목(6목 이상)이 금지되며 정확히 5목만 승리한다." + NL +
+    "상대 착수를 'W: (좌표)'로 알려주면 중복과 금수를 피해 다음 수를 둔다." + NL +
+    "답변은 설명 없이 첫 줄에 반드시 아래 형식으로만 출력한다." + NL +
+    "B: (H8)" + NL + NL + "첫 수를 착수해 줘.";
+  const wText = "오목 대국을 하자." + NL +
+    "15x15 오목판(가로 A~O, 세로 1~15, 중앙 H8)을 사용한다." + NL +
+    "상대는 흑돌(B, 선공)이고 너는 백돌(W, 후공)이다." + NL +
+    "렌주룰을 적용하여 흑돌은 쌍삼(3-3), 쌍사(4-4), 장목(6목 이상)이 금지되며, 백돌은 금수가 없다." + NL +
+    "흑돌 착수를 'B: (좌표)'로 알려주면 중복을 피해 다음 수를 둔다." + NL +
+    "답변은 설명 없이 첫 줄에 반드시 아래 형식으로만 출력한다." + NL +
+    "W: (I8)" + NL + NL + "흑돌의 첫 수를 알려주면 대국을 시작하자. 준비됐으면 짧게 대답해 줘.";
+  const bEl = document.getElementById("bPrompt");
+  const wEl = document.getElementById("wPrompt");
+  bEl.value = bText;
+  bEl.textContent = bText;
+  wEl.value = wText;
+  wEl.textContent = wText;
+}
+
+function updatePlayerBarLayout() {
+  const bar = document.getElementById("playersBar");
+  if (!bar) return;
+  const totalLen = (players.B ? players.B.length : 0) + (players.W ? players.W.length : 0);
+  if (totalLen >= 8) {
+    bar.classList.add("long-names");
+  } else {
+    bar.classList.remove("long-names");
+  }
+}
+
+function syncPlayerDOM() {
+  document.getElementById("bName").textContent = players.B;
+  document.getElementById("wName").textContent = players.W;
+  document.getElementById("pBTitle").textContent = players.B;
+  document.getElementById("pWTitle").textContent = players.W;
+  updatePlayerBarLayout();
+  updatePrompts();
+  renderHist();
+  updateUI();
+}
+
+function applyPlayerNames() {
+  if (vsAiMode) {
+    if (aiSide === "W") {
+      const newB = document.getElementById("bNameInput").value.trim() || "흑";
+      players.B = newB;
+      players.W = "AI";
+      userCustomPlayers.B = newB;
+    } else {
+      const newW = document.getElementById("wNameInput").value.trim() || "백";
+      players.B = "AI";
+      players.W = newW;
+      userCustomPlayers.W = newW;
+    }
+    vsAiSessionPlayers = { B: players.B, W: players.W };
+  } else if (aiModeEnabled) {
+    const newB = document.getElementById("bNameInput").value.trim() || "Gemini";
+    const newW = document.getElementById("wNameInput").value.trim() || "ChatGPT";
+    players.B = newB;
+    players.W = newW;
+    aiSessionPlayers = { B: newB, W: newW };
+  } else {
+    const newB = document.getElementById("bNameInput").value.trim() || "흑";
+    const newW = document.getElementById("wNameInput").value.trim() || "백";
+    players.B = newB;
+    players.W = newW;
+    userCustomPlayers = { B: newB, W: newW };
+  }
+  document.getElementById("nameEditBox").style.display = "none";
+  syncPlayerDOM();
+  setStatus("플레이어 이름이 수정되었습니다: 흑(" + players.B + ") vs 백(" + players.W + ")", false);
+}
+
+// --- 렌주룰 (흑돌 쌍삼, 쌍사, 장목 금지) 정밀 판별 함수 ---
+function getCellState(bState, r, c) {
+  if (r < 0 || r >= SIZE || c < 0 || c >= SIZE) return "OUT";
+  return bState[r][c]; // "B", "W", or null
+}
+
+function getContiguousBlackCount(bState, r, c, dr, dc) {
+  let count = 1;
+  let nr = r + dr, nc = c + dc;
+  while (getCellState(bState, nr, nc) === "B") {
+    count++;
+    nr += dr;
+    nc += dc;
+  }
+  nr = r - dr;
+  nc = c - dc;
+  while (getCellState(bState, nr, nc) === "B") {
+    count++;
+    nr -= dr;
+    nc -= dc;
+  }
+  return count;
+}
+
+// 특정 방향(dr, dc)에서 (r, c)를 포함하는 독립적인 '4(Four)'의 개수를 반환
+function countFoursInDirection(bState, r, c, dr, dc) {
+  const stoneSets = new Set();
+  // (r, c)를 포함하는 길이 5의 모든 윈도우(시작 오프셋 s: -4 ~ 0)를 검사
+  for (let s = -4; s <= 0; s++) {
+    let bCoords = [];
+    let emptyCount = 0;
+    let validWindow = true;
+
+    for (let k = 0; k < 5; k++) {
+      const nr = r + (s + k) * dr;
+      const nc = c + (s + k) * dc;
+      const cell = getCellState(bState, nr, nc);
+      if (cell === "B") {
+        bCoords.push(nr + "," + nc);
+      } else if (cell === null) {
+        emptyCount++;
+      } else {
+        validWindow = false;
+        break;
+      }
+    }
+
+    if (!validWindow || bCoords.length !== 4 || emptyCount !== 1) continue;
+
+    // 5칸 윈도우 양 바깥쪽 칸이 흑돌이면 빈칸을 채웠을 때 6목 이상(장목)이 되므로 유효한 4가 아님
+    const beforeCell = getCellState(bState, r + (s - 1) * dr, c + (s - 1) * dc);
+    const afterCell = getCellState(bState, r + (s + 5) * dr, c + (s + 5) * dc);
+    if (beforeCell === "B" || afterCell === "B") continue;
+
+    // 동일한 4개의 흑돌로 이루어진 열린4(.BBBB.)는 2개의 윈도우에서 잡히지만 1개의 4로 취급
+    stoneSets.add(bCoords.join("|"));
+  }
+  return stoneSets.size;
+}
+
+// (r, c)와 (tr, tc)를 모두 포함하면서 양 끝이 열린 진짜 '열린 4(.BBBB.)'가 형성되었는지 확인
+function formsStraightFourWith(bState, r, c, tr, tc, dr, dc) {
+  for (let s = -3; s <= 0; s++) {
+    let allBlack = true;
+    let hasOrig = false;
+    let hasTarget = false;
+
+    for (let k = 0; k < 4; k++) {
+      const nr = r + (s + k) * dr;
+      const nc = c + (s + k) * dc;
+      if (getCellState(bState, nr, nc) !== "B") {
+        allBlack = false;
+        break;
+      }
+      if (nr === r && nc === c) hasOrig = true;
+      if (nr === tr && nc === tc) hasTarget = true;
+    }
+
+    if (!allBlack || !hasOrig || !hasTarget) continue;
+
+    // 4칸 연속 흑돌의 양 끝 바로 옆 칸이 모두 빈칸이어야 함
+    const leftEmptyR = r + (s - 1) * dr, leftEmptyC = c + (s - 1) * dc;
+    const rightEmptyR = r + (s + 4) * dr, rightEmptyC = c + (s + 4) * dc;
+    if (getCellState(bState, leftEmptyR, leftEmptyC) !== null) continue;
+    if (getCellState(bState, rightEmptyR, rightEmptyC) !== null) continue;
+
+    // 양 끝 빈칸에 두었을 때 각각 장목(6목 이상)이 되지 않고 정확히 5목이 되어야 열린 4로 인정
+    const leftOuter = getCellState(bState, r + (s - 2) * dr, c + (s - 2) * dc);
+    const rightOuter = getCellState(bState, r + (s + 5) * dr, c + (s + 5) * dc);
+    if (leftOuter === "B" || rightOuter === "B") continue;
+
+    return true;
+  }
+  return false;
+}
+
+// 특정 방향(dr, dc)에서 (r, c)에 착수했을 때 '열린 3(Open Three)'이 되는지 확인
+function hasOpenThreeInDirection(bState, r, c, dr, dc, depth) {
+  // 이미 이 방향에서 4 이상이 만들어졌다면 열린 3이 아님
+  if (countFoursInDirection(bState, r, c, dr, dc) > 0) return false;
+  if (getContiguousBlackCount(bState, r, c, dr, dc) >= 5) return false;
+
+  // (r, c) 주변 -3 ~ +3 이내의 빈칸 중 하나에 흑돌을 추가했을 때 진짜 열린 4(.BBBB.)가 되는지 검사
+  for (let offset = -3; offset <= 3; offset++) {
+    if (offset === 0) continue;
+    const tr = r + offset * dr;
+    const tc = c + offset * dc;
+    if (getCellState(bState, tr, tc) !== null) continue;
+
+    bState[tr][tc] = "B";
+    const isStraight4 = formsStraightFourWith(bState, r, c, tr, tc, dr, dc);
+    bState[tr][tc] = null;
+
+    if (isStraight4) {
+      // 열린 4를 만드는 다음 수(tr, tc) 자체가 금수 자리면 유효한 열린 3으로 치지 않음
+      if (depth < 2 && getForbiddenReason(bState, tr, tc, depth + 1) !== null) {
+        continue;
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
+function getForbiddenReason(bState, r, c, depth = 0) {
+  if (bState[r][c] !== null) return null;
+  bState[r][c] = "B";
+
+  const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
+  let hasExact5 = false;
+  let hasOverline = false;
+
+  for (const [dr, dc] of dirs) {
+    const cnt = getContiguousBlackCount(bState, r, c, dr, dc);
+    if (cnt === 5) hasExact5 = true;
+    else if (cnt >= 6) hasOverline = true;
+  }
+
+  // 렌주룰 우선순위 1: 정확히 5목이 완성되면 금수(3-3, 4-4, 다른 방향 장목)를 무시하고 즉시 승리 허용
+  if (hasExact5) {
+    bState[r][c] = null;
+    return null;
+  }
+
+  // 렌주룰 우선순위 2: 6목 이상(장목) 금지
+  if (hasOverline) {
+    bState[r][c] = null;
+    return "장목(6목 이상)";
+  }
+
+  // 렌주룰 우선순위 3: 쌍사(4-4) 금지
+  let totalFours = 0;
+  for (const [dr, dc] of dirs) {
+    totalFours += countFoursInDirection(bState, r, c, dr, dc);
+  }
+  if (totalFours >= 2) {
+    bState[r][c] = null;
+    return "쌍사(4-4)";
+  }
+
+  // 렌주룰 우선순위 4: 쌍삼(3-3) 금지
+  let totalOpenThrees = 0;
+  for (const [dr, dc] of dirs) {
+    if (hasOpenThreeInDirection(bState, r, c, dr, dc, depth)) {
+      totalOpenThrees++;
+    }
+  }
+
+  bState[r][c] = null;
+
+  if (totalOpenThrees >= 2) {
+    return "쌍삼(3-3)";
+  }
+
+  return null;
+}
+
+function evaluateLinePattern(bState, r, c, dr, dc, color) {
+  let count = 1;
+  let openEnds = 0;
+  let nr = r + dr, nc = c + dc;
+  while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === color) {
+    count++;
+    nr += dr;
+    nc += dc;
+  }
+  if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === null) {
+    openEnds++;
+  }
+  nr = r - dr;
+  nc = c - dc;
+  while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === color) {
+    count++;
+    nr -= dr;
+    nc -= dc;
+  }
+  if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] === null) {
+    openEnds++;
+  }
+  if (color === "B" && count > 5) return { score: 0, tag: "장목(금수)" };
+  if (count >= 5) return { score: 10000000, tag: "5목 완성" };
+  if (count === 4) {
+    if (openEnds >= 2) return { score: 6000000, tag: "열린4(필승)" };
+    if (openEnds === 1) return { score: 5000000, tag: "4목(즉시 승리 위협)" };
+  }
+  if (count === 3) {
+    if (openEnds >= 2) return { score: 120000, tag: "열린3(강력한 선공)" };
+    if (openEnds === 1) return { score: 15000, tag: "닫힌3" };
+  }
+  if (count === 2) {
+    if (openEnds >= 2) return { score: 3000, tag: "열린2" };
+    if (openEnds === 1) return { score: 400, tag: "닫힌2" };
+  }
+  return { score: 20, tag: "연결" };
+}
+
+function getMaxThreatForColor(bState, color) {
+  let maxScore = 0;
+  let bestTag = "";
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      if (bState[r][c] === color) {
+        const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
+        for (const [dr, dc] of dirs) {
+          const res = evaluateLinePattern(bState, r, c, dr, dc, color);
+          if (res.score > maxScore) {
+            maxScore = res.score;
+            bestTag = res.tag;
+          }
+        }
+      }
+    }
+  }
+  return { maxScore, bestTag };
+}
+
+function evaluateBoardState(bState, nextTurn) {
+  let scoreB = 0;
+  let scoreW = 0;
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      const stone = bState[r][c];
+      if (!stone) continue;
+      const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
+      let maxPointScore = 0;
+      for (const [dr, dc] of dirs) {
+        const res = evaluateLinePattern(bState, r, c, dr, dc, stone);
+        if (res.score > maxPointScore) maxPointScore = res.score;
+      }
+      if (stone === "B") scoreB += maxPointScore;
+      else scoreW += maxPointScore;
+    }
+  }
+  const tB = getMaxThreatForColor(bState, "B");
+  const tW = getMaxThreatForColor(bState, "W");
+  if (nextTurn === "B") scoreB = Math.round(scoreB * 1.05);
+  else scoreW = Math.round(scoreW * 1.05);
+  const rawDiff = Math.round((scoreB - scoreW) / 5000);
+  const winProbB = Math.min(99, Math.max(1, Math.round(50 + 49 * Math.tanh((scoreB - scoreW) / 300000))));
+  let comment = "팽팽한 균형 상태입니다.";
+  if (tB.maxScore >= 10000000) comment = "흑 오목 완성!";
+  else if (tW.maxScore >= 10000000) comment = "백 오목 완성!";
+  else if (tW.maxScore >= 5000000) comment = "백 4목 완성 (즉시 방어 필요!)";
+  else if (tB.maxScore >= 5000000) comment = "흑 4목 완성 (즉시 방어 필요!)";
+  else if (winProbB >= 75) comment = "흑 주도권 압도 (" + tB.bestTag + ")";
+  else if (winProbB <= 25) comment = "백 주도권 압도 (" + tW.bestTag + ")";
+  else if (winProbB >= 56) comment = "흑 미세한 우세";
+  else if (winProbB <= 44) comment = "백 미세한 우세";
+  return { diff: rawDiff, winProbB, winProbW: 100 - winProbB, comment };
+}
+
+function getRecommendedMoves(bState, nextColor, topN = 3) {
+  let hasStone = false;
+  for (let r = 0; r < SIZE && !hasStone; r++) {
+    for (let c = 0; c < SIZE && !hasStone; c++) {
+      if (bState[r][c] !== null) hasStone = true;
+    }
+  }
+  if (!hasStone) {
+    return [
+      { r: 7, c: 7, coord: "H8", score: 100000, reason: "천원(중앙 첫 수)" },
+      { r: 7, c: 8, coord: "I8", score: 95000, reason: "중앙 인접 제어" },
+      { r: 8, c: 8, coord: "I9", score: 90000, reason: "중앙 대각 포석" }
+    ].slice(0, topN);
+  }
+  const oppColor = nextColor === "B" ? "W" : "B";
+  const candidates = [];
+  for (let r = 0; r < SIZE; r++) {
+    for (let c = 0; c < SIZE; c++) {
+      if (bState[r][c] !== null) continue;
+      let near = false;
+      for (let dr = -2; dr <= 2 && !near; dr++) {
+        for (let dc = -2; dc <= 2 && !near; dc++) {
+          const nr = r + dr, nc = c + dc;
+          if (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && bState[nr][nc] !== null) {
+            near = true;
+          }
+        }
+      }
+      if (!near) continue;
+
+      // 흑 차례일 때 금수 자리는 추천 및 AI 후보에서 제외
+      if (nextColor === "B" && getForbiddenReason(bState, r, c)) {
+        continue;
+      }
+
+      bState[r][c] = nextColor;
+      let myMaxScore = 0;
+      let mySumScore = 0;
+      let myTag = "일반 전개";
+      const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
+      for (const [dr, dc] of dirs) {
+        const res = evaluateLinePattern(bState, r, c, dr, dc, nextColor);
+        mySumScore += res.score;
+        if (res.score > myMaxScore) {
+          myMaxScore = res.score;
+          myTag = res.tag;
+        }
+      }
+      bState[r][c] = null;
+
+      let oppMaxScore = 0;
+      let oppSumScore = 0;
+      if (!(oppColor === "B" && getForbiddenReason(bState, r, c))) {
+        bState[r][c] = oppColor;
+        for (const [dr, dc] of dirs) {
+          const res = evaluateLinePattern(bState, r, c, dr, dc, oppColor);
+          oppSumScore += res.score;
+          if (res.score > oppMaxScore) {
+            oppMaxScore = res.score;
+          }
+        }
+        bState[r][c] = null;
+      }
+
+      let totalScore = myMaxScore * 1.3 + mySumScore * 0.25 + oppMaxScore * 1.8 + oppSumScore * 0.25;
+      let reason = myTag;
+      if (myMaxScore >= 10000000) {
+        totalScore += 50000000;
+        reason = "승리 결정수(5목 완성)";
+      } else if (oppMaxScore >= 10000000) {
+        totalScore += 45000000;
+        reason = "상대 5목 절대 방어";
+      } else if (myMaxScore >= 6000000) {
+        totalScore += 35000000;
+        reason = "열린4 필승 공격";
+      } else if (oppMaxScore >= 5000000) {
+        totalScore += 30000000;
+        reason = "상대 4목 긴급 방어";
+      } else if (myMaxScore >= 5000000) {
+        totalScore += 20000000;
+        reason = "4목 공격";
+      } else if (oppMaxScore >= 120000) {
+        totalScore += 10000000;
+        reason = "상대 열린3 긴급 차단";
+      } else if (myMaxScore >= 120000) {
+        reason = "열린3 확장";
+      }
+      const distCenter = Math.abs(r - 7) + Math.abs(c - 7);
+      totalScore += Math.max(0, 30 - distCenter * 2);
+      candidates.push({
+        r,
+        c,
+        coord: toCoord(r, c),
+        score: totalScore,
+        reason
+      });
+    }
+  }
+  candidates.sort((a, b) => b.score - a.score);
+  return candidates.slice(0, topN);
+}
+
+function chooseBuiltInAiMove(bState, aiColor) {
+  if (moves.length === 0) {
+    return { r: 7, c: 7 };
+  }
+  if (moves.length === 1) {
+    const first = moves[0];
+    const offsets = [[-1, -1], [-1, 1], [1, -1], [1, 1], [-1, 0], [1, 0], [0, -1], [0, 1]];
+    const valid = [];
+    for (const [dr, dc] of offsets) {
+      const nr = first.r + dr, nc = first.c + dc;
+      if (nr >= 2 && nr < SIZE - 2 && nc >= 2 && nc < SIZE - 2 && bState[nr][nc] === null) {
+        valid.push({ r: nr, c: nc });
+      }
+    }
+    if (valid.length > 0) {
+      valid.sort((a, b) => (Math.abs(a.r - 7) + Math.abs(a.c - 7)) - (Math.abs(b.r - 7) + Math.abs(b.c - 7)));
+      const topPool = valid.slice(0, Math.min(4, valid.length));
+      return topPool[Math.floor(Math.random() * topPool.length)];
+    }
+  }
+  const cands = getRecommendedMoves(bState, aiColor, 6);
+  if (cands.length === 0) {
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        if (bState[r][c] === null && !(aiColor === "B" && getForbiddenReason(bState, r, c))) {
+          return { r, c };
+        }
+      }
+    }
+    return null;
+  }
+  if (cands[0].score >= 30000000) {
+    return { r: cands[0].r, c: cands[0].c };
+  }
+  const oppColor = aiColor === "B" ? "W" : "B";
+  let bestMove = cands[0];
+  let bestVal = -Infinity;
+  for (const cand of cands) {
+    bState[cand.r][cand.c] = aiColor;
+    const oppReplies = getRecommendedMoves(bState, oppColor, 1);
+    const oppThreat = oppReplies.length > 0 ? oppReplies[0].score : 0;
+    bState[cand.r][cand.c] = null;
+    const combined = cand.score - oppThreat * 0.35;
+    if (combined > bestVal) {
+      bestVal = combined;
+      bestMove = cand;
+    }
+  }
+  return { r: bestMove.r, c: bestMove.c };
+}
+
+function triggerAiMoveIfNeeded() {
+  if (!vsAiMode || !gameStarted || gameOver || isReplaying) return;
+  const next = (moves.length & 1) === 0 ? "B" : "W";
+  if (next !== aiSide) return;
+  isAiThinking = true;
+  updateUI();
+  setStatus("AI가 다음 수를 생각 중입니다...", false);
+  if (aiMoveTimer) clearTimeout(aiMoveTimer);
+  const delay = 700;
+  aiMoveTimer = setTimeout(() => {
+    aiMoveTimer = null;
+    if (!vsAiMode || !gameStarted || gameOver || isReplaying) {
+      isAiThinking = false;
+      updateUI();
+      return;
+    }
+    const move = chooseBuiltInAiMove(board, aiSide);
+    isAiThinking = false;
+    if (move) {
+      placeStone(aiSide, move.r, move.c);
+    }
+  }, delay);
+}
+
+function updateAiAnalysisPanel() {
+  const panel = document.getElementById("aiEvalPanel");
+  const specHintBtn = document.getElementById("spectateAiHintBtn");
+  if (!isReplaying && !spectateMode) {
+    panel.style.display = "none";
+    if (specHintBtn) specHintBtn.style.display = "none";
+    currentRecommendations = [];
+    return;
+  }
+  panel.style.display = "flex";
+  if (!isReplaying && spectateMode) {
+    document.getElementById("evalTitle").textContent = "관전 모드 AI 실시간 분석";
+    if (specHintBtn) {
+      specHintBtn.style.display = "inline-block";
+      specHintBtn.className = showAiHints ? "btn-on" : "btn-off";
+    }
+  } else {
+    document.getElementById("evalTitle").textContent = "복기 모드 AI 딥 엔진 분석";
+    if (specHintBtn) {
+      specHintBtn.style.display = "none";
+    }
+  }
+  const nextColor = (moves.length & 1) === 0 ? "B" : "W";
+  const evalRes = evaluateBoardState(board, nextColor);
+  const sign = evalRes.diff > 0 ? "+" : "";
+  const advText = evalRes.diff > 50 ? "흑 우세" : (evalRes.diff < -50 ? "백 우세" : "균형");
+  document.getElementById("evalScoreBadge").textContent =
+    "평가치: " + sign + evalRes.diff.toLocaleString() + " (" + advText + ")";
+  const barB = document.getElementById("evalBarB");
+  const barW = document.getElementById("evalBarW");
+  barB.style.width = evalRes.winProbB + "%";
+  barB.textContent = "흑 " + evalRes.winProbB + "%";
+  barW.textContent = "백 " + evalRes.winProbW + "%";
+  document.getElementById("evalComment").textContent = evalRes.comment;
+  const recBox = document.getElementById("recMovesBox");
+  const compareEl = document.getElementById("evalActualCompare");
+  if (gameOver) {
+    currentRecommendations = [];
+    recBox.innerHTML = "<span style='font-size:0.78rem;color:rgb(107,114,128);'>대국이 종료된 수순입니다.</span>";
+    compareEl.textContent = "";
+    return;
+  }
+  currentRecommendations = getRecommendedMoves(board, nextColor, 3);
+  const nextKor = nextColor === "B" ? "흑" : "백";
+  if (!showAiHints) {
+    recBox.innerHTML = "<span style='font-size:0.78rem;color:rgb(107,114,128);'>추천 수 표시가 꺼져 있습니다.</span>";
+  } else {
+    recBox.innerHTML =
+      "<strong style='font-size:0.78rem;color:rgb(31,41,55);'>" + nextKor + " 추천 수:</strong> " +
+      currentRecommendations.map((rec, idx) => {
+        const cls = idx === 0 ? "rec-chip rank1" : "rec-chip";
+        const clickAction = spectateMode ? "showCustomModal('관전 모드에서는 직접 둘 수 없습니다. 수 입력을 사용해 주세요.', false)" : "playRecommendedMove(" + rec.r + "," + rec.c + ")";
+        return '<span class="' + cls + '" onclick="' + clickAction + '" title="AI 추천 좌표">' +
+          (idx + 1) + "순위 " + rec.coord + " (" + rec.reason + ")" +
+          "</span>";
+      }).join("");
+  }
+  if (!isReplaying && spectateMode) {
+    compareEl.textContent = showAiHints ? "관전 중 실시간 추천 수 표시 중" : "관전 중 (추천 표시 꺼짐)";
+  } else if (!isBranching && replayStep < allReplayMoves.length) {
+    const actualNext = allReplayMoves[replayStep];
+    const actualCoord = toCoord(actualNext.r, actualNext.c);
+    const matchIdx = currentRecommendations.findIndex(x => x.r === actualNext.r && x.c === actualNext.c);
+    if (matchIdx === 0) {
+      compareEl.innerHTML = "<strong style='color:rgb(5,150,105);'>실전 다음 수: " + actualCoord + " (AI 1순위 일치!)</strong>";
+    } else if (matchIdx > 0) {
+      compareEl.innerHTML = "<strong style='color:rgb(37,99,235);'>실전 다음 수: " + actualCoord + " (AI " + (matchIdx + 1) + "순위)</strong>";
+    } else {
+      compareEl.textContent = "실전 다음 수: " + actualCoord;
+    }
+  } else {
+    compareEl.textContent = "";
+  }
+}
+
+function playRecommendedMove(r, c) {
+  if (!isReplaying || gameOver) return;
+  isBranching = true;
+  const next = (moves.length & 1) === 0 ? "B" : "W";
+  placeStone(next, r, c);
+}
+
+function toCoord(r, c) {
+  return COLS[c] + (r + 1);
+}
+
+function startWinAnim() {
+  if (animId) cancelAnimationFrame(animId);
+  function loop() {
+    if (!gameOver || !winLine) {
+      animId = null;
+      return;
+    }
+    glowPhase += 0.12;
+    drawBoard();
+    animId = requestAnimationFrame(loop);
+  }
+  animId = requestAnimationFrame(loop);
+}
+
+function stopWinAnim() {
+  if (animId) {
+    cancelAnimationFrame(animId);
+    animId = null;
+  }
+}
+
+function swapPlayers() {
+  if (gameStarted || moves.length > 0 || isReplaying) {
+    setStatus("대국 시작 후에는 흑백을 교체할 수 없습니다.", true);
+    return;
+  }
+  if (vsAiMode) {
+    const oldHumanSide = aiSide === "B" ? "W" : "B";
+    let humanName = players[oldHumanSide];
+    aiSide = aiSide === "B" ? "W" : "B";
+    const newHumanSide = aiSide === "B" ? "W" : "B";
+    if (oldHumanSide === "B" && humanName === "흑") humanName = "백";
+    else if (oldHumanSide === "W" && humanName === "백") humanName = "흑";
+    players[aiSide] = "AI";
+    players[newHumanSide] = humanName;
+    vsAiSessionPlayers = { B: players.B, W: players.W };
+  } else if (aiModeEnabled) {
+    const t = players.B;
+    players.B = players.W;
+    players.W = t;
+    aiSessionPlayers = { B: players.B, W: players.W };
+  } else {
+    const t = players.B;
+    players.B = players.W;
+    players.W = t;
+    userCustomPlayers = { B: players.B, W: players.W };
+  }
+  if (document.getElementById("nameEditBox").style.display === "flex") {
+    syncNameEditInputs();
+  }
+  syncPlayerDOM();
+  setStatus("흑백이 교체되었습니다.", false);
+}
+
+function isWinningStone(r, c) {
+  if (!winLine) return false;
+  return winLine.some(p => p.r === r && p.c === c);
+}
+
+function drawBoard() {
+  ctx.clearRect(0, 0, LOGICAL_W, LOGICAL_H);
+  const pad = 32;
+  const cell = (LOGICAL_W - pad * 2) / (SIZE - 1);
+  ctx.strokeStyle = "rgb(60, 42, 14)";
+  ctx.lineWidth = 1.5;
+  ctx.fillStyle = "rgb(50, 35, 10)";
+  ctx.font = "bold 10px sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  for (let i = 0; i < SIZE; i++) {
+    const p = Math.round(pad + i * cell);
+    ctx.beginPath();
+    ctx.moveTo(pad, p);
+    ctx.lineTo(LOGICAL_W - pad, p);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(p, pad);
+    ctx.lineTo(p, LOGICAL_H - pad);
+    ctx.stroke();
+    ctx.fillText(COLS[i], p, 13);
+    ctx.fillText(COLS[i], p, LOGICAL_H - 13);
+    ctx.fillText(String(i + 1), 13, p);
+    ctx.fillText(String(i + 1), LOGICAL_W - 13, p);
+  }
+  const stars = [[3, 3], [3, 11], [7, 7], [11, 3], [11, 11]];
+  stars.forEach(([r, c]) => {
+    ctx.beginPath();
+    ctx.arc(Math.round(pad + c * cell), Math.round(pad + r * cell), 3.5, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // 흑 차례일 때 금수 자리(쌍삼, 쌍사, 장목) X 표시
+  const nextTurn = (moves.length & 1) === 0 ? "B" : "W";
+  if ((gameStarted || isReplaying) && !gameOver && nextTurn === "B") {
+    for (let r = 0; r < SIZE; r++) {
+      for (let c = 0; c < SIZE; c++) {
+        if (board[r][c] === null && getForbiddenReason(board, r, c)) {
+          const x = Math.round(pad + c * cell);
+          const y = Math.round(pad + r * cell);
+          const s = cell * 0.22;
+          ctx.save();
+          ctx.strokeStyle = "rgba(220, 38, 38, 0.85)";
+          ctx.lineWidth = 2.2;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.moveTo(x - s, y - s);
+          ctx.lineTo(x + s, y + s);
+          ctx.moveTo(x + s, y - s);
+          ctx.lineTo(x - s, y + s);
+          ctx.stroke();
+          ctx.restore();
+        }
+      }
+    }
+  }
+
+  if ((isReplaying || spectateMode) && showAiHints && !gameOver && currentRecommendations.length > 0) {
+    currentRecommendations.forEach((rec, idx) => {
+      const x = Math.round(pad + rec.c * cell);
+      const y = Math.round(pad + rec.r * cell);
+      const rad = cell * 0.41;
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x, y, rad, 0, Math.PI * 2);
+      if (idx === 0) {
+        ctx.fillStyle = "rgba(16, 185, 129, 0.32)";
+        ctx.strokeStyle = "rgb(5, 150, 105)";
+        ctx.lineWidth = 2.2;
+      } else {
+        ctx.fillStyle = "rgba(59, 130, 246, 0.24)";
+        ctx.strokeStyle = "rgb(37, 99, 235)";
+        ctx.lineWidth = 1.6;
+      }
+      ctx.setLineDash([3, 2]);
+      ctx.fill();
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = idx === 0 ? "rgb(6, 95, 70)" : "rgb(30, 64, 175)";
+      ctx.font = "bold 9px sans-serif";
+      ctx.fillText(idx === 0 ? "★1" : String(idx + 1), x, y);
+      ctx.restore();
+    });
+  }
+
+  const pulse = (Math.sin(glowPhase) + 1) / 2;
+  moves.forEach((m, idx) => {
+    const x = Math.round(pad + m.c * cell);
+    const y = Math.round(pad + m.r * cell);
+    const rad = cell * 0.44;
+    const isWin = isWinningStone(m.r, m.c);
+
+    // 3D 입체 오목알 렌더링
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, rad, 0, Math.PI * 2);
+
+    const grad = ctx.createRadialGradient(
+      x - rad / 3, y - rad / 3, rad / 10,
+      x, y, rad
+    );
+    if (m.color === "B") {
+      grad.addColorStop(0, "#555");
+      grad.addColorStop(1, "#000");
+    } else {
+      grad.addColorStop(0, "#fff");
+      grad.addColorStop(1, "#ccc");
+    }
+
+    if (isWin) {
+      ctx.shadowColor = "rgb(255,235,120)";
+      ctx.shadowBlur = 4 + pulse * 4;
+      ctx.shadowOffsetX = 0;
+      ctx.shadowOffsetY = 0;
+    } else {
+      ctx.shadowColor = m.color === "B" ? "rgba(0,0,0,0.5)" : "rgba(0,0,0,0.3)";
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetX = 1.5;
+      ctx.shadowOffsetY = 1.5;
+    }
+
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.restore();
+
+    if (isWin) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x, y, rad + 1.5, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgb(255,235,120)";
+      ctx.lineWidth = 2 + pulse * 0.8;
+      ctx.shadowColor = "rgb(255,215,0)";
+      ctx.shadowBlur = 6 + pulse * 4;
+      ctx.stroke();
+      ctx.restore();
+    } else if (idx === moves.length - 1) {
+      ctx.save();
+      ctx.strokeStyle = "rgb(239,68,68)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(x, y, rad - 1, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    if (showNums) {
+      ctx.save();
+      ctx.fillStyle = isWin
+        ? (m.color === "B" ? "rgb(254,240,138)" : "rgb(146,64,14)")
+        : (m.color === "B" ? "white" : "black");
+      ctx.font = "bold 9px sans-serif";
+      ctx.fillText(String(idx + 1), x, y);
+      ctx.restore();
+    }
+  });
+
+  if (winLine && winLine.length >= 5) {
+    const first = winLine[0];
+    const last = winLine[winLine.length - 1];
+    const x1 = Math.round(pad + first.c * cell);
+    const y1 = Math.round(pad + first.r * cell);
+    const x2 = Math.round(pad + last.c * cell);
+    const y2 = Math.round(pad + last.r * cell);
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.strokeStyle = "rgb(255,235,120)";
+    ctx.lineWidth = 3.5 + pulse * 1.0;
+    ctx.lineCap = "round";
+    ctx.shadowColor = "rgb(255,215,0)";
+    ctx.shadowBlur = 8 + pulse * 4;
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+let pointerStart = null;
+canvas.addEventListener("pointerdown", (e) => {
+  pointerStart = { x: e.clientX, y: e.clientY };
+});
+canvas.addEventListener("pointerup", (e) => {
+  if (!pointerStart) return;
+  const dx = e.clientX - pointerStart.x;
+  const dy = e.clientY - pointerStart.y;
+  pointerStart = null;
+  if (Math.hypot(dx, dy) > 10) return;
+  handleBoardTap(e.clientX, e.clientY);
+});
+
+function handleBoardTap(clientX, clientY) {
+  if (!gameStarted) {
+    setStatus("먼저 '새 대국' 버튼을 눌러 대국을 시작해 주세요.", true);
+    return;
+  }
+  if (spectateMode) {
+    setStatus("관전 모드 켜짐: 오목판을 직접 클릭할 수 없습니다. '수 입력'을 이용하세요.", true);
+    return;
+  }
+  if (gameOver) {
+    setStatus("종료된 상태입니다. 이전 수로 이동하거나 새 대국을 눌러주세요.", true);
+    return;
+  }
+  if (vsAiMode && !isReplaying) {
+    const next = (moves.length & 1) === 0 ? "B" : "W";
+    if (isAiThinking || next === aiSide) {
+      setStatus("AI가 다음 수를 생각 중입니다. 잠시만 기다려 주세요.", true);
+      return;
+    }
+  }
+  const rect = canvas.getBoundingClientRect();
+  const x = (clientX - rect.left) * (LOGICAL_W / rect.width);
+  const y = (clientY - rect.top) * (LOGICAL_H / rect.height);
+  const pad = 32;
+  const cell = (LOGICAL_W - pad * 2) / (SIZE - 1);
+  const c = Math.round((x - pad) / cell);
+  const r = Math.round((y - pad) / cell);
+  if (r >= 0 && r < SIZE && c >= 0 && c < SIZE) {
+    if (isReplaying) {
+      isBranching = true;
+    }
+    const next = (moves.length & 1) === 0 ? "B" : "W";
+    placeStone(next, r, c);
+  }
+}
+
+function placeStone(color, r, c) {
+  if (!gameStarted) {
+    setStatus("먼저 '새 대국' 버튼을 눌러 대국을 시작해 주세요.", true);
+    return false;
+  }
+  if (gameOver) {
+    setStatus("이미 종료된 상태입니다.", true);
+    return false;
+  }
+  const expectedColor = (moves.length & 1) === 0 ? "B" : "W";
+  if (color !== expectedColor) {
+    setStatus("현재는 " + (expectedColor === "B" ? "흑" : "백") + " 차례입니다.", true);
+    return false;
+  }
+  if (r < 0 || r >= SIZE || c < 0 || c >= SIZE) {
+    setStatus("좌표 범위를 벗어났습니다.", true);
+    return false;
+  }
+  if (board[r][c] !== null) {
+    setStatus("이미 돌이 놓인 자리입니다: " + toCoord(r, c), true);
+    return false;
+  }
+
+  // 흑돌 렌주룰 금수(쌍삼, 쌍사, 장목) 검사
+  if (color === "B") {
+    const forbiddenReason = getForbiddenReason(board, r, c);
+    if (forbiddenReason) {
+      playErrorSound();
+      const josa = forbiddenReason === "쌍사(4-4)" ? "는" : "은";
+      setStatus(forbiddenReason + josa + " 금지수입니다. 다른 수를 두어 주세요.", true);
+      return false;
+    }
+  }
+
+  if (isReplaying) {
+    isBranching = true;
+  }
+  board[r][c] = color;
+  moves.push({ color, r, c });
+  playStoneSound();
+  const w = checkWin(r, c, color);
+  if (w) {
+    gameOver = true;
+    winLine = w;
+    winResultText = getPlayerLabel(color, "square") + " 승리 (" + moves.length + "수 오목 완성)";
+    startWinAnim();
+    playGameEndSound("win");
+  } else if (moves.length >= SIZE * SIZE) {
+    gameOver = true;
+    isDrawed = true;
+    winResultText = "만국(225수): 무승부로 대국이 종료되었습니다.";
+    playGameEndSound("end");
+  }
+  updateUI();
+  drawBoard();
+  if (gameOver) {
+    setStatus(winResultText, false);
+    if (!isReplaying) {
+      saveHist(isDrawed ? "무승부" : getPlayerLabel(color, "round") + " 승");
+    }
+  } else {
+    setStatus("착수 완료: " + color + ": (" + toCoord(r, c) + ")", false);
+    if (vsAiMode && !isReplaying) {
+      triggerAiMoveIfNeeded();
+    }
+  }
+  return true;
+}
+
+function parseCoord(str) {
+  const s = str.replace(/[()[\]]/g, "").trim().toUpperCase();
+  const m1 = s.match(/^([A-O])\s*(\d{1,2})$/);
+  if (m1) {
+    const c = COLS.indexOf(m1[1]);
+    const r = parseInt(m1[2], 10) - 1;
+    if (r >= 0 && r < SIZE && c >= 0 && c < SIZE) return { r, c };
+  }
+  const m2 = s.match(/^(\d{1,2})\s*[,/]\s*(\d{1,2})$/);
+  if (m2) {
+    const r = parseInt(m2[1], 10) - 1;
+    const c = parseInt(m2[2], 10) - 1;
+    if (r >= 0 && r < SIZE && c >= 0 && c < SIZE) return { r, c };
+  }
+  return null;
+}
+
+function parseKiboText(kiboStr) {
+  const list = [];
+  if (!kiboStr) return list;
+  const re = /([BW흑백])\s*[:：]?\s*\(?\s*([A-O]\s*\d{1,2}|\d{1,2}\s*[,，\s]\s*(\d{1,2}))\s*\)?/gi;
+  const matches = [...kiboStr.matchAll(re)];
+  for (const m of matches) {
+    const rawC = m[1].toUpperCase();
+    const color = (rawC === "B" || rawC === "흑") ? "B" : "W";
+    const p = parseCoord(m[2]);
+    if (p) {
+      list.push({ color, r: p.r, c: p.c });
+    }
+  }
+  return list;
+}
+
+function applyLog() {
+  if (!gameStarted) {
+    setStatus("먼저 '새 대국' 버튼을 눌러 대국을 시작해 주세요.", true);
+    return;
+  }
+  if (gameOver) {
+    setStatus("대국이 종료되어 수를 입력할 수 없습니다.", true);
+    return;
+  }
+  if (vsAiMode && !isReplaying && isAiThinking) {
+    setStatus("AI가 다음 수를 생각 중입니다. 잠시만 기다려 주세요.", true);
+    return;
+  }
+  const raw = document.getElementById("logInput").value.trim();
+  if (!raw) {
+    setStatus("좌표 로그를 입력해 주세요.", true);
+    return;
+  }
+  const re = /([BW흑백])\s*[:：]?\s*\(?\s*([A-O]\s*\d{1,2}|\d{1,2}\s*[,，\s]\s*(\d{1,2}))\s*\)?/gi;
+  const matches = [...raw.matchAll(re)];
+  let cnt = 0;
+  if (matches.length > 0) {
+    for (const m of matches) {
+      if (gameOver) break;
+      const rawC = m[1].toUpperCase();
+      const color = (rawC === "B" || rawC === "흑") ? "B" : "W";
+      const p = parseCoord(m[2]);
+      if (!p) {
+        setStatus("좌표 인식 실패: " + m[2], true);
+        return;
+      }
+      if (!placeStone(color, p.r, p.c)) return;
+      cnt++;
+    }
+  } else {
+    const p = parseCoord(raw);
+    if (p) {
+      const next = (moves.length & 1) === 0 ? "B" : "W";
+      if (placeStone(next, p.r, p.c)) cnt++;
+      else return;
+    } else {
+      setStatus("형식 오류. 예: B: (H8) 또는 W: (I9)", true);
+      return;
+    }
+  }
+  if (cnt > 0) {
+    document.getElementById("logInput").value = "";
+  }
+}
+
+function handleEnter(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    applyLog();
+  }
+}
+
+function updateUI() {
+  const noMoves = moves.length === 0;
+  const lockSetup = gameStarted || !noMoves || isReplaying || isAiThinking;
+  document.getElementById("swapBtn").disabled = lockSetup || (vsAiMode && gameStarted);
+  document.getElementById("editNameBtn").disabled = lockSetup;
+  document.getElementById("resetNameBtn").disabled = lockSetup;
+  if (lockSetup) {
+    document.getElementById("nameEditBox").style.display = "none";
+  }
+  let disableUndo = noMoves;
+  if (isReplaying) {
+    disableUndo = moves.length <= replayStep;
+  } else if (vsAiMode) {
+    if (isAiThinking) disableUndo = true;
+    else if (aiSide === "B" && moves.length <= 1 && !isResigned && !isDrawed) disableUndo = true;
+  }
+  document.getElementById("undoBtn").disabled = disableUndo;
+  const baseResignDisabled = noMoves || gameOver || isReplaying || isAiThinking;
+  document.getElementById("resignBBtn").disabled = baseResignDisabled || (vsAiMode && aiSide === "B");
+  document.getElementById("resignWBtn").disabled = baseResignDisabled || (vsAiMode && aiSide === "W");
+  document.getElementById("drawBtn").disabled = baseResignDisabled || vsAiMode;
+  document.getElementById("endGameBtn").disabled = !gameStarted && !isReplaying;
+  document.getElementById("copyKiboLastBtn").disabled = noMoves;
+  document.getElementById("copyKiboLineBtn").disabled = noMoves;
+  document.getElementById("copyKiboOneBtn").disabled = noMoves;
+
+  // 새 대국을 눌러 gameStarted가 true가 되면 AI 모드, 관전 모드, AI와 대국 버튼이 모두 비활성화됨
+  const hasStartedOrReplaying = (gameStarted || moves.length > 0 || isReplaying || isAiThinking);
+  document.getElementById("aiModeBtn").disabled = hasStartedOrReplaying;
+  document.getElementById("vsAiBtn").disabled = hasStartedOrReplaying;
+  const specBtn = document.getElementById("spectateBtn");
+  if (aiModeEnabled) {
+    specBtn.disabled = true;
+    specBtn.className = "btn-on";
+  } else if (vsAiMode) {
+    specBtn.disabled = true;
+    specBtn.className = "btn-off";
+  } else {
+    specBtn.disabled = hasStartedOrReplaying;
+    specBtn.className = spectateMode ? "btn-on" : "btn-off";
+  }
+
+  syncAiHintButtons();
+  updatePlayerBarLayout();
+  document.getElementById("mCount").textContent = String(moves.length);
+  const badge = document.getElementById("turnBadge");
+  const banner = document.getElementById("winBanner");
+  const replayPanel = document.getElementById("replayPanel");
+  const replayStatus = document.getElementById("replayStatus");
+  const bBadge = document.getElementById("bBadge");
+  const wBadge = document.getElementById("wBadge");
+  const next = (moves.length & 1) === 0 ? "B" : "W";
+  const showTurnHighlight = (gameStarted || isReplaying) && !gameOver;
+  if (bBadge && wBadge) {
+    bBadge.classList.toggle("active-turn", showTurnHighlight && next === "B");
+    wBadge.classList.toggle("active-turn", showTurnHighlight && next === "W");
+  }
+  replayPanel.style.display = isReplaying ? "flex" : "none";
+  if (isReplaying) {
+    if (isBranching) {
+      replayStatus.textContent = "복기 중 이어 두기 (기준: " + replayStep + "수)";
+      badge.textContent = gameOver
+        ? "이어 두기 종료"
+        : "이어 두기 " + (moves.length + 1) + "수째: " + getTurnPlayerText(next);
+    } else {
+      replayStatus.textContent = "복기 모드 (" + replayStep + " / " + allReplayMoves.length + "수)";
+      badge.textContent = "복기 모드 (" + replayStep + " / " + allReplayMoves.length + "수)";
+    }
+    badge.style.background = "rgb(254,243,199)";
+    badge.style.color = "rgb(146,64,14)";
+    if (gameOver && winResultText) {
+      banner.style.display = "block";
+      banner.textContent = winResultText;
+    } else {
+      banner.style.display = "none";
+    }
+  } else {
+    if (!gameStarted) {
+      badge.textContent = "대국 전 (새 대국을 눌러 시작)";
+      badge.style.background = "rgb(219,234,254)";
+      badge.style.color = "rgb(30,64,175)";
+      banner.style.display = "none";
+    } else if (gameOver) {
+      badge.textContent = "대국 종료";
+      badge.style.background = "rgb(254,243,199)";
+      badge.style.color = "rgb(146,64,14)";
+      banner.style.display = "block";
+      banner.textContent = winResultText;
+    } else {
+      badge.textContent = (moves.length + 1) + "수째: " + getTurnPlayerText(next);
+      badge.style.background = "rgb(219,234,254)";
+      badge.style.color = "rgb(30,64,175)";
+      banner.style.display = "none";
+    }
+  }
+  const kb = document.getElementById("kiboBox");
+  if (noMoves) {
+    kb.textContent = "아직 착수된 돌이 없습니다.";
+  } else {
+    kb.textContent = moves.map((m, i) => (i + 1) + ". " + m.color + ": (" + toCoord(m.r, m.c) + ") [" + players[m.color] + "]").join(NL);
+    kb.scrollTop = kb.scrollHeight;
+  }
+  updateAiAnalysisPanel();
+}
+
+async function resignGame(color, isAi = false) {
+  if (gameOver || moves.length === 0 || isReplaying) return;
+  if (!isAi && isAiThinking) return;
+  if (vsAiMode && color === aiSide) return;
+  const pName = players[color];
+  if (!isAi) {
+    const ok = await showCustomModal(pName + "님, 정말 기권하시겠습니까?", true);
+    if (!ok) return;
+  }
+  if (aiMoveTimer) {
+    clearTimeout(aiMoveTimer);
+    aiMoveTimer = null;
+  }
+  isAiThinking = false;
+  gameOver = true;
+  isResigned = true;
+  const wColor = color === "B" ? "W" : "B";
+  winResultText = getPlayerLabel(color, "square") + " 기권 - " + getPlayerLabel(wColor, "square") + " 승리";
+  playGameEndSound("end");
+  setStatus(winResultText, false);
+  if (!isReplaying) {
+    saveHist(getPlayerLabel(wColor, "round") + " 승");
+  }
+  updateUI();
+  drawBoard();
+}
+
+async function requestDraw() {
+  if (gameOver || moves.length === 0 || isReplaying || isAiThinking || vsAiMode) return;
+  const ok = await showCustomModal("양측 합의하에 무승부로 처리하시겠습니까?", true);
+  if (ok) {
+    if (aiMoveTimer) {
+      clearTimeout(aiMoveTimer);
+      aiMoveTimer = null;
+    }
+    isAiThinking = false;
+    gameOver = true;
+    isDrawed = true;
+    winResultText = "양측 합의: 무승부로 대국이 종료되었습니다.";
+    playGameEndSound("end");
+    setStatus(winResultText, false);
+    if (!isReplaying) {
+      saveHist("무승부");
+    }
+    updateUI();
+    drawBoard();
+  }
+}
+
+function undoMove() {
+  if (moves.length === 0 || isAiThinking) return;
+  if (isReplaying && moves.length <= replayStep) return;
+  if (!isReplaying && currentSavedId !== null) {
+    deleteHistoryItem(currentSavedId, true);
+    currentSavedId = null;
+  }
+  if (isResigned) {
+    gameOver = false;
+    isResigned = false;
+    winLine = null;
+    winResultText = "";
+    stopWinAnim();
+    updateUI();
+    drawBoard();
+    setStatus("기권이 취소되었습니다. 대국을 이어가세요.", false);
+    return;
+  }
+  if (isDrawed && winResultText.includes("합의")) {
+    gameOver = false;
+    isDrawed = false;
+    winResultText = "";
+    updateUI();
+    drawBoard();
+    setStatus("무승부가 취소되었습니다. 대국을 이어가세요.", false);
+    return;
+  }
+  if (vsAiMode && !isReplaying) {
+    const lastStone = moves[moves.length - 1];
+    if (lastStone.color === aiSide && moves.length >= 2) {
+      const aiLast = moves.pop();
+      board[aiLast.r][aiLast.c] = null;
+      const humanLast = moves.pop();
+      board[humanLast.r][humanLast.c] = null;
+      gameOver = false;
+      winLine = null;
+      winResultText = "";
+      stopWinAnim();
+      updateUI();
+      drawBoard();
+      setStatus("무르기 완료 (AI 및 내 착수 취소): " + toCoord(humanLast.r, humanLast.c), false);
+      return;
+    }
+  }
+  const last = moves.pop();
+  board[last.r][last.c] = null;
+  gameOver = false;
+  winLine = null;
+  winResultText = "";
+  stopWinAnim();
+  updateUI();
+  drawBoard();
+  setStatus("무르기 완료: " + toCoord(last.r, last.c), false);
+}
+
+function restoreActiveModePlayers() {
+  if (aiModeEnabled) {
+    players.B = aiSessionPlayers.B;
+    players.W = aiSessionPlayers.W;
+  } else if (vsAiMode) {
+    players.B = vsAiSessionPlayers.B;
+    players.W = vsAiSessionPlayers.W;
+  } else {
+    players.B = userCustomPlayers.B;
+    players.W = userCustomPlayers.W;
+  }
+}
+
+function endGame() {
+  if (!gameStarted && !isReplaying) return;
+  if (aiMoveTimer) {
+    clearTimeout(aiMoveTimer);
+    aiMoveTimer = null;
+  }
+  isAiThinking = false;
+  let savedUnfin = false;
+  if (gameStarted && !gameOver && moves.length > 0 && !isReplaying) {
+    saveUnfinished();
+    savedUnfin = true;
+  }
+  stopWinAnim();
+  board = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));
+  moves = [];
+  gameOver = false;
+  gameStarted = false;
+  winLine = null;
+  winResultText = "";
+  currentSavedId = null;
+  currentUnfinId = null;
+  isResigned = false;
+  isDrawed = false;
+  isReplaying = false;
+  isBranching = false;
+  allReplayMoves = [];
+  replayStep = 0;
+  restoreActiveModePlayers();
+  syncPlayerDOM();
+  document.getElementById("logInput").value = "";
+  updateUI();
+  drawBoard();
+  if (savedUnfin) {
+    setStatus("대국이 종료되었습니다. (진행 중이던 대국은 미완료 대국에 저장되었습니다.)", false);
+  } else {
+    setStatus("대국이 종료되어 대기 상태로 돌아왔습니다.", false);
+  }
+}
+
+function resetBoard() {
+  if (aiMoveTimer) {
+    clearTimeout(aiMoveTimer);
+    aiMoveTimer = null;
+  }
+  isAiThinking = false;
+  if (gameStarted && !gameOver && moves.length > 0 && !isReplaying) {
+    saveUnfinished();
+  }
+  stopWinAnim();
+  board = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));
+  moves = [];
+  gameOver = false;
+  gameStarted = true;
+  winLine = null;
+  winResultText = "";
+  currentSavedId = null;
+  currentUnfinId = null;
+  isResigned = false;
+  isDrawed = false;
+  if (isReplaying) {
+    isReplaying = false;
+    isBranching = false;
+  }
+  restoreActiveModePlayers();
+  if (aiModeEnabled) {
+    spectateMode = true;
+    document.getElementById("spectateBtn").className = "btn-on";
+  } else if (vsAiMode) {
+    spectateMode = false;
+    document.getElementById("spectateBtn").className = "btn-off";
+  }
+  syncPlayerDOM();
+  document.getElementById("logInput").value = "";
+  updateUI();
+  drawBoard();
+  setStatus("새 대국이 시작되었습니다. 착수해 주세요.", false);
+  if (vsAiMode) {
+    triggerAiMoveIfNeeded();
+  }
+}
+
+function checkWin(r, c, color) {
+  const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
+  for (const [dr, dc] of dirs) {
+    const line = [{ r, c }];
+    let nr = r + dr, nc = c + dc;
+    while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === color) {
+      line.push({ r: nr, c: nc });
+      nr += dr;
+      nc += dc;
+    }
+    nr = r - dr;
+    nc = c - dc;
+    while (nr >= 0 && nr < SIZE && nc >= 0 && nc < SIZE && board[nr][nc] === color) {
+      line.unshift({ r: nr, c: nc });
+      nr -= dr;
+      nc -= dc;
+    }
+    if (color === "B") {
+      // 흑돌은 렌주룰에 따라 정확히 5목만 승리
+      if (line.length === 5) return line;
+    } else {
+      // 백돌은 5목 이상(장목 포함) 모두 승리
+      if (line.length >= 5) {
+        if (line.length > 5) {
+          const lastIdx = line.findIndex(p => p.r === r && p.c === c);
+          const distFromStart = lastIdx;
+          const distFromEnd = (line.length - 1) - lastIdx;
+          if (distFromStart <= distFromEnd) {
+            const startIdx = Math.max(0, lastIdx - 4);
+            return line.slice(startIdx, startIdx + 5);
+          } else {
+            const endIdx = Math.min(line.length, lastIdx + 5);
+            return line.slice(endIdx - 5, endIdx);
+          }
+        }
+        return line;
+      }
+    }
+  }
+  return null;
+}
+
+function flashCopyBtn(btn) {
+  if (!btn) return;
+  if (!btn.dataset.origText) {
+    btn.dataset.origText = btn.textContent;
+  }
+  btn.textContent = "복사됨!";
+  btn.classList.add("btn-copied");
+  if (btn._copyTimer) clearTimeout(btn._copyTimer);
+  btn._copyTimer = setTimeout(() => {
+    btn.textContent = btn.dataset.origText;
+    btn.classList.remove("btn-copied");
+  }, 1200);
+}
+
+function fallbackCopyText(text) {
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.setAttribute("readonly", "");
+  ta.style.position = "fixed";
+  ta.style.top = "-9999px";
+  ta.style.left = "-9999px";
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  ta.setSelectionRange(0, text.length);
+  let ok = false;
+  try {
+    ok = document.execCommand("copy");
+  } catch (e) {}
+  document.body.removeChild(ta);
+  return ok;
+}
+
+function copyToClipboard(text, successMsg, btn) {
+  if (!text) {
+    setStatus("복사할 내용이 없습니다.", true);
+    return;
+  }
+  const onSuccess = () => {
+    setStatus(successMsg, false);
+    flashCopyBtn(btn);
+  };
+  const onFail = () => {
+    if (fallbackCopyText(text)) {
+      onSuccess();
+    } else {
+      setStatus("복사에 실패했습니다. 직접 선택해 복사해 주세요.", true);
+    }
+  };
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+    navigator.clipboard.writeText(text).then(onSuccess).catch(onFail);
+  } else {
+    onFail();
+  }
+}
+
+function copyText(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  copyToClipboard(el.value, "시작 프롬프트가 복사되었습니다.", btn);
+}
+
+function copyLast(btn) {
+  if (moves.length === 0) {
+    setStatus("아직 착수된 돌이 없습니다.", true);
+    return;
+  }
+  const l = moves[moves.length - 1];
+  const t = l.color + ": (" + toCoord(l.r, l.c) + ")";
+  copyToClipboard(t, "마지막 수 복사 완료: " + t, btn);
+}
+
+function copyState(btn) {
+  if (moves.length === 0) {
+    const initSummary = "[현재 오목판 상태]" + NL +
+      "- 흑: 없음" + NL +
+      "- 백: 없음" + NL +
+      "- 직전 수: 없음" + NL +
+      "현재 빈 오목판입니다. 'B: (좌표)' 형식으로 첫 수를 답해줘.";
+    copyToClipboard(initSummary, "현재 판 상태 요약(초기 상태)이 복사되었습니다.", btn);
+    return;
+  }
+  const b = moves.filter(m => m.color === "B").map(m => toCoord(m.r, m.c)).join(", ");
+  const w = moves.filter(m => m.color === "W").map(m => toCoord(m.r, m.c)).join(", ");
+  const l = moves[moves.length - 1];
+  const next = l.color === "B" ? "W" : "B";
+  const s = "[현재 오목판 상태]" + NL +
+    "- 흑: " + (b || "없음") + NL +
+    "- 백: " + (w || "없음") + NL +
+    "- 직전 수: " + l.color + ": (" + toCoord(l.r, l.c) + ")" + NL +
+    "위 좌표는 이미 돌이 있으니 피해서 '" + next + ": (좌표)' 형식으로 다음 수를 답해줘.";
+  copyToClipboard(s, "판 상태 요약이 복사되었습니다.", btn);
+}
+
+function copyKibo(one, btn) {
+  if (moves.length === 0) {
+    setStatus("아직 복사할 기보가 없습니다.", true);
+    return;
+  }
+  const t = moves.map(m => m.color + ": (" + toCoord(m.r, m.c) + ")").join(one ? ", " : NL);
+  copyToClipboard(t, (one ? "한 줄 기보" : "줄바꿈 기보") + "가 복사되었습니다.", btn);
+}
+
+function getHist() {
+  return histList;
+}
+
+function formatFullDate(timestamp) {
+  const d = new Date(timestamp);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const timeStr = d.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  return yyyy + ". " + mm + ". " + dd + ". " + timeStr;
+}
+
+async function showFullDateModal(timestamp) {
+  await showCustomModal("전체 날짜 및 시간:" + NL + formatFullDate(timestamp), false);
+}
+
+function saveHist(res) {
+  if (isReplaying) return;
+  const newId = Date.now();
+  const record = {
+    id: newId,
+    timestamp: newId,
+    date: new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" }),
+    b: players.B,
+    w: players.W,
+    res,
+    cnt: moves.length,
+    kibo: moves.map(m => m.color + ": (" + toCoord(m.r, m.c) + ")").join(NL)
+  };
+  histList.unshift(record);
+  currentSavedId = newId;
+  saveStorageHist();
+  renderHist();
+}
+
+function renderHist() {
+  const h = getHist();
+  document.getElementById("clearHistBtn").disabled = h.length === 0;
+  let bWins = 0, wWins = 0, draws = 0;
+  h.forEach(x => {
+    if (x.res === "무승부") {
+      draws++;
+    } else if (x.res.includes("흑 승") || x.res.includes("(흑) 승")) {
+      bWins++;
+    } else if (x.res.includes("백 승") || x.res.includes("(백) 승")) {
+      wWins++;
+    } else {
+      if (x.res.includes(x.b)) bWins++;
+      else if (x.res.includes(x.w)) wWins++;
+      else bWins++;
+    }
+  });
+  document.getElementById("scoreBox").textContent = "흑: " + bWins + "승 | 백: " + wWins + "승 | 무승부: " + draws + "회";
+  const tb = document.getElementById("hBody");
+  if (h.length === 0) {
+    tb.innerHTML = "<tr><td colspan='5' style='text-align:center;color:rgb(107,114,128);'>저장된 대국 기록이 없습니다.</td></tr>";
+    return;
+  }
+  tb.innerHTML = h.map(x => {
+    const cleanRes = x.res.replace("(B)", "(흑)").replace("(W)", "(백)");
+    const ts = x.timestamp || x.id;
+    return "<tr>" +
+      "<td><div class='date-wrap'><span class='date-text'>" + x.date + "</span><button class='info-btn' onclick='showFullDateModal(" + ts + ")' title='상세 날짜 확인'>i</button></div></td>" +
+      "<td>" + x.b + "/" + x.w + "</td>" +
+      "<td>" + cleanRes + "</td>" +
+      "<td>" + x.cnt + "수</td>" +
+      "<td><button onclick='loadHist(" + x.id + ")'>복기</button> <button class='btn-danger' onclick='deleteHistoryItem(" + x.id + ", false)'>삭제</button></td>" +
+    "</tr>";
+  }).join("");
+}
+
+function getUnfin() {
+  return unfinList;
+}
+
+function saveUnfinished() {
+  if (isReplaying) return;
+  const newId = Date.now();
+  const record = {
+    id: newId,
+    timestamp: newId,
+    date: new Date().toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" }),
+    b: players.B,
+    w: players.W,
+    vsAiMode: vsAiMode,
+    aiSide: aiSide,
+    aiModeEnabled: aiModeEnabled,
+    spectateMode: spectateMode,
+    cnt: moves.length,
+    kibo: moves.map(m => m.color + ": (" + toCoord(m.r, m.c) + ")").join(NL)
+  };
+  unfinList.unshift(record);
+  saveStorageUnfin();
+  renderUnfin();
+}
+
+function renderUnfin() {
+  const unfin = getUnfin();
+  document.getElementById("clearUnfinBtn").disabled = unfin.length === 0;
+  const tb = document.getElementById("unfinBody");
+  if (unfin.length === 0) {
+    tb.innerHTML = "<tr><td colspan='4' style='text-align:center;color:rgb(107,114,128);'>저장된 미완료 대국이 없습니다.</td></tr>";
+    return;
+  }
+  tb.innerHTML = unfin.map(x => {
+    const ts = x.timestamp || x.id;
+    return "<tr>" +
+      "<td><div class='date-wrap'><span class='date-text'>" + x.date + "</span><button class='info-btn' onclick='showFullDateModal(" + ts + ")' title='상세 날짜 확인'>i</button></div></td>" +
+      "<td>" + x.b + "/" + x.w + "</td>" +
+      "<td>" + x.cnt + "수</td>" +
+      "<td><button onclick='loadUnfin(" + x.id + ")'>이어 두기</button> <button class='btn-danger' onclick='deleteUnfin(" + x.id + ", false)'>삭제</button></td>" +
+    "</tr>";
+  }).join("");
+}
+
+function loadUnfin(id) {
+  const unfin = getUnfin();
+  const item = unfin.find(x => x.id === id);
+  if (!item) return;
+  if (aiMoveTimer) {
+    clearTimeout(aiMoveTimer);
+    aiMoveTimer = null;
+  }
+  isAiThinking = false;
+  if (gameStarted && !gameOver && moves.length > 0 && !isReplaying) {
+    saveUnfinished();
+  }
+  stopWinAnim();
+  board = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));
+  moves = [];
+  gameOver = false;
+  gameStarted = true;
+  winLine = null;
+  winResultText = "";
+  isReplaying = false;
+  isBranching = false;
+  allReplayMoves = [];
+  replayStep = 0;
+  isResigned = false;
+  isDrawed = false;
+  currentUnfinId = item.id;
+  players.B = item.b;
+  players.W = item.w;
+  vsAiMode = Boolean(item.vsAiMode);
+  aiSide = item.aiSide || "W";
+  aiModeEnabled = Boolean(item.aiModeEnabled);
+  spectateMode = Boolean(item.spectateMode);
+  if (vsAiMode) {
+    vsAiSessionPlayers = { B: players.B, W: players.W };
+  } else if (aiModeEnabled) {
+    aiSessionPlayers = { B: players.B, W: players.W };
+  } else {
+    userCustomPlayers = { B: players.B, W: players.W };
+  }
+  document.getElementById("vsAiBtn").className = (vsAiMode ? "btn-on" : "btn-off") + " btn-right";
+  document.getElementById("aiModeBtn").className = aiModeEnabled ? "btn-on" : "btn-off";
+  document.getElementById("promptCard").style.display = aiModeEnabled ? "block" : "none";
+  document.getElementById("spectateBtn").className = spectateMode ? "btn-on" : "btn-off";
+  syncPlayerDOM();
+  document.getElementById("logInput").value = "";
+  const parsedMoves = parseKiboText(item.kibo);
+  parsedMoves.forEach(m => {
+    board[m.r][m.c] = m.color;
+    moves.push({ color: m.color, r: m.r, c: m.c });
+  });
+  deleteUnfin(id, true);
+  updateUI();
+  drawBoard();
+  setStatus("미완료 대국을 불러왔습니다. 이어서 두세요.", false);
+  if (vsAiMode) {
+    triggerAiMoveIfNeeded();
+  }
+}
+
+async function deleteUnfin(id, silent) {
+  if (!silent) {
+    const ok = await showCustomModal("정말로 삭제하시겠습니까?", true);
+    if (!ok) return;
+  }
+  unfinList = unfinList.filter(x => x.id !== id);
+  saveStorageUnfin();
+  renderUnfin();
+  if (!silent) setStatus("미완료 대국이 삭제되었습니다.", false);
+}
+
+async function clearUnfinished() {
+  if (unfinList.length === 0) return;
+  const ok = await showCustomModal("정말로 삭제하시겠습니까?", true);
+  if (!ok) return;
+  unfinList = [];
+  saveStorageUnfin();
+  renderUnfin();
+  setStatus("모든 미완료 대국이 삭제되었습니다.", false);
+}
+
+function renderReplayBoard(playSfx) {
+  stopWinAnim();
+  board = Array.from({ length: SIZE }, () => Array(SIZE).fill(null));
+  moves = allReplayMoves.slice(0, replayStep).map(m => ({ color: m.color, r: m.r, c: m.c }));
+  moves.forEach(m => {
+    board[m.r][m.c] = m.color;
+  });
+  gameOver = false;
+  winLine = null;
+  winResultText = "";
+  isResigned = false;
+  isDrawed = false;
+  if (moves.length > 0) {
+    const last = moves[moves.length - 1];
+    const w = checkWin(last.r, last.c, last.color);
+    if (w) {
+      gameOver = true;
+      winLine = w;
+      winResultText = getPlayerLabel(last.color, "square") + " 승리 (" + moves.length + "수 오목 완성)";
+      startWinAnim();
+      if (playSfx) playGameEndSound("win");
+    } else if (playSfx) {
+      playStoneSound();
+    }
+  }
+  updateUI();
+  drawBoard();
+}
+
+function loadHist(id) {
+  const item = getHist().find(x => x.id === id);
+  if (!item) return;
+  if (aiMoveTimer) {
+    clearTimeout(aiMoveTimer);
+    aiMoveTimer = null;
+  }
+  isAiThinking = false;
+  if (gameStarted && !gameOver && moves.length > 0 && !isReplaying) {
+    saveUnfinished();
+  }
+  stopWinAnim();
+  players.B = item.b;
+  players.W = item.w;
+  syncPlayerDOM();
+  document.getElementById("logInput").value = "";
+  allReplayMoves = parseKiboText(item.kibo);
+  isReplaying = true;
+  isBranching = false;
+  gameStarted = true;
+  currentSavedId = null;
+  replayStep = 0;
+  spectateMode = false;
+  document.getElementById("spectateBtn").className = "btn-off";
+  renderReplayBoard(true);
+  setStatus("복기 모드 시작: 엔진 분석 결과가 적용되었습니다.", false);
+}
+
+function replayFirst() {
+  if (!isReplaying) return;
+  isBranching = false;
+  replayStep = 0;
+  document.getElementById("logInput").value = "";
+  renderReplayBoard(true);
+  setStatus("복기 처음 상태(" + replayStep + "수)로 돌아왔습니다.", false);
+}
+
+function replayPrev() {
+  if (!isReplaying) return;
+  if (replayStep <= 0) return;
+  isBranching = false;
+  replayStep--;
+  document.getElementById("logInput").value = "";
+  renderReplayBoard(true);
+  setStatus("복기: " + replayStep + "수째 상태", false);
+}
+
+function replayNext() {
+  if (!isReplaying) return;
+  if (replayStep >= allReplayMoves.length) return;
+  isBranching = false;
+  replayStep++;
+  document.getElementById("logInput").value = "";
+  renderReplayBoard(true);
+  setStatus("복기: " + replayStep + "수째 상태", false);
+}
+
+function resumePlay() {
+  if (!isReplaying) return;
+  renderReplayBoard(false);
+  if (gameOver) {
+    setStatus("이미 오목이 완성된 수순입니다. 이전 수로 이동한 뒤 이어 두세요.", true);
+    return;
+  }
+  isBranching = true;
+  document.getElementById("logInput").value = "";
+  updateUI();
+  drawBoard();
+  setStatus(replayStep + "수째 상태에서 이어 둡니다. (기록에는 저장되지 않습니다)", false);
+}
+
+async function deleteHistoryItem(id, silent) {
+  if (!silent) {
+    const ok = await showCustomModal("정말로 삭제하시겠습니까?", true);
+    if (!ok) return;
+  }
+  histList = histList.filter(h => h.id !== id);
+  saveStorageHist();
+  renderHist();
+  if (!silent) setStatus("대국 기록이 삭제되었습니다.", false);
+}
+
+async function clearHist() {
+  if (histList.length === 0) return;
+  const ok = await showCustomModal("정말로 삭제하시겠습니까?", true);
+  if (!ok) return;
+  histList = [];
+  currentSavedId = null;
+  saveStorageHist();
+  renderHist();
+  setStatus("모든 대국 기록이 삭제되었습니다.", false);
+}
+
+function setStatus(m, err) {
+  const el = document.getElementById("statusMsg");
+  const normalized = String(m || "").replace(/\n+/g, " ").trim();
+  const sentences = normalized.split(/(?<=[다요음)\][!?]\.|[!?])\s+/);
+  el.innerHTML = "";
+  if (sentences.length <= 1) {
+    el.textContent = normalized;
+  } else {
+    sentences.forEach((s, idx) => {
+      const span = document.createElement("span");
+      span.className = "sentence-chunk";
+      span.textContent = s;
+      el.appendChild(span);
+      if (idx < sentences.length - 1) {
+        el.appendChild(document.createTextNode(" "));
+      }
+    });
+  }
+  el.className = "status " + (err ? "err" : "ok");
+}
+
+function downloadHTML() {
+  const html = initialHTMLSnapshot || ('<!DOCTYPE html>' + NL + '<html lang="ko">' + document.documentElement.innerHTML + '</html>');
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "오목.html";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+updatePlayerBarLayout();
+updatePrompts();
+drawBoard();
+initialHTMLSnapshot = '<!DOCTYPE html>' + NL + '<html lang="ko">' + document.documentElement.innerHTML + '</html>';
+renderHist();
+renderUnfin();
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
