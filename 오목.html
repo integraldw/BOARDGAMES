@@ -138,6 +138,8 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
       display: inline-block;
       flex-shrink: 0;
+      vertical-align: middle;
+      transform: translateY(-1px);
     }
     .dot-w {
       width: 24px;
@@ -148,6 +150,8 @@
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
       display: inline-block;
       flex-shrink: 0;
+      vertical-align: middle;
+      transform: translateY(-1px);
     }
     .turn-pill {
       padding: 3px 8px;
@@ -1404,40 +1408,49 @@ function getLineInfo(bState, r, c, dr, dc, color) {
   return { len: stones.length, emptyFront, emptyBack, stones };
 }
 
+function makesExactFiveInDir(bState, pr, pc, dr, dc) {
+  bState[pr][pc] = "B";
+  const line = getLineInfo(bState, pr, pc, dr, dc, "B");
+  bState[pr][pc] = null;
+  return line.len === 5;
+}
+
 function isPureStraightFour(bState, r, c, dr, dc) {
-  let info = getLineInfo(bState, r, c, dr, dc, "B");
+  const info = getLineInfo(bState, r, c, dr, dc, "B");
   if (info.len !== 4 || !info.emptyFront || !info.emptyBack) return false;
-  let f = info.emptyFront;
-  let b = info.emptyBack;
-  let fNextR = f.r + dr, fNextC = f.c + dc;
-  let bNextR = b.r - dr, bNextC = b.c - dc;
-  let fOver = (fNextR >= 0 && fNextR < SIZE && fNextC >= 0 && fNextC < SIZE && bState[fNextR][fNextC] === "B");
-  let bOver = (bNextR >= 0 && bNextR < SIZE && bNextC >= 0 && bNextC < SIZE && bState[bNextR][bNextC] === "B");
-  return !fOver && !bOver;
+  
+  const f = info.emptyFront;
+  const b = info.emptyBack;
+  return makesExactFiveInDir(bState, f.r, f.c, dr, dc) && 
+         makesExactFiveInDir(bState, b.r, b.c, dr, dc);
 }
 
 function countFoursInLine(bState, r, c, dr, dc) {
   if (isPureStraightFour(bState, r, c, dr, dc)) return 1;
+  
   let winPoints = new Set();
   for (let shift = -4; shift <= 0; shift++) {
     let blackCount = 0;
     let emptySpaces = [];
     let blocked = false;
+    let includesCenter = false;
+
     for (let i = 0; i < 5; i++) {
-      let nr = r + (shift + i) * dr;
-      let nc = c + (shift + i) * dc;
+      let step = shift + i;
+      let nr = r + step * dr;
+      let nc = c + step * dc;
       if (nr < 0 || nr >= SIZE || nc < 0 || nc >= SIZE) { blocked = true; break; }
-      let stone = (nr === r && nc === c) ? "B" : bState[nr][nc];
+      if (step === 0) includesCenter = true;
+
+      let stone = (step === 0) ? "B" : bState[nr][nc];
       if (stone === "W") { blocked = true; break; }
       else if (stone === "B") { blackCount++; }
       else { emptySpaces.push({r: nr, c: nc}); }
     }
-    if (!blocked && blackCount === 4 && emptySpaces.length === 1) {
+
+    if (!blocked && includesCenter && blackCount === 4 && emptySpaces.length === 1) {
       let p = emptySpaces[0];
-      bState[p.r][p.c] = "B";
-      let line = getLineInfo(bState, p.r, p.c, dr, dc, "B");
-      bState[p.r][p.c] = null;
-      if (line.len === 5) {
+      if (makesExactFiveInDir(bState, p.r, p.c, dr, dc)) {
         winPoints.add(p.r + "," + p.c);
       }
     }
@@ -1446,6 +1459,8 @@ function countFoursInLine(bState, r, c, dr, dc) {
 }
 
 function isOpenThreeInLine(bState, r, c, dr, dc, depth) {
+  if (countFoursInLine(bState, r, c, dr, dc) > 0) return 0;
+
   for (let step = -3; step <= 3; step++) {
     if (step === 0) continue;
     let nr = r + step * dr;
@@ -1457,6 +1472,7 @@ function isOpenThreeInLine(bState, r, c, dr, dc, depth) {
     let info = getLineInfo(bState, nr, nc, dr, dc, "B");
     let includesOriginal = info.stones.some(s => s.r === r && s.c === c);
     let formsStraight4 = includesOriginal && isPureStraightFour(bState, nr, nc, dr, dc);
+    
     let isForb = false;
     if (formsStraight4) {
       isForb = isBlackForbidden(bState, nr, nc, depth + 1) !== null;
@@ -1471,7 +1487,7 @@ function isOpenThreeInLine(bState, r, c, dr, dc, depth) {
 }
 
 function isBlackForbidden(bState, r, c, depth = 0) {
-  if (depth > 4) return null;
+  if (depth > 3) return null;
   const dirs = [[0, 1], [1, 0], [1, 1], [1, -1]];
   let hasExactFive = false;
   let hasOverline = false;
