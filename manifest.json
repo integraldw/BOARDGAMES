@@ -1,5 +1,5 @@
 {
-"name": "보드게임 컬렉션",
+"name": "보드게임",
 "short_name": "보드게임",
 "start_url": "./index.html",
 "display": "standalone",
