@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko">
-<head>
+<html lang="ko"><head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
   <meta name="referrer" content="no-referrer">
@@ -99,11 +98,11 @@
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       font-weight: 700;
       width: fit-content;
       max-width: 100%;
-      padding: 4px 9px;
+      padding: 4px 7px;
       border-radius: 7px;
       background: white;
       border: 1.5px solid rgb(209, 213, 219);
@@ -112,6 +111,7 @@
       text-overflow: ellipsis;
       white-space: nowrap;
       transition: all 0.2s ease;
+      line-height: 1;
     }
     .badge.active-turn {
       background: linear-gradient(135deg, rgb(254, 243, 199), rgb(253, 230, 138));
@@ -130,21 +130,22 @@
       border: 1px solid rgb(229, 231, 235);
     }
     .dot-b {
-      width: 14px;
-      height: 14px;
-      border-radius: 99px;
-      background: radial-gradient(circle at 35% 35%, #4b5563, #111827 75%, #000 100%);
-      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.3), 0 1px 2px rgba(0, 0, 0, 0.4);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #4b5563 0%, #1f2937 35%, #111827 85%, #000000 100%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
       display: inline-block;
       flex-shrink: 0;
     }
     .dot-w {
-      width: 14px;
-      height: 14px;
-      border-radius: 99px;
-      background: radial-gradient(circle at 35% 35%, #ffffff, #f3f4f6 65%, #9ca3af 100%);
-      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9), 0 1px 2px rgba(0, 0, 0, 0.3);
-      border: 1px solid rgb(156, 163, 175);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #ffffff 0%, #f9fafb 55%, #e5e7eb 85%, #9ca3af 100%);
+      border: 1px solid rgba(100, 100, 100, 0.35);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
       display: inline-block;
       flex-shrink: 0;
     }
@@ -3147,6 +3148,4 @@ drawBoard();
 initialHTMLSnapshot = '<!DOCTYPE html>' + NL + '<html lang="ko">' + document.documentElement.innerHTML + '</html>';
 renderHist();
 renderUnfin();
-</script>
-</body>
-</html>
+</script></body></html>
