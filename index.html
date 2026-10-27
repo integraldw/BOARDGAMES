@@ -14,12 +14,17 @@
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       -webkit-tap-highlight-color: transparent !important;
     }
+    html, body {
+      /* 전체 페이지 스크롤 방지 */
+      overflow: hidden;
+      height: 100%;
+      touch-action: none; /* 모바일 브라우저의 터치 스크롤 및 바운스 효과 방지 */
+    }
     body {
       background: #f4f5f7;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
       padding: 16px;
     }
     .card {
