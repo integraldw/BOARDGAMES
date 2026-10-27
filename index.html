@@ -66,13 +66,23 @@
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent !important;
     }
-    .btn:hover {
+    /* 마우스 등 실제 호버가 가능한 기기에서만 hover 효과 적용 (모바일 터치 잔상 방지) */
+    @media (hover: hover) and (pointer: fine) {
+      .btn:hover {
+        background: #eff6ff;
+        border-color: #93c5fd;
+        color: #1e40af;
+      }
+    }
+    /* 버튼을 누르는 순간에만 파란색 표시 */
+    .btn:active {
       background: #eff6ff;
       border-color: #93c5fd;
       color: #1e40af;
+      outline: none !important;
+      -webkit-tap-highlight-color: transparent !important;
     }
-    .btn:focus,
-    .btn:active {
+    .btn:focus {
       outline: none !important;
       -webkit-tap-highlight-color: transparent !important;
     }
@@ -88,5 +98,14 @@
       <a href="쇼기.html" class="btn">쇼기</a>
     </div>
   </div>
+
+  <script>
+    // 다른 페이지에 갔다가 뒤로 가기로 돌아왔을 때 버튼의 포커스/활성 상태를 초기화
+    window.addEventListener('pageshow', function () {
+      if (document.activeElement && document.activeElement !== document.body) {
+        document.activeElement.blur();
+      }
+    });
+  </script>
 </body>
 </html>
