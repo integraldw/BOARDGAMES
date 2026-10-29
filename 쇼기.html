@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="ko"><head>  <meta charset="UTF-8">  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">  <meta name="referrer" content="no-referrer">  <title>쇼기</title>  <link rel="manifest" href="manifest.json">  <link rel="apple-touch-icon" href="icon-192.png">  <meta name="theme-color" content="#E5B869">  <meta name="apple-mobile-web-app-capable" content="yes">  <meta name="apple-mobile-web-app-status-bar-style" content="default">  <meta name="apple-mobile-web-app-title" content="쇼기">  <style>    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent !important; }    body { background: rgb(244, 245, 247); color: rgb(31, 41, 55); padding: 8px; line-height: 1.4; }    .wrap { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }    .card { background: white; border: 1px solid rgb(229, 231, 235); border-radius: 10px; padding: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03); }    h1 { font-size: 1.1rem; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px; }    h2 { font-size: 0.92rem; margin-bottom: 6px; color: rgb(17, 24, 39); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px; }    .top-dl { background: rgb(239, 246, 255); border: 1px solid rgb(191, 219, 254); padding: 8px 10px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: 0.82rem; font-weight: 600; color: rgb(30, 64, 175); }    .players-bar { display: flex; align-items: center; justify-content: space-between; gap: 6px; background: rgb(249, 250, 251); padding: 8px; border-radius: 8px; border: 1px solid rgb(229, 231, 235); margin-bottom: 8px; font-size: 0.85rem; flex-wrap: wrap; }    .players-bar.long-names { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto; align-items: center; column-gap: 8px; row-gap: 5px; }    .players-bar.long-names #sBadge { grid-column: 1; grid-row: 1; justify-self: start; }    .players-bar.long-names #gBadge { grid-column: 1; grid-row: 2; justify-self: start; }    .players-bar.long-names #playerBtns { grid-column: 2; grid-row: 1 / span 2; justify-self: start; align-self: center; margin-left: min(114px, max(0px, calc(100% - 216px))); }    .badge { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; width: fit-content; max-width: 100%; padding: 4px 8px; border-radius: 7px; background: white; border: 1.5px solid rgb(209, 213, 219); color: rgb(31, 41, 55); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: all 0.2s ease; line-height: 1; }    .badge.active-turn { background: linear-gradient(135deg, rgb(254, 243, 199), rgb(253, 230, 138)); border: 1.5px solid rgb(245, 158, 11); color: rgb(146, 64, 14); box-shadow: 0 1px 4px rgba(245, 158, 11, 0.25); }    .badge-icon { width: 17px; height: 17px; object-fit: contain; margin: 0 -1px 0 -2px; transform: translateY(-1.2px) scale(1.12); filter: drop-shadow(0 1px 1px rgba(0,0,0,0.18)); flex-shrink: 0; }    .player-btns { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; padding: 3px 5px; border-radius: 7px; background: white; border: 1px solid rgb(229, 231, 235); }    .turn-pill { padding: 3px 8px; border-radius: 99px; font-size: 0.78rem; font-weight: 600; background: rgb(219, 234, 254); color: rgb(30, 64, 175); }    .win-banner { display: none; background: linear-gradient(135deg, rgb(254, 243, 199), rgb(253, 230, 138)); border: 2px solid rgb(245, 158, 11); color: rgb(146, 64, 14); padding: 8px; border-radius: 8px; text-align: center; font-weight: 800; font-size: 0.98rem; margin-bottom: 8px; }    button { cursor: pointer; border: 1px solid rgb(209, 213, 219); background: white; color: rgb(31, 41, 55); padding: 5px 9px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; transition: all 0.15s ease; touch-action: manipulation; user-select: none; outline: none; white-space: nowrap; }    button:disabled { opacity: 0.4; cursor: not-allowed; }    .btn-row-nowrap { display: flex; gap: 3px; flex-wrap: nowrap; width: 100%; align-items: center; }    .btn-row-nowrap button { padding: 5px 6px; font-size: 0.76rem; flex-shrink: 0; }    .btn-pri { background: rgb(37, 99, 235); color: white; border-color: rgb(37, 99, 235); }    .btn-danger { color: rgb(220, 38, 38); border-color: rgb(254, 202, 202); background: rgb(254, 242, 242); }    .btn-copied { background: rgb(5, 150, 105) !important; color: white !important; border-color: rgb(5, 150, 105) !important; }    .btn-off { background: rgb(243, 244, 246); color: rgb(31, 41, 55); border-color: rgb(209, 213, 219); }    .btn-on { background: rgb(37, 99, 235); color: white; border-color: rgb(37, 99, 235); }    .btn-right { margin-left: auto; }    .captured-bar { display: flex; flex-direction: column; gap: 4px; background: rgb(249, 250, 251); border: 1px solid rgb(229, 231, 235); border-radius: 7px; padding: 5px 8px; margin-bottom: 6px; font-size: 0.78rem; }    .cap-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 24px; flex-wrap: wrap; }    .cap-side { display: flex; align-items: center; gap: 4px; flex-wrap: nowrap; width: 100%; }    .cap-side.wrap-pieces { flex-wrap: wrap; }    .cap-label { order: 1; white-space: nowrap; flex-shrink: 0; }    .cap-pieces { order: 2; display: inline-flex; align-items: center; gap: 3px; min-height: 22px; flex-wrap: wrap; margin-top: 1px; }    .adv-pill { order: 3; background: rgb(219, 234, 254); color: rgb(30, 64, 175); padding: 1px 5px; border-radius: 99px; font-size: 0.7rem; font-weight: 700; margin-left: auto; flex-shrink: 0; }    .cap-side.wrap-pieces .adv-pill { order: 2; }    .cap-side.wrap-pieces .cap-pieces { order: 3; flex-basis: 100%; width: 100%; margin-top: 2px; }    .cap-chip { display: inline-flex; align-items: center; justify-content: center; gap: 1px; padding: 1px 5px; height: 22px; min-width: 22px; border-radius: 4px; background: #f3dba5; border: 1.5px solid #7a5120; font-family: "Malgun Gothic", "Apple SD Gothic Neo", serif; font-size: 11px; font-weight: 800; line-height: 1; color: rgb(31, 41, 55); cursor: pointer; box-shadow: 0 1px 1px rgba(0,0,0,0.12); }    .cap-chip.selected-hand { background: #fde047; border-color: #ca8a04; box-shadow: 0 0 0 2px rgba(234, 179, 8, 0.45); }    .cap-cnt { font-family: sans-serif; font-size: 10px; font-weight: 800; color: black; margin-left: 1px; }    .cap-num { display: inline-block; transform: translateY(-0.5px); }    .board-box { display: flex; justify-content: center; margin-top: 4px; margin-bottom: 8px; position: relative; }    canvas { background: rgb(224, 181, 103); border-radius: 8px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15); max-width: calc(100vw - 32px); width: 100%; height: auto; aspect-ratio: 460 / 490; touch-action: pan-y !important; user-select: none; -webkit-user-select: none; outline: none; }    .row { display: flex; gap: 6px; align-items: stretch; }    textarea { flex: 1; padding: 6px 8px; border: 1px solid rgb(209, 213, 219); border-radius: 6px; font-size: 0.82rem; outline: none; resize: none; }    input[type="text"] { padding: 5px 8px; border: 1px solid rgb(209, 213, 219); border-radius: 6px; font-size: 0.8rem; outline: none; width: 100px; }    input[type="text"]:disabled { background: rgb(229, 231, 235); color: rgb(107, 114, 128); cursor: not-allowed; }    .status-panel { margin-top: 8px; background: rgb(249, 250, 251); border: 1px solid rgb(229, 231, 235); border-radius: 8px; padding: 7px 10px; display: flex; flex-direction: column; gap: 3px; }    .status-header { font-size: 0.76rem; font-weight: 700; color: rgb(107, 114, 128); display: flex; justify-content: space-between; flex-wrap: wrap; }    .status { font-size: 0.82rem; font-weight: 600; min-height: 18px; word-break: keep-all; white-space: pre-wrap; line-height: 1.5; }    .err { color: rgb(220, 38, 38); }    .ok { color: rgb(5, 150, 105); }    .kibo { height: 100px; overflow-y: auto; background: rgb(249, 250, 251); border: 1px solid rgb(229, 231, 235); border-radius: 6px; padding: 6px; font-family: monospace; font-size: 0.8rem; white-space: pre-wrap; }    .p-grid { display: flex; flex-direction: column; gap: 6px; }    .p-card { background: rgb(249, 250, 251); border: 1px solid rgb(229, 231, 235); border-radius: 6px; padding: 6px; display: flex; flex-direction: column; gap: 4px; }    .p-card textarea { height: 95px; font-size: 0.76rem; background: white; resize: none; }    .score { display: flex; gap: 8px; margin-bottom: 4px; font-size: 0.82rem; font-weight: 700; background: rgb(248, 250, 252); padding: 5px 8px; border-radius: 6px; border: 1px solid rgb(229, 231, 235); flex-wrap: wrap; }    .h-list { width: 100%; max-height: 130px; overflow-y: auto; overflow-x: auto; border: 1px solid rgb(229, 231, 235); border-radius: 6px; }    table { border-collapse: collapse; font-size: 0.76rem; width: 100%; table-layout: auto; }    th, td { padding: 3px 4px; border-bottom: 1px solid rgb(229, 231, 235); height: 24px; white-space: nowrap; text-align: center; vertical-align: middle; }    th { background: rgb(249, 250, 251); }    td button { padding: 3px 6px; font-size: 0.74rem; border-radius: 5px; }    .date-wrap { display: inline-flex; align-items: center; justify-content: center; gap: 4px; vertical-align: middle; }    .date-text { line-height: 1; display: inline-flex; align-items: center; }    td button.info-btn { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 50%; background: rgb(209, 213, 219); color: white; font-size: 10px; font-weight: bold; line-height: 1; border: none; cursor: pointer; padding: 0; margin: 0; flex-shrink: 0; }    td button.info-btn:hover { background: rgb(37, 99, 235); }    .replay-controls { display: none; background: rgb(254, 243, 199); border: 1px solid rgb(252, 211, 77); padding: 6px; border-radius: 6px; margin-bottom: 8px; align-items: center; justify-content: space-between; gap: 4px; flex-wrap: wrap; }    .name-edit-box { display: none; background: rgb(243, 244, 246); border: 1px solid rgb(209, 213, 219); padding: 6px 8px; border-radius: 6px; margin-bottom: 8px; flex-direction: column; gap: 6px; font-size: 0.8rem; }    .ai-eval-panel { display: none; background: rgb(248, 250, 252); border: 1px solid rgb(203, 213, 225); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; flex-direction: column; gap: 6px; }    .eval-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; font-weight: 700; flex-wrap: wrap; gap: 4px; }    .eval-bar-wrap { width: 100%; height: 16px; background: rgb(243, 244, 246); border-radius: 99px; overflow: hidden; display: flex; border: 1px solid rgb(156, 163, 175); }    .eval-bar-s { background: rgb(31, 41, 55); color: white; font-size: 0.68rem; font-weight: 700; display: flex; align-items: center; padding-left: 6px; transition: width 0.25s ease; white-space: nowrap; }    .eval-bar-g { background: rgb(255, 255, 255); color: rgb(31, 41, 55); font-size: 0.68rem; font-weight: 700; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; flex: 1; white-space: nowrap; }    .eval-bottom-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 6px; flex-wrap: wrap; }    .rec-list { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; flex: 1; min-width: 0; }    .rec-chip { font-size: 0.74rem; padding: 3px 6px; border-radius: 5px; border: 1px solid rgb(191, 219, 254); background: rgb(239, 246, 255); color: rgb(30, 64, 175); cursor: pointer; font-weight: 600; }    .rec-chip.rank1 { background: rgb(220, 252, 231); border-color: rgb(134, 239, 172); color: rgb(22, 101, 52); }    .eval-meta { font-size: 0.74rem; color: rgb(75, 85, 99); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; }    .custom-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 16px; }    .custom-modal-card { background: white; border-radius: 12px; padding: 22px 24px 18px 24px; max-width: 320px; width: 100%; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18); display: flex; flex-direction: column; gap: 18px; animation: modalFadeIn 0.15s ease-out; text-align: center; }    @keyframes modalFadeIn { from { transform: scale(0.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }    .custom-modal-text { font-size: 0.92rem; font-weight: 600; color: rgb(31, 41, 55); line-height: 1.5; white-space: pre-wrap; word-break: keep-all; text-align: center; margin: 0 auto; }    .custom-modal-actions { display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; }    .modal-btn-cancel { background: white; border: 1px solid rgb(209, 213, 219); color: rgb(31, 41, 55); padding: 6px 14px; border-radius: 6px; font-size: 0.84rem; font-weight: 600; cursor: pointer; flex: 1; }    .modal-btn-cancel:hover { background: rgb(243, 244, 246); }    .modal-btn-ok { background: rgb(37, 99, 235); border: 1px solid rgb(37, 99, 235); color: white; padding: 6px 16px; border-radius: 6px; font-size: 0.84rem; font-weight: 600; cursor: pointer; flex: 1; }    .modal-btn-ok:hover { background: rgb(29, 78, 216); }    .promo-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.48); z-index: 9999; align-items: center; justify-content: center; padding: 16px; }    .promo-box { background: white; border-radius: 12px; padding: 16px 16px; border: 2px solid rgb(37, 99, 235); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25); text-align: center; max-width: 380px; width: 100%; }    .promo-title { font-size: 0.92rem; font-weight: 800; margin-bottom: 10px; color: rgb(17, 24, 39); }    .setup-group { text-align: left; margin-bottom: 10px; }    .setup-label { font-size: 0.8rem; font-weight: 700; margin-bottom: 5px; display: block; }    .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }    .setup-opt { padding: 8px 6px; border-radius: 7px; border: 1.5px solid rgb(209, 213, 219); background: rgb(249, 250, 251); font-size: 0.76rem; font-weight: 700; cursor: pointer; text-align: center; letter-spacing: -0.3px; }    .setup-opt.active { background: rgb(239, 246, 255); border-color: rgb(37, 99, 235); color: rgb(30, 64, 175); }    .mode-desc { font-size: 0.78rem; color: rgb(55, 65, 81); background: rgb(249, 250, 251); border: 1px solid rgb(229, 231, 235); border-radius: 8px; padding: 9px 11px; margin-bottom: 10px; line-height: 1.5; word-break: keep-all; text-align: left; } .btn-back {      background: #f9fafb;      border: 1.5px solid #e5e7eb;      border-radius: 6px;      color: #1f2937;      font-weight: 700;      font-size: 0.78rem;      padding: 4px 8px;      text-decoration: none;      transition: background 0.15s, border-color 0.15s, color 0.15s;      display: inline-flex;      align-items: center;      justify-content: center;      outline: none;      user-select: none;      -webkit-user-select: none;      touch-action: manipulation;      -webkit-tap-highlight-color: transparent !important;    }    @media (hover: hover) and (pointer: fine) {      .btn-back:hover {        background: #eff6ff;        border-color: #93c5fd;        color: #1e40af;      }    }    .btn-back:active {      background: #eff6ff;      border-color: #93c5fd;      color: #1e40af;      outline: none !important;      -webkit-tap-highlight-color: transparent !important;    }    .btn-back:focus {      outline: none !important;      -webkit-tap-highlight-color: transparent !important;    }    #sName, #gName { font-weight: normal !important; }
+    button { position: relative; overflow: hidden; }
+    .btn-ripple { position: absolute; border-radius: 50%; transform: scale(0); animation: btnRippleAnim 0.75s ease-out; pointer-events: none; background: rgba(31, 41, 55, 0.16); }
+    .btn-pri .btn-ripple, .btn-copied .btn-ripple { background: rgba(255, 255, 255, 0.35); }
+    .btn-danger .btn-ripple { background: rgba(220, 38, 38, 0.18); }
+    @keyframes btnRippleAnim { to { transform: scale(3.5); opacity: 0; } }
+  </style>  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <style>
+    .btn-friend {
+      background: #eff6ff;
+      border: 1.5px solid #93c5fd;
+      border-radius: 6px;
+      color: #1e40af;
+      font-weight: 700;
+      font-size: 0.78rem;
+      padding: 4px 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .btn-friend.active-online {
+      background: #2563eb;
+      border-color: #1d4ed8;
+      color: #ffffff;
+      box-shadow: 0 1px 4px rgba(37, 99, 235, 0.3);
+    }
+    .friend-panel {
+      display: none;
+      background: linear-gradient(135deg, #eff6ff, #f8fafc);
+      border: 1.5px solid #93c5fd;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.82rem;
+    }
+    .friend-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .friend-panel-title {
+      font-weight: 800;
+      color: #1e3a8a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.86rem;
+    }
+    .online-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #9ca3af;
+      display: inline-block;
+    }
+    .online-dot.connected {
+      background: #10b981;
+      box-shadow: 0 0 6px #10b981;
+    }
+    .online-dot.waiting {
+      background: #f59e0b;
+      box-shadow: 0 0 6px #f59e0b;
+    }
+    .friend-room-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid #dbeafe;
+      padding: 7px 9px;
+      border-radius: 7px;
+    }
+    .room-code-badge {
+      font-family: monospace;
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: #1d4ed8;
+      background: #eff6ff;
+      padding: 3px 8px;
+      border-radius: 5px;
+      border: 1px dashed #60a5fa;
+      user-select: all;
+    }
+    .floating-toast {
+      position: fixed;
+      top: 18px;
+      left: 12px;
+      right: 12px;
+      max-width: 584px;
+      margin: 0 auto;
+      background: rgba(17, 24, 39, 0.92);
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-align: center;
+      z-index: 9999;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      pointer-events: none;
+      animation: modalFadeIn 0.15s ease-out;
+    }
+  </style>
+</head><body><div id="customModalOverlay" class="custom-modal-overlay" style="display:none;" onclick="if(event.target===this)closeCustomModal(false)">  <div class="custom-modal-card">    <div id="customModalText" class="custom-modal-text">양측 합의하에 무승부로 처리하시겠습니까?</div>    <div class="custom-modal-actions">      <button id="customModalCancelBtn" class="modal-btn-cancel" onclick="closeCustomModal(false)">취소</button>      <button id="customModalOkBtn" class="modal-btn-ok" onclick="closeCustomModal(true)">확인</button>    </div>  </div></div><div id="setupModal" class="promo-overlay">  <div class="promo-box">    <div class="promo-title">대국 차림(기물 구성) 선택</div>    <div class="mode-desc">      • <strong>표준 차림:</strong> 정통 쇼기 기물인 <strong>비차(飛車)·각행(角行)</strong>을 배치합니다.<br>      • <strong>신수 차림(구행·마갈):</strong> 비차 대신 비차처럼 움직이되 중간에 한 번 방향을 꺾어서 이동하는 <strong>구행(鉤行)</strong>, 각행 대신 각행처럼 움직이되 중간에 한 번 방향을 꺾어서 이동하는 <strong>마갈(摩羯)</strong>을 배치합니다.    </div>    <div class="setup-group" id="senteSetupGroup">      <span class="setup-label" style="color:rgb(31,41,55);">선수(先·선공) 차림</span>      <div class="setup-grid" id="senteSetupBtns">        <button type="button" class="setup-opt active" data-f="STD" onclick="selectFormation('S','STD')">표준 (비차 · 각행)</button>        <button type="button" class="setup-opt" data-f="VAR" onclick="selectFormation('S','VAR')">신수 (구행 · 마갈)</button>      </div>    </div>    <div class="setup-group" id="goteSetupGroup">      <span class="setup-label" style="color:rgb(31,41,55);">후수(後·후공) 차림</span>      <div class="setup-grid" id="goteSetupBtns">        <button type="button" class="setup-opt active" data-f="STD" onclick="selectFormation('G','STD')">표준 (비차 · 각행)</button>        <button type="button" class="setup-opt" data-f="VAR" onclick="selectFormation('G','VAR')">신수 (구행 · 마갈)</button>      </div>    </div>    <div style="display:flex;gap:8px;margin-top:12px;">      <button onclick="cancelSetupModal()" style="flex:1;padding:8px 0;border-radius:8px;">취소</button>      <button class="btn-pri" onclick="confirmSetupModal()" style="flex:1;padding:8px 0;border-radius:8px;">대국 시작</button>    </div>  </div></div><div id="promoModal" class="promo-overlay" onclick="if(event.target===this &amp;&amp; performance.now() - promoModalOpenedAt &gt; 250)cancelPromotionChoice()">  <div class="promo-box" style="max-width:320px;">    <div class="promo-title" id="promoModalTitle">기물 승급(成) 선택</div>    <div class="mode-desc" id="promoModalDesc" style="text-align:center;">상대 진영에 진입했습니다. 승급하시겠습니까?</div>    <div style="display:flex;gap:8px;">      <button onclick="confirmPromotionChoice(false)" style="flex:1;padding:9px 0;border-radius:8px;font-size:0.84rem;">불성 (不成)</button>      <button class="btn-pri" onclick="confirmPromotionChoice(true)" style="flex:1;padding:9px 0;border-radius:8px;font-size:0.84rem;">승급 (成)</button>    </div>    <button onclick="cancelPromotionChoice()" style="margin-top:8px;width:100%;padding:7px 0;border-radius:8px;font-size:0.8rem;">이동 취소</button>  </div></div><div class="wrap">  <div class="card">    <h1>      <div style="display: flex; align-items: center; gap: 8px;">        <span>쇼기</span>        <a href="index.html" class="btn-back">돌아가기</a>        <button id="friendBattleBtn" class="btn-friend" onclick="toggleFriendPanel()">친구와 대국</button>      </div>      <span id="turnBadge" class="turn-pill">대국 전 (새 대국을 눌러 시작)</span>    </h1>
+    <div id="friendPanel" class="friend-panel">
+      <div class="friend-panel-header">
+        <div class="friend-panel-title">
+          <span id="onlineDot" class="online-dot"></span>
+          <span id="onlineStatusTitle">친구와 실시간 온라인 대국</span>
+        </div>
+        <div style="display:flex;gap:4px;align-items:center;">
+          <span id="myRoleBadge" style="font-size:0.75rem;font-weight:700;color:#1e40af;background:#dbeafe;padding:2px 7px;border-radius:99px;display:none;"></span>
+          <button id="disconnectPeerBtn" class="btn-danger" style="display:none;padding:3px 7px;font-size:0.75rem;" onclick="disconnectOnline()">연결 종료</button>
+          <button style="padding:3px 7px;font-size:0.75rem;" onclick="toggleFriendPanel()">접기</button>
+        </div>
+      </div>
+      <div id="friendSetupArea" style="display:flex;flex-direction:column;gap:6px;">
+        <div class="friend-room-box">
+          <span style="font-weight:700;color:#374151;">방 만들기:</span>
+          <button class="btn-pri" id="createRoomBtn" onclick="createOnlineRoom()">새 방 생성</button>
+          <span id="hostCodeArea" style="display:none;align-items:center;gap:5px;flex-wrap:wrap;">
+            <span>방 코드: <strong id="myRoomCode" class="room-code-badge">------</strong></span>
+            <button onclick="copyRoomCode(this)">코드 복사</button>
+          </span>
+        </div>
+        <div id="joinRoomBox" class="friend-room-box">
+          <span style="font-weight:700;color:#374151;">방 참가하기:</span>
+          <input type="text" id="joinCodeInput" maxlength="10" placeholder="6자리 코드" style="width:95px;text-transform:uppercase;font-weight:700;" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
+          <button class="btn-pri" id="joinRoomBtn" onclick="joinOnlineRoom()">입장</button>
+        </div>
+        <div style="color:red;font-weight:bold;font-size:0.8rem;">종료되지 않은 대국은 방이 삭제되면 함께 삭제됩니다.</div>
+      </div>
+      <div id="friendConnectedArea" style="display:none;flex-direction:column;gap:6px;">
+        <div class="friend-room-box" style="justify-content:space-between;">
+          <div>
+            <span style="font-weight:700;color:#065f46;">연결된 방:</span>
+            <strong id="activeRoomCode" class="room-code-badge">------</strong>
+          </div>
+          <span id="connectedGuideText" style="font-size:0.75rem;color:#374151;font-weight:600;">새 대국 버튼을 눌러 대국을 시작하세요.</span>
+        </div>
+      </div>
+    </div>    <div id="playersBar" class="players-bar">      <div id="sBadge" class="badge"><img id="sBadgeIcon" class="badge-icon" alt="선" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAYAAAA5ZDbSAAAIzklEQVR4Aeyca6hUVRTH140eQkkQFQU1c9UKg/pQH4wgHxT6LdIoE+tLaCURUZSCj1JBM8y+JIZiFkSaRT4qKULL7IqmPfRD2kPTq6ZlqYnX8BXc5j/XmWbW3TNzzt5rn3P2Pnu4e+a89tpr/X9nnf1wnAsovLxWIAD2Gi9RABwAe66A5+GFDA6APVfA8/BCBgfA/igwZWT7dBR/ImodSS4yePKo9qGTR7avpzaagTJlVHt3XkB7Dxgg24i+bGujYVT7KsHGudpDPm57CxhZO2VUezcytiE4QC5d4zNoLwHjcYysbQiWnwDoUv/MD/uw7xXgStb2ehyfJ3XX8LsJ5fxu/Qcge5jN3gBulrWF/v1o7BPjaPDwe8pl8tzZzUF7lM3OA46StQ9PGE/FAf3rMhaw85DNzgIG2KhZW0e2ZgeQfc9mJwFj1ItBVKO+Fo9jVdbWsK3bBGhfs5kBros7czuVrG009UFfi4zkj+MogQAy6jYF7WDf7AzgqFkbBWazawC6KWTHRtqZB2wzaxuBBmRfsjnTgJPK2magXc/mTAJOI2ubQW6VzRjNw+dGNtI8njnAzbIWg6jKCDlp0fDYbpTNGM1jVA/fk/arVXuZAYwMQCY0GiFD3DhTn1aB65wHZNeyOROAcecjA5AJXPhK1kJcfi6tffiCG07VPmJALIhJdT7pY6kCzk7WxpcdkKNkc9qgUwOMwHGn447n8mYxa7mPlX2AbpbN6HIQa+X6pD8TB+xy1jaCA8itshlfPkgDdKKAEaAPWdsMNEb5eAIpr8G/OSe83JkIYB+zVgmwdBDr4BjtN3pslx/ZCS53Wgfse9aWmCr/8NjOQjZbA4ysRb+DO1alAO5w3Om441XnfTiG2BAjYlXGg0e25Wy2AhgLFuhrVUGhf8KdjTtcdd7HY4i15SDMUt8sCriStaqpD8DhTsYdjTsb+3krAA0NlHGfz2ZoqDyvebA54JhG27qp/svl1PPKY9b2RN77HZCbZXMjDXtbinZEFLCqSdyxec5alSY4BtDQBts2iyjgbqK6DEYACITCS6kAtIFGtSe5hrXndLZFAes4EOrYVUAUMB9coe+167771rlGXEPTCEUBmzoT6ssrYBVwXqdD8pj0LYoBlp6/6YfkVk1VEkhqKQbYLVlbeOvRaTHAfILOBw8eaSYeCteKa2nSoBhgEydcqnui65RL7tr7KcPCgH5OCRHF2TXrttP4SW/S7s7DUS7XvkZysUMsgyWd0lbGYsXtO/bTszOX0bYf9tG455fQlm17xFqzmQxigMWizaChg3/8TU9Ne7vq2aHDx+mRpxfS6s++rx4z2eB9sIktXlcMMF+BMXX6yLEuunHwpEyUYQ/OocNHTnDtaOKs5TT/rbW9jpse4Fqa2BMDbOKEqu6VV/SleS+ModmTHhApsFdpZ/Cgm0RswrdbB15XMZvJTxHAqol5kf0mhk709424nUbfO0ik9L20T9WFgTdcK2ITvg278+aqXd0NlVYqTXXsxwKs00Cok64CIoAlJ+bpypFe66ZjlkaeiwDmxm05y9vxeV8qaewA9nCRw9WbSQSw74scScAtsKSQ0lQEcBIChDb0FBABLDkx1wvD/Vq2xi0igLm8tpzl7fi8L5U0VgAXBRY5sgTPZV+MAUutuLgsooTvqqSQ0NYYsERwwYY9BYwB8wl56H/1YdnQzhiwfjhu1Xz/46105uy/iTrNk0encXHABTZh13Eqa3WWLP+Kps79gEZPWEAHDh1LzL1u9n+9dBo2BizhhI7jSdXZ8PXP9PKCNeXmdu46SI8+t5g6Dxwp70u/2UgOY8DSQarsrfjkG8Ij0qR0/XO6avqn3b9Hsrds9WYaP3FJtR429v12lB568nVav+lH7IqWTPbBfEJuw8nN3/1afkTiMalb8BWgCo2Orb9Esjf91VWVKnWfx46fpBfnraSz5+z2yVzbOici7phkcMQmzC/DV3d2dcwlk9Lv+quqjjw2dqiRLfjRsXIqXXzRhVWbWd0QB1wMq1jarFXamS52GAE2bVxbiVAxsgJGgCXmaZE9zcmF0mMYI8Bcc2nnuP087psmkSjgPALIesyigAsermIlDZBraLqQZATYtPGkxctje0aAJSbiDopu1WXpcYwRYB6ptHPcfh73TZNIFHAeAWQ9Zm3AqkWOYljFMuat0lClddSGtAFHbSBcl64C2oD5BDz0v3IgJbXUBiwXTrDUSgGeTK2urz0vBriQs0WOrpP/f4GgVlAb2ybrDdqATRq1IUKSNv882kX3Pz6f3vtoi5VmJZNFG3DvyPJx5NTpczRx1rvUeeAvmvbKCpq36FM6feZcZoPXBswn4JIDg8yqVXJs1msf0qZvd5e2ev4WvbOenpmxlCQf2VxLrnVPy9HetQFHMx//qnUdO6z8dNLeUsZVvFm8bIN2G/jiX8VO5fPzjTvLv4CHL+RVjmXlUwxwUWiR447bBoj9xBF+5iipMm7MELrm6stFuKq01F3s0AKs21iU6Pte1kfsJ47wM0dJlRFDbqFLLs7el/C0AEcBFa7JhgJagPnEmw8KshGa215wTbnmUaPTAhzVeLgufQVEABdytopVj83OHtdUd2FJC7BuY3akCFabKaAFuJnBcE5GAd4H61rVAsxXVqSc0Q0iD/W45lFj1gIc1Xi4Ln0FYgNWLXIUhVax0pcjOx6oNFVp38rj2IBbGQzns6VAbMB8wh36X3tAJbSNDdheOMFyKwV4crW6HueNARcaLXLAeiipKxAbcFjkSI4ZTx4d7WMDTi680JKEArEB8wm3xEBAIhAfbXBtufZRYo4NmBvduPYLWrrwjVAsaABtud5x940B79+zl0Kxp0FcoPz6WIB1VlJ4g2HfTIG4DGIBNnMt1E5DgfiAu2kGhdJYA8vazFnVuYFivGIBhvGXVnfODCU9DWKwLV8aC3C5RnhzSoEA2Clc8Z0NgONr5lSNANgpXPGdDYDja+ZUjQDYKVzxnQ2A42vmVI3EADulikfO/gcAAP//Bx7cLQAAAAZJREFUAwCmhqdLO5L4swAAAABJRU5ErkJggg=="><span style="overflow:hidden;text-overflow:ellipsis;">선: <strong id="sName">선</strong></span></div>      <div id="playerBtns" class="player-btns">        <button id="swapBtn" onclick="swapPlayers()">진영 교체</button>        <button id="editNameBtn" onclick="toggleNameEdit()">이름 수정</button>        <button id="resetNameBtn" onclick="resetPlayerNames()" title="플레이어 이름을 기본값으로 초기화">이름 초기화</button>      </div>      <div id="gBadge" class="badge"><img id="gBadgeIcon" class="badge-icon" alt="후" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAYAAAA5ZDbSAAAJeElEQVR4Aeyda2xURRTHT40oUTA+SIxKtuUZqlFBENIAkUDwrbSCJkJIRFAwGFGUktbIGwxVI3wQ+ACoqKgBFAzEKD5AIeIDJBhfoG0FiSBIEIjySmrPwtbe09ndOzNn7r0zOxtnd2fuPM75/+65d2a4W88B/3JaAQ/YabwAHrAH7LgCjrvnI9gDdlwBx93zEewBu6NAdXnJVEzueJTfk4KI4KqKkpuqyks+hSKYhqm6oqShUEA7DxhBFgFsKCqCAdD81QgbjzUvcvG7s4AxaqsrShowYrOCQ8iNdVwG7SRgvBxj1GYFSw8g6Mb7My12Ie8U4EzUtrgcnyXVb/BAwHQ2G/xAyA5GszOAc0VtqmMHGD52NPQfPCidqmpm5wbtUDRbDzhM1I4YNwaKO3UMRCzCLoRothYwgg0btQGyzTII2fVothIwznpxEpXtXouXY1HUNmMb+IqgXY1mAjjgd+IymajNtvTBey1GJL0ch3EEIWPbnKAtvDdbAzhs1IaBmasOgs4J2bKZduIBm4zabKARsivRnGjAUUVtLtC2R3MiAccRtbkg54tmnM2jzdn6iLM8cYBzRS1OojIz5KhFw8t2tmjG2TzO6tH2qO3KN15iAGMEYCRkmyGjuDJLn3yOqxxHyLZFcyIA45mPEYCRQIXPRC2KS4/FlUdb8IQTjY8+oC/ok+h41GWxAk5O1MrLjpDDRHPcoGMDjI7jmY5nPJU3iVFLbczkEXSuaMZbDvqaqR/1Z+SAbY7abHAQcr5oxocP4gAdKWB00IWozQUaZ/l4BRLWwX9zjni7MxLALkatEGBjIe6D42w/22U7fcmOcLvTOGDXo7aRqfA/vGwnIZqNAcaoxfsOnrEiBfAMxzMdz3jRcRfK0Df0EX0V+oOXbMPRbAQwbljgvVbkFN6f8MzGM1x03MUy9DXvJMzQvZkVcCZqRUsfBIdnMp7ReGZjvtASgkYNhH6fjWbUUHhcsTA3YMlOixog+HA5nHkVYtSe8bzlO0LOFc3ZNGzZU7gSVsCiIfGMLeSoFWmCZQgatcHvJhMr4AaAQASjA+gI+JdQAdQGNWp+kGrY/JjKd1bAKgb4NmYVYAVMJ1d47zVrvv29U42ohroesgLWNca351fAKOBCXQ7xY1LvkQ0w9/pN3SW7WoqCgFNLNsB2yZrHWocOswGmC3Q6eXBIM3ZXqFZUS50B2QDrGGFT26PHjttkrrk/ZZjq1MEqIcIYu2LtV/BI9Svww669Yaor1+Hc7GCLYE6jlJUx2PDLb2uheu5KwM8hD86HDV/8xDaayWBgA8zmbQI7qt9zEB6b8nrAsocql8Laj7YHylQz9B6s2o+oHRtgugPDYfTO2v3QpX9l7Gnw8Bo4dPhYC/2emL4cFiz7uEW5bgHVUqc/NsA6RmRr27Xj5TC7cph2embCkMAQ993VW7vPjF1Xd7kq0HfSMiyARQvzYvI3MVQdRxi6qeLWnoHh+/ToDLp9ZtoPKOsW6FslI9JKpKlK31KAVQbwbeJVgAUw58I8XjniG51jziKyngUw7diUsXQcl/NcQWMGsIObHLaeTCyAXd/kiAJuigQFl6YsgKMQwI+hpgALYM6FuZob9rcyNW9hAUzlNWUsHcflPFfQGAFczLTJkRSANtuhDZhrx8VmETlsFwUFh7bagDmc832YU0AbMF2Qu3r/jeJJDhPaaQM2d+4lp+f31m+Hhye/DN/vNPskB/WYBg89HibPDjhFFuxhjEhyHYT65Izl8M2OOigfPR82bvk5MnM5Nju0AXMYEZlikgMdPHQUJkwNPskxZtISeOf9rZI9hatuIji0AYczXb/W3aNeVH6y44bbpgQMwIgM86RI2ZCZ8NvvfwXaYmbynLehZuE6/MqaEnkPpgtyE0aiipPH36n8FIaJJzoGlJWiWUYT1VZlMJ0IVhlPuU3fXl2Un8Iw8URH7+7B/4uLsmOGG7IDLva7WMrIRNrpbnZoAdYdXFkJ3zC0AlqAOdZpoS01WPH4iVMwadZbsGzlZth34G+DI+XvmnsOowWYmsttHO3fVL71+a1gyuPl8OFn30H/e2anf8FQu/tPU8NJ9asbRKyApSxPWOW2bVrDvGkj4Npu7QF/g3TLiOfTEX3y1OmEWSpnDivglOW7WO0ubQtLXxgD15W2T6s4c/4auHfsS7B336F0Poo3qqHuRpIWYN3BoxBMdoyLL7oAZlUOa2qGvyR8YOIS2H/wSFOZTV+0AHMsxJMoVmnnKxvvyf//3KV+zwF4auab8O/xU2iu0cQ9j9ECTD3lNo72H2V+5NC+0O/Grk1Dbtn2a/re3FQQ0RfdIGIFHJHPkQ0zbuTAwFjLVm0K5G3IKAMWbXIUO7aL1adHx0AU4z88iH5GyglapKFI67BjKgMOO4Dt9Ybe3ivgQpsLWwfySc8oA6YLcJfuv82hlfXsDN2vSaWLcJ18Xqtz099NvnFqqQzYpINJ6vuyS9rAikWPwq7Pa+COQdfHYhoNJhkj2ACnLN/kkBEN6544eRqi2uXS2W9QBqwzKApke5q7YB08PXclHD7yD7srnMGiDLilV4VT8tqqzYBp9QfbYFzVq1DXuBGSVO+VAdMFOOfEIKlioV2bvt4JM+atwa/ptHVHHdw8/Ln0U5fpAoY3qiXVWmYIZcAyg8jU/fGXP5Qfrsv2IJ3qQ3ei/kZNXCx05/7xCwEjWngwxkI2wMVMmxylna9Qfrgu86eN4vosad+OBaVIS9XNDiXAqoOF9T7zJ4ps+8ysl8P6GUU9JcBRGObH4FFACTBdeNNJAY9phd0L1ZRqHlYdJcBhO/f14leABXCqwHaxgtjM5KimqhtLSoBVBzMjhe81lwJKgHN16I/xKEDvwaq9KgGmOytcxqg6UQjtqOZhfVYCHLZzXy9+BaQBizY5ipl2seKXIzkWiDQVaZ/PYmnA+Tr0x5OlgDRguuD2919zQDm0lQZszh3fcz4FaHDlq4/HtQGnsm1yYO8+xa6ANGC/yREdMxo8KtpLA47OPT8ShwLSgOmCm2MiwOGIi31Qban2YXyWBkw73bT+E3hj0WKfDGiA2lK9ZfPagHfX1oFP5jSQBUrrSwFW2UmhA/q8ngKyDKQA65nmW8ehgDzgBpgGPmXXwLA2z75bvxEkXlKAsfM5q+un+xSfBhJs01WlAKdb+DerFPCArcIlb6wHLK+ZVS08YKtwyRvrActrZlULD9gqXPLGesDymlnVIjLAVqnikLH/AQAA//+RkzlsAAAABklEQVQDANe4hktKe+IzAAAAAElFTkSuQmCC"><span style="overflow:hidden;text-overflow:ellipsis;">후: <strong id="gName">후</strong></span></div>    </div>    <div id="nameEditBox" class="name-edit-box">      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">        <label><strong>선:</strong> <input type="text" id="sNameInput" maxlength="13" oninput="limitInputLength(this, 13)" placeholder="선"></label>        <label><strong>후:</strong> <input type="text" id="gNameInput" maxlength="13" oninput="limitInputLength(this, 13)" placeholder="후"></label>      </div>      <div id="nameEditHint" style="font-size:0.72rem;color:rgb(107,114,128);">한글·영문 최대 13자까지 입력할 수 있습니다.</div>      <div style="display:flex;gap:4px;justify-content:flex-end;">        <button class="btn-pri" onclick="applyPlayerNames()">저장</button>        <button onclick="toggleNameEdit()">닫기</button>      </div>    </div>    <div id="winBanner" class="win-banner"></div>    <div id="aiEvalPanel" class="ai-eval-panel">      <div class="eval-header">        <span id="evalTitle">AI 형세 분석 및 추천 수</span>      </div>      <div class="eval-bar-wrap">        <div id="evalBarS" class="eval-bar-s" style="width:50%;">선수 50%</div>        <div id="evalBarG" class="eval-bar-g">후수 50%</div>      </div>      <div class="eval-meta">        <span id="evalComment">대국이 시작되면 분석이 시작됩니다.</span>        <span id="evalActualCompare"></span>      </div>      <div class="eval-bottom-row">        <div class="rec-list" id="recMovesBox"></div>        <button onclick="toggleAiHint()" id="spectateAiHintBtn" class="btn-on" style="display:none;flex-shrink:0;margin-left:auto;">추천 표시</button>      </div>    </div>    <div class="captured-bar">      <div class="cap-row">        <div class="cap-side" id="capSideS">          <strong class="cap-label">선수(<span id="ptsS">63</span>점) 포로:</strong>          <span id="capByS" class="cap-pieces">-</span>          <span id="advS" class="adv-pill" style="display:none;">+0</span>        </div>      </div>      <div class="cap-row" style="border-top:1px dashed rgb(229,231,235);padding-top:3px;">        <div class="cap-side" id="capSideG">          <strong class="cap-label">후수(<span id="ptsG">63</span>점) 포로:</strong>          <span id="capByG" class="cap-pieces">-</span>          <span id="advG" class="adv-pill" style="display:none;">+0</span>        </div>      </div>    </div>    <div class="board-box">      <canvas id="boardCanvas" width="920" height="980"></canvas>    </div>    <div id="replayPanel" class="replay-controls">      <span id="replayStatus" style="font-weight:700;font-size:0.8rem;color:rgb(146,64,14);">복기 모드</span>      <div style="display:flex;gap:4px;flex-wrap:wrap;">        <button onclick="replayFirst()">처음으로</button>        <button onclick="replayPrev()">이전 수</button>        <button onclick="replayNext()">다음 수</button>
+        <button onclick="toggleBranching()" id="branchBtn">이어 두기</button>        <button onclick="toggleAiHint()" id="aiHintBtn" class="btn-on">추천 표시</button>      </div>    </div>    <div style="display:flex;flex-direction:column;gap:5px;margin-top:6px;">      <div class="btn-group" style="display:flex;gap:4px;flex-wrap:wrap;width:100%;align-items:center;">        <button class="btn-danger" onclick="resetBoard()" id="newGameBtn">새 대국</button>        <button onclick="undoMove()" id="undoBtn" disabled="">무르기</button>        <button onclick="requestDraw()" id="drawBtn" disabled="">무승부</button>        <button class="btn-danger" onclick="resignGame('S')" id="resignSBtn" disabled="">선 기권</button>        <button class="btn-danger" onclick="resignGame('G')" id="resignGBtn" disabled="">후 기권</button>        <button class="btn-danger btn-right" onclick="endGame()" id="endGameBtn" disabled="">대국 종료</button>      </div>      <div class="btn-group" style="display:flex;gap:4px;flex-wrap:wrap;width:100%;align-items:center;">        <button onclick="toggleSound()" id="soundBtn" class="btn-on">효과음</button>        <button onclick="toggleNums()" id="numBtn" class="btn-on" disabled="">이동 힌트</button>        <button onclick="toggleDangerHint()" id="dangerHintBtn" class="btn-on">위험 힌트</button>        <button onclick="toggleAiMode()" id="aiModeBtn" class="btn-off">AI 모드</button>        <button onclick="toggleSpectate()" id="spectateBtn" class="btn-off">관전 모드</button>        <button onclick="toggleVsAiMode()" id="vsAiBtn" class="btn-off btn-right">AI와 대국</button>      </div>    </div>    <div class="status-panel">      <div class="status-header">        <span>상태 메시지</span>        <span style="font-weight:500;">포로 기물을 클릭한 뒤 빈칸을 누르면 타격(打)합니다</span>      </div>      <div id="statusMsg" class="status ok">새 대국 버튼을 눌러 대국을 시작해 주세요.</div>    </div>  </div>  <div class="card">    <h2>      <span>수 입력 (Log 붙여넣기)</span>    </h2>    <div class="row">      <textarea id="logInput" rows="2" placeholder="예: 77보76" onkeydown="handleEnter(event)"></textarea>      <button class="btn-pri" onclick="applyLog()">착수 실행</button>    </div>  </div>  <div class="card" id="promptCard" style="display:none;">    <h2>      <span>시작 프롬프트</span>      <button onclick="copyState(this)">현재 판 상태 요약 복사</button>    </h2>    <div class="p-grid">      <div class="p-card">        <div style="display:flex;justify-content:space-between;align-items:center;">          <strong style="font-size:0.8rem;"><span id="pSTitle">선</span></strong>          <button onclick="copyText('sPrompt', this)">복사</button>        </div>        <textarea id="sPrompt" readonly="">쇼기 대국을 하자.
+표준 9x9 쇼기판(가로 오른쪽부터 1~9, 세로 위쪽부터 1~9)을 사용한다.
+너는 선수(S, 선공)이고 상대는 후수(G, 후공)이다.
+대국 시작 전, 너의 차림을 [표준 / 신수] 중에서 하나 선택해 줘 (신수는 비차→구행, 각행→마갈).
+답변은 설명 없이 첫 줄에 선택한 차림과 첫 수를 아래 형식으로 출력한다.
+표준, 77보76
+
+차림을 고르고 첫 수를 착수해 줘.</textarea>      </div>      <div class="p-card">        <div style="display:flex;justify-content:space-between;align-items:center;">          <strong style="font-size:0.8rem;"><span id="pGTitle">후</span></strong>          <button onclick="copyText('gPrompt', this)">복사</button>        </div>        <textarea id="gPrompt" readonly="">쇼기 대국을 하자.
+표준 9x9 쇼기판(가로 오른쪽부터 1~9, 세로 위쪽부터 1~9)을 사용한다.
+상대는 선수(S, 선공)이고 너는 후수(G, 후공)이다.
+선수를 기다리지 말고, 대국 시작 전 너의 차림을 [표준 / 신수] 중에서 하나 선택해 줘 (신수는 비차→구행, 각행→마갈).
+답변은 설명 없이 첫 줄에 선택한 차림을 출력해 줘.
+예: 표준
+
+차림을 고르고 대답해 줘.</textarea>      </div>    </div>  </div>  <div class="card">    <h2>      <span>현재 기보 (<span id="mCount">0</span>수)</span>      <div style="display:flex;gap:4px;flex-wrap:wrap;">        <button onclick="copyLast(this)" id="copyKiboLastBtn" disabled="">마지막 수 복사</button>        <button onclick="copyKibo(false, this)" id="copyKiboLineBtn" disabled="">줄바꿈 복사</button>        <button onclick="copyKibo(true, this)" id="copyKiboOneBtn" disabled="">한 줄 복사</button>      </div>    </h2>    <div id="kiboBox" class="kibo">아직 착수된 기물이 없습니다.</div>  </div>  <div class="card">    <h2>      <span>종료되지 않은 대국</span>      <button class="btn-danger" id="clearUnfinBtn" onclick="clearUnfinished()" disabled="">전체 삭제</button>    </h2>    <div class="h-list">      <table>        <thead>          <tr>            <th>저장 일시</th>            <th>선/후</th>            <th>진행 수순</th>            <th>관리</th>          </tr>        </thead>        <tbody id="unfinBody"><tr><td colspan="4" style="text-align:center;color:rgb(107,114,128);">저장된 미완료 대국이 없습니다.</td></tr></tbody>      </table>    </div>  </div>  <div class="card">    <h2>      <span>대국 기록</span>      <button class="btn-danger" id="clearHistBtn" onclick="clearHist()" disabled="">전체 삭제</button>    </h2>    <div class="score" id="scoreBox">선: 0승 | 후: 0승 | 무승부: 0회</div>    <div class="h-list">      <table>        <thead>          <tr>            <th>일시</th>            <th>선/후</th>            <th>결과</th>            <th>수순</th>            <th>관리</th>          </tr>        </thead>        <tbody id="hBody"><tr><td colspan="5" style="text-align:center;color:rgb(107,114,128);">저장된 대국 기록이 없습니다.</td></tr></tbody>      </table>    </div>  </div>  <div class="card">    <div class="top-dl" style="margin-top:0;">      <span>스마트폰에 파일로 보관하려면:</span>      <button class="btn-pri" onclick="downloadHTML()">파일로 저장 (쇼기.html)</button>    </div>  </div></div><script>document.addEventListener("pointerdown",function(e){const btn=e.target.closest("button");if(!btn||btn.disabled)return;const toggleIds=["branchBtn","aiHintBtn","spectateAiHintBtn","soundBtn","numBtn","dangerHintBtn","aiModeBtn","spectateBtn","vsAiBtn"];if(toggleIds.includes(btn.id)||btn.classList.contains("setup-opt"))return;const rect=btn.getBoundingClientRect();const size=Math.max(rect.width,rect.height);const span=document.createElement("span");span.className="btn-ripple";span.style.width=span.style.height=size+"px";span.style.left=(e.clientX-rect.left-size/2)+"px";span.style.top=(e.clientY-rect.top-size/2)+"px";btn.appendChild(span);setTimeout(()=>span.remove(),760);});
+let modalResolve=null;function showCustomModal(text,isConfirm=true){return new Promise((resolve)=>{modalResolve=resolve;document.getElementById("customModalText").innerHTML=text;const cancelBtn=document.getElementById("customModalCancelBtn");cancelBtn.style.display=isConfirm?"inline-block":"none";document.getElementById("customModalOverlay").style.display="flex";});}function closeCustomModal(result){document.getElementById("customModalOverlay").style.display="none";if(modalResolve){modalResolve(result);modalResolve=null;}}const ROWS=9;const COLS=9;const LOGICAL_W=460;const LOGICAL_H=490;const NL=String.fromCharCode(10);const canvas=document.getElementById("boardCanvas");const ctx=canvas.getContext("2d");let currentDpr=2;const staticCacheCanvas=document.createElement("canvas");const staticCacheCtx=staticCacheCanvas.getContext("2d");let staticCacheValid=false;function initCanvasResolution(){currentDpr=Math.min(2,Math.max(1.5,window.devicePixelRatio||1));canvas.width=Math.round(LOGICAL_W*currentDpr);canvas.height=Math.round(LOGICAL_H*currentDpr);ctx.setTransform(currentDpr,0,0,currentDpr,0,0);staticCacheCanvas.width=canvas.width;staticCacheCanvas.height=canvas.height;staticCacheValid=false;}initCanvasResolution();function invalidateBoardCache(){staticCacheValid=false;}const STORAGE_KEY_HIST="shogi_saved_hist";const STORAGE_KEY_UNFIN="shogi_saved_unfin";function loadStorageHist(){try{const raw=localStorage.getItem(STORAGE_KEY_HIST);return raw?JSON.parse(raw):[];}catch(e){return[];}}function saveStorageHist(){try{localStorage.setItem(STORAGE_KEY_HIST,JSON.stringify(histList));}catch(e){}}function loadStorageUnfin(){try{const raw=localStorage.getItem(STORAGE_KEY_UNFIN);return raw?JSON.parse(raw):[];}catch(e){return[];}}let offlineUnfinList = [];
+function saveStorageUnfin(){
+  if(onlineMode) return;try{localStorage.setItem(STORAGE_KEY_UNFIN,JSON.stringify(unfinList));}catch(e){}}const PIECE_POINTS={H:15,M:13,R:10,B:8,G:6,S:5,N:4,L:3,P:1,K:0};const PIECE_VALUES={H:1550,M:1350,R:1050,B:850,G:600,S:550,N:400,L:350,P:100,K:30000};const PROMO_VALUES={H:1850,M:1650,R:1350,B:1150,S:650,N:600,L:580,P:550};const HANJA_BASE={K_S:"王將",K_G:"玉將",R:"飛車",B:"角行",G:"金將",S:"銀將",N:"桂馬",L:"香車",P:"歩兵",H:"鉤行",M:"摩羯"};const HANJA_PROMO={R:"竜王",B:"竜馬",S:"成銀",N:"成桂",L:"成香",P:"と金",H:"金鉤",M:"金摩"};const KOR_FULL_NAME={K:"옥장",R:"비차",B:"각행",G:"금장",S:"은장",N:"계마",L:"향차",P:"보병",H:"구행",M:"마갈"};const KOR_PROMO_FULL={R:"용왕",B:"용마",S:"성은",N:"성계",L:"성향",P:"토금",H:"금구",M:"금마"};const KOR_SHORT_NAME={K:"옥",R:"비",B:"각",G:"금",S:"은",N:"계",L:"향",P:"보",H:"구행",M:"마갈"};const KOR_PROMO_SHORT={R:"용",B:"마",S:"성은",N:"성계",L:"성향",P:"토",H:"금구",M:"금마"};const FORMATION_NAMES={STD:"표준(비차 · 각행)",VAR:"신수(구행 · 마갈)"};let senteFormation="STD";let goteFormation="STD";let board=[];let hands={S:{},G:{}};let turn="S";let positionCounts={};let checkPositionCounts={};let moves=[];let stateSnapshots=[];let selectedSq=null;let selectedHandType=null;let legalMovesForSelected=[];let forbiddenMovesForSelected=[];let pendingPromotionCandidates=null;let promoModalOpenedAt=0;let players={S:"선",G:"후"};let userCustomPlayers={S:"선",G:"후"};let aiSessionPlayers={S:"Gemini",G:"ChatGPT"};let vsAiSessionPlayers={S:"선",G:"AI"};let showNums=true;let showDangerHints=true;let soundEnabled=true;let showAiHints=true;let spectateMode=false;let aiModeEnabled=false;let vsAiMode=false;let aiSide="G";let isAiThinking=false;let aiMoveTimer=null;let gameOver=false;let gameStarted=false;let winResultText="";let currentSavedId=null;let currentUnfinId=null;let isReplaying=false;let isBranching=false;let allReplayMoves=[];let replayStep=0;let isResigned=false;let isDrawed=false;let histList=loadStorageHist();let unfinList=loadStorageUnfin();let currentRecommendations=[];const STORAGE_KEY_ACTIVE="shogi_active_session";let initialHTMLSnapshot="";let rippleEffect=null;let rippleAnimId=null;let promoFlipEffect=null;let promoFlipAnimId=null;function syncActiveSession(){try{if(gameStarted&&!gameOver&&moves.length>0&&!isReplaying){const now=Date.now();const record={id:currentUnfinId||now,timestamp:now,date:new Date().toLocaleTimeString("ko-KR",{hour12:false,hour:"2-digit",minute:"2-digit"}),s:players.S,g:players.G,senteFormation,goteFormation,vsAiMode,aiSide,aiModeEnabled,spectateMode,cnt:moves.length,rawMoves:serializeMoves(moves)};currentUnfinId=record.id;localStorage.setItem(STORAGE_KEY_ACTIVE,JSON.stringify(record));}else{localStorage.removeItem(STORAGE_KEY_ACTIVE);}}catch(e){}}function recoverActiveSessionOnStartup(){try{const raw=localStorage.getItem(STORAGE_KEY_ACTIVE);if(!raw)return;localStorage.removeItem(STORAGE_KEY_ACTIVE);const rec=JSON.parse(raw);if(rec&&rec.rawMoves&&rec.rawMoves.length>0){unfinList=unfinList.filter(x=>x.id!==rec.id);unfinList.unshift(rec);saveStorageUnfin();}}catch(e){}}window.addEventListener("pageshow",()=>{if(document.activeElement&&document.activeElement!==document.body){document.activeElement.blur();}});window.addEventListener("beforeunload",()=>{if(gameStarted&&!gameOver&&moves.length>0&&!isReplaying){saveUnfinished();}});window.addEventListener("pagehide",()=>{syncActiveSession();});document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")syncActiveSession();});function triggerRipple(r,c){rippleEffect={r,c,alpha:0.26,scale:0.82};if(rippleAnimId)cancelAnimationFrame(rippleAnimId);function step(){if(!rippleEffect)return;rippleEffect.alpha-=0.022;rippleEffect.scale=Math.min(1.06,rippleEffect.scale+0.022);if(rippleEffect.alpha<=0){rippleEffect=null;rippleAnimId=null;drawBoard(true);return;}drawBoard(true);rippleAnimId=requestAnimationFrame(step);}rippleAnimId=requestAnimationFrame(step);}function triggerPromoFlip(r,c,type,color){promoFlipEffect={r,c,type,color,progress:0};invalidateBoardCache();if(promoFlipAnimId)cancelAnimationFrame(promoFlipAnimId);const startTime=performance.now();const duration=450;function step(now){if(!promoFlipEffect)return;const t=Math.min(1,(now-startTime)/duration);promoFlipEffect.progress=t;drawBoard(true);if(t<1){promoFlipAnimId=requestAnimationFrame(step);}else{promoFlipEffect=null;promoFlipAnimId=null;invalidateBoardCache();drawBoard();}}promoFlipAnimId=requestAnimationFrame(step);}function toShogiColChar(c){return String(9-c);}function toShogiRowChar(r){return String(r+1);}function toCoord(r,c){return toShogiColChar(c)+toShogiRowChar(r);}function parseSq(sqStr){const s=String(sqStr||"").trim();if(s.length===2){const file=parseInt(s.charAt(0),10);const rank=parseInt(s.charAt(1),10);if(file>=1&&file<=9&&rank>=1&&rank<=9){return{r:rank-1,c:9-file};}}return null;}function createEmptyHands(){return{S:{H:0,M:0,R:0,B:0,G:0,S:0,N:0,L:0,P:0},G:{H:0,M:0,R:0,B:0,G:0,S:0,N:0,L:0,P:0}};}function createInitialBoard(sForm=senteFormation,gForm=goteFormation){const b=Array.from({length:ROWS},()=>Array(COLS).fill(null));const backRow=["L","N","S","G","K","G","S","N","L"];for(let c=0;c<COLS;c++){b[0][c]={color:"G",type:backRow[c],promoted:false};b[2][c]={color:"G",type:"P",promoted:false};b[6][c]={color:"S",type:"P",promoted:false};b[8][c]={color:"S",type:backRow[c],promoted:false};}b[1][1]={color:"G",type:gForm==="VAR"?"H":"R",promoted:false};b[1][7]={color:"G",type:gForm==="VAR"?"M":"B",promoted:false};b[7][1]={color:"S",type:sForm==="VAR"?"M":"B",promoted:false};b[7][7]={color:"S",type:sForm==="VAR"?"H":"R",promoted:false};return b;}function cloneBoard(b){return b.map(row=>row.map(cell=>cell?{color:cell.color,type:cell.type,promoted:Boolean(cell.promoted)}:null));}function cloneHands(h){return{S:{...h.S},G:{...h.G}};}function getPositionKey(b,h,nextTurn){let s=nextTurn+"|";for(let r=0;r<ROWS;r++){for(let c=0;c<COLS;c++){const p=b[r][c];s+=p?(p.color+(p.promoted?"+":"")+p.type):".";}}const order=["H","M","R","B","G","S","N","L","P"];s+="|S:"+order.map(k=>h.S[k]||0).join(",");s+="|G:"+order.map(k=>h.G[k]||0).join(",");return s;}function initNewGameData(){board=createInitialBoard(senteFormation,goteFormation);hands=createEmptyHands();turn="S";positionCounts={};checkPositionCounts={};positionCounts[getPositionKey(board,hands,turn)]=1;moves=[];stateSnapshots=[];selectedSq=null;selectedHandType=null;legalMovesForSelected=[];forbiddenMovesForSelected=[];pendingPromotionCandidates=null;promoFlipEffect=null;rippleEffect=null;invalidateBoardCache();}function limitInputLength(element,maxLength){const filtered=element.value.replace(/[^a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣\u1100-\u11FF\u318D\u119E\u11A2\u2022\u2025\u00B7\uFE55]/g,"");if(element.value!==filtered){element.value=filtered;}if(element.value.length>maxLength){element.value=element.value.slice(0,maxLength);}}function getPlayerLabel(color,bracketType){const name=players[color];const cKor=color==="S"?"선":"후";if(name===cKor||(color==="S"&&name==="선수")||(color==="G"&&name==="후수"))return cKor;return bracketType==="square"?name+" ["+cKor+"]":name+" ("+cKor+")";}function getTurnPlayerText(color){const cKor=color==="S"?"선":"후";const pName=players[color];if(!pName||pName===cKor||(color==="S"&&pName==="선수")||(color==="G"&&pName==="후수"))return cKor+" 차례";return cKor+" ("+pName+") 차례";}function formatMovePrefix(idx){return(idx+1)+".";}let audioCtx=null;function getAudioCtx(){if(!audioCtx){const AC=window.AudioContext||window.webkitAudioContext;if(AC)audioCtx=new AC();}if(audioCtx&&audioCtx.state==="suspended")audioCtx.resume();return audioCtx;}function playMoveSound(){if(!soundEnabled)return;try{const ac=getAudioCtx();if(!ac)return;const now=ac.currentTime;const osc=ac.createOscillator();const gain=ac.createGain();osc.type="triangle";osc.frequency.setValueAtTime(310,now);osc.frequency.exponentialRampToValueAtTime(95,now+0.05);gain.gain.setValueAtTime(0.48,now);gain.gain.exponentialRampToValueAtTime(0.001,now+0.065);osc.connect(gain);gain.connect(ac.destination);osc.start(now);osc.stop(now+0.07);}catch(e){}}function playCaptureSound(){if(!soundEnabled)return;try{const ac=getAudioCtx();if(!ac)return;const now=ac.currentTime;const thud=ac.createOscillator();const tGain=ac.createGain();thud.type="sine";thud.frequency.setValueAtTime(240,now);thud.frequency.exponentialRampToValueAtTime(50,now+0.22);tGain.gain.setValueAtTime(0.7,now);tGain.gain.exponentialRampToValueAtTime(0.001,now+0.24);thud.connect(tGain);tGain.connect(ac.destination);thud.start(now);thud.stop(now+0.25);}catch(e){}}function playCheckSound(){if(!soundEnabled)return;try{const ac=getAudioCtx();if(!ac)return;const now=ac.currentTime;playMoveSound();const chime=ac.createOscillator();const cGain=ac.createGain();chime.type="sine";chime.frequency.setValueAtTime(987.77,now+0.015);chime.frequency.exponentialRampToValueAtTime(880,now+0.28);cGain.gain.setValueAtTime(0.001,now);cGain.gain.linearRampToValueAtTime(0.28,now+0.025);cGain.gain.exponentialRampToValueAtTime(0.001,now+0.42);chime.connect(cGain);cGain.connect(ac.destination);chime.start(now+0.015);chime.stop(now+0.45);}catch(e){}}function playForbiddenSound(){if(!soundEnabled)return;try{const ac=getAudioCtx();if(!ac)return;const now=ac.currentTime;const osc=ac.createOscillator();const gain=ac.createGain();osc.type="sawtooth";osc.frequency.setValueAtTime(180,now);osc.frequency.linearRampToValueAtTime(110,now+0.16);gain.gain.setValueAtTime(0.25,now);gain.gain.exponentialRampToValueAtTime(0.001,now+0.18);osc.connect(gain);gain.connect(ac.destination);osc.start(now);osc.stop(now+0.19);}catch(e){}}function playToggleOnSound(){if(!soundEnabled)return;try{const ac=getAudioCtx();if(!ac)return;const now=ac.currentTime;[523.25,659.25,783.99].forEach((freq,idx)=>{const osc=ac.createOscillator();const gain=ac.createGain();const start=now+idx*0.07;osc.type="sine";osc.frequency.setValueAtTime(freq,start);gain.gain.setValueAtTime(0.001,start);gain.gain.linearRampToValueAtTime(0.2,start+0.01);gain.gain.exponentialRampToValueAtTime(0.001,start+0.15);osc.connect(gain);gain.connect(ac.destination);osc.start(start);osc.stop(start+0.17);});}catch(e){}}function playToggleOffSound(forcePlay=false){if(!soundEnabled&&!forcePlay)return;try{const ac=getAudioCtx();if(!ac)return;const now=ac.currentTime;[659.25,523.25,392.00].forEach((freq,idx)=>{const osc=ac.createOscillator();const gain=ac.createGain();const start=now+idx*0.07;osc.type="sine";osc.frequency.setValueAtTime(freq,start);gain.gain.setValueAtTime(0.001,start);gain.gain.linearRampToValueAtTime(0.18,start+0.01);gain.gain.exponentialRampToValueAtTime(0.001,start+0.15);osc.connect(gain);gain.connect(ac.destination);osc.start(start);osc.stop(start+0.17);});}catch(e){}}function playGameEndSound(type){if(!soundEnabled)return;try{const ac=getAudioCtx();if(!ac)return;const now=ac.currentTime;const notes=type==="win"?[523.25,659.25,783.99,1046.50]:[440,329.63];notes.forEach((freq,idx)=>{const osc=ac.createOscillator();const gain=ac.createGain();const start=now+idx*0.1;const dur=0.3;osc.type=type==="win"?"triangle":"sine";osc.frequency.setValueAtTime(freq,start);gain.gain.setValueAtTime(0.25,start);gain.gain.exponentialRampToValueAtTime(0.001,start+dur);osc.connect(gain);gain.connect(ac.destination);osc.start(start);osc.stop(start+dur+0.02);});}catch(e){}}function canPiecePromote(type){return["R","B","S","N","L","P","H","M"].includes(type);}function isPromotionZone(color,r){return color==="S"?(r<=2):(r>=6);}function isMustPromote(color,type,toR){if(type==="P"||type==="L")return color==="S"?(toR===0):(toR===8);if(type==="N")return color==="S"?(toR<=1):(toR>=7);return false;}function generatePseudoDestinations(b,r,c){const p=b[r][c];if(!p)return[];const color=p.color;const opp=color==="S"?"G":"S";const fwd=color==="S"?-1:1;const destMap=new Map();const addDest=(tr,tc,via=null)=>{if(tr<0||tr>=ROWS||tc<0||tc>=COLS)return;if(tr===r&&tc===c)return;const target=b[tr][tc];if(!target||target.color===opp){const key=tr+","+tc;if(!destMap.has(key))destMap.set(key,{toR:tr,toC:tc,via});}};const addGoldSteps=()=>{for(const[dr,dc]of[[fwd,0],[fwd,-1],[fwd,1],[0,-1],[0,1],[-fwd,0]])addDest(r+dr,c+dc);};if(p.type==="K"){for(let dr=-1;dr<=1;dr++){for(let dc=-1;dc<=1;dc++)if(dr!==0||dc!==0)addDest(r+dr,c+dc);}}else if(p.type==="G"||(p.promoted&&["S","N","L","P"].includes(p.type))){addGoldSteps();}else if(p.type==="S"){for(const[dr,dc]of[[fwd,0],[fwd,-1],[fwd,1],[-fwd,-1],[-fwd,1]])addDest(r+dr,c+dc);}else if(p.type==="N"){addDest(r+fwd*2,c-1);addDest(r+fwd*2,c+1);}else if(p.type==="P"){addDest(r+fwd,c);}else if(p.type==="L"){let nr=r+fwd;while(nr>=0&&nr<ROWS){const t=b[nr][c];if(!t)addDest(nr,c);else{if(t.color===opp)addDest(nr,c);break;}nr+=fwd;}}else if(p.type==="R"){for(const[dr,dc]of[[-1,0],[1,0],[0,-1],[0,1]]){let nr=r+dr,nc=c+dc;while(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS){const t=b[nr][nc];if(!t)addDest(nr,nc);else{if(t.color===opp)addDest(nr,nc);break;}nr+=dr;nc+=dc;}}if(p.promoted){for(const[dr,dc]of[[-1,-1],[-1,1],[1,-1],[1,1]])addDest(r+dr,c+dc);}}else if(p.type==="B"){for(const[dr,dc]of[[-1,-1],[-1,1],[1,-1],[1,1]]){let nr=r+dr,nc=c+dc;while(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS){const t=b[nr][nc];if(!t)addDest(nr,nc);else{if(t.color===opp)addDest(nr,nc);break;}nr+=dr;nc+=dc;}}if(p.promoted){for(const[dr,dc]of[[-1,0],[1,0],[0,-1],[0,1]])addDest(r+dr,c+dc);}}else if(p.type==="H"){for(const[dr1,dc1]of[[-1,0],[1,0],[0,-1],[0,1]]){let nr=r+dr1,nc=c+dc1;while(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS){const t=b[nr][nc];if(!t){addDest(nr,nc);const perpDirs=dr1!==0?[[0,-1],[0,1]]:[[-1,0],[1,0]];for(const[dr2,dc2]of perpDirs){let nr2=nr+dr2,nc2=nc+dc2;while(nr2>=0&&nr2<ROWS&&nc2>=0&&nc2<COLS){const t2=b[nr2][nc2];if(!t2)addDest(nr2,nc2,{r:nr,c:nc});else{if(t2.color===opp)addDest(nr2,nc2,{r:nr,c:nc});break;}nr2+=dr2;nc2+=dc2;}}}else{if(t.color===opp)addDest(nr,nc);break;}nr+=dr1;nc+=dc1;}}if(p.promoted)addGoldSteps();}else if(p.type==="M"){for(const[dr1,dc1]of[[-1,-1],[-1,1],[1,-1],[1,1]]){let nr=r+dr1,nc=c+dc1;while(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS){const t=b[nr][nc];if(!t){addDest(nr,nc);for(const[dr2,dc2]of[[dr1,-dc1],[-dr1,dc1]]){let nr2=nr+dr2,nc2=nc+dc2;while(nr2>=0&&nr2<ROWS&&nc2>=0&&nc2<COLS){const t2=b[nr2][nc2];if(!t2)addDest(nr2,nc2,{r:nr,c:nc});else{if(t2.color===opp)addDest(nr2,nc2,{r:nr,c:nc});break;}nr2+=dr2;nc2+=dc2;}}}else{if(t.color===opp)addDest(nr,nc);break;}nr+=dr1;nc+=dc1;}}if(p.promoted)addGoldSteps();}return Array.from(destMap.values());}function generatePseudoMovesForSquare(b,r,c){const p=b[r][c];if(!p)return[];const dests=generatePseudoDestinations(b,r,c);const list=[];for(const d of dests){const canPromo=!p.promoted&&canPiecePromote(p.type)&&(isPromotionZone(p.color,r)||isPromotionZone(p.color,d.toR));const mustPromo=!p.promoted&&isMustPromote(p.color,p.type,d.toR);if(mustPromo){list.push({isDrop:false,fromR:r,fromC:c,toR:d.toR,toC:d.toC,promote:true,via:d.via});}else if(canPromo){list.push({isDrop:false,fromR:r,fromC:c,toR:d.toR,toC:d.toC,promote:true,via:d.via});list.push({isDrop:false,fromR:r,fromC:c,toR:d.toR,toC:d.toC,promote:false,via:d.via});}else{list.push({isDrop:false,fromR:r,fromC:c,toR:d.toR,toC:d.toC,promote:false,via:d.via});}}return list;}function hasUnpromotedPawnOnCol(b,color,col){for(let r=0;r<ROWS;r++){const p=b[r][col];if(p&&p.color===color&&p.type==="P"&&!p.promoted)return true;}return false;}function generatePseudoDropMoves(b,h,color){const list=[];const myHand=h[color];if(!myHand)return list;const types=Object.keys(myHand).filter(t=>myHand[t]>0);for(const type of types){for(let c=0;c<COLS;c++){if(type==="P"&&hasUnpromotedPawnOnCol(b,color,c))continue;for(let r=0;r<ROWS;r++){if(b[r][c]!==null)continue;if(isMustPromote(color,type,r))continue;list.push({isDrop:true,dropType:type,fromR:-1,fromC:-1,toR:r,toC:c,promote:false});}}}return list;}function findKing(b,color){for(let r=0;r<ROWS;r++){for(let c=0;c<COLS;c++){const p=b[r][c];if(p&&p.color===color&&p.type==="K")return{r,c};}}return null;}function isSquareAttackedBy(b,targetR,targetC,attackerColor){for(let r=0;r<ROWS;r++){for(let c=0;c<COLS;c++){const p=b[r][c];if(!p||p.color!==attackerColor)continue;const dests=generatePseudoDestinations(b,r,c);if(dests.some(d=>d.toR===targetR&&d.toC===targetC))return true;}}return false;}function isInCheck(b,color){const k=findKing(b,color);if(!k)return false;return isSquareAttackedBy(b,k.r,k.c,color==="S"?"G":"S");}function applyMoveOnBoard(b,h,color,m){const nb=cloneBoard(b);const nh=cloneHands(h);let captured=null;if(m.isDrop){nb[m.toR][m.toC]={color,type:m.dropType,promoted:false};nh[color][m.dropType]=Math.max(0,(nh[color][m.dropType]||0)-1);}else{const piece=nb[m.fromR][m.fromC];captured=nb[m.toR][m.toC];nb[m.toR][m.toC]={color:piece.color,type:piece.type,promoted:Boolean(piece.promoted||m.promote)};nb[m.fromR][m.fromC]=null;if(captured&&captured.type!=="K"){nh[color][captured.type]=(nh[color][captured.type]||0)+1;}}return{board:nb,hands:nh,captured};}function isPerpetualCheckForbidden(b,h,color,m){const opp=color==="S"?"G":"S";const sim=applyMoveOnBoard(b,h,color,m);if(!isInCheck(sim.board,opp))return false;const nextKey=getPositionKey(sim.board,sim.hands,opp);return(checkPositionCounts[nextKey]||0)>=3;}function isUchifuzumeForbidden(b,h,color,m){if(!m.isDrop||m.dropType!=="P")return false;const opp=color==="S"?"G":"S";const fwd=color==="S"?-1:1;const oppKing=findKing(b,opp);if(!oppKing||oppKing.r!==m.toR+fwd||oppKing.c!==m.toC)return false;const sim=applyMoveOnBoard(b,h,color,m);return getAllLegalMoves(sim.board,sim.hands,opp,true).length===0;}function getLegalMovesForSingleSquare(b,h,color,r,c){const p=b[r][c];if(!p||p.color!==color)return[];const opp=color==="S"?"G":"S";const pseudo=generatePseudoMovesForSquare(b,r,c);const legal=[];for(const m of pseudo){const sim=applyMoveOnBoard(b,h,color,m);if(isInCheck(sim.board,color))continue;if(isInCheck(sim.board,opp)){const nextKey=getPositionKey(sim.board,sim.hands,opp);if((checkPositionCounts[nextKey]||0)>=3)continue;}m.isDangerous=isSquareAttackedBy(sim.board,m.toR,m.toC,opp);legal.push(m);}return legal;}function getForbiddenMovesForSingleSquare(b,h,color,r,c){const p=b[r][c];if(!p||p.color!==color)return[];const pseudo=generatePseudoMovesForSquare(b,r,c);const forbidden=[];for(const m of pseudo){const sim=applyMoveOnBoard(b,h,color,m);if(!isInCheck(sim.board,color)){if(isPerpetualCheckForbidden(b,h,color,m)){forbidden.push({...m,reason:"연속 왕수 천일수는 금지수입니다. 다른 수를 두어 주세요."});}}}return forbidden;}function getLegalDropsForSingleType(b,h,color,type){if((h[color][type]||0)<=0)return[];const opp=color==="S"?"G":"S";const legal=[];for(let c=0;c<COLS;c++){if(type==="P"&&hasUnpromotedPawnOnCol(b,color,c))continue;for(let r=0;r<ROWS;r++){if(b[r][c]!==null)continue;if(isMustPromote(color,type,r))continue;const m={isDrop:true,dropType:type,fromR:-1,fromC:-1,toR:r,toC:c,promote:false};const sim=applyMoveOnBoard(b,h,color,m);if(isInCheck(sim.board,color))continue;if(isInCheck(sim.board,opp)){const nextKey=getPositionKey(sim.board,sim.hands,opp);if((checkPositionCounts[nextKey]||0)>=3)continue;if(type==="P"&&getAllLegalMoves(sim.board,sim.hands,opp,true).length===0)continue;}m.isDangerous=isSquareAttackedBy(sim.board,m.toR,m.toC,opp);legal.push(m);}}return legal;}function getForbiddenDropsForSingleType(b,h,color,type){if((h[color][type]||0)<=0)return[];const forbidden=[];for(let c=0;c<COLS;c++){const isNifu=(type==="P"&&hasUnpromotedPawnOnCol(b,color,c));for(let r=0;r<ROWS;r++){if(b[r][c]!==null)continue;if(isMustPromote(color,type,r))continue;const m={isDrop:true,dropType:type,fromR:-1,fromC:-1,toR:r,toC:c,promote:false};if(isNifu){forbidden.push({...m,reason:"이보(이중 보병)는 금지수입니다. 다른 곳에 두어 주세요."});continue;}const sim=applyMoveOnBoard(b,h,color,m);if(isInCheck(sim.board,color))continue;if(isUchifuzumeForbidden(b,h,color,m)){forbidden.push({...m,reason:"보병을 타격하여 즉시 외통(우치후즈메)을 부르는 수는 금지수입니다."});continue;}if(isPerpetualCheckForbidden(b,h,color,m)){forbidden.push({...m,reason:"연속 왕수 천일수는 금지수입니다. 다른 수를 두어 주세요."});continue;}}}return forbidden;}function getAllLegalMoves(b,h,color,includeForbidden=false){const legal=[];const opp=color==="S"?"G":"S";for(let r=0;r<ROWS;r++){for(let c=0;c<COLS;c++){const p=b[r][c];if(!p||p.color!==color)continue;const pseudo=generatePseudoMovesForSquare(b,r,c);for(const m of pseudo){const sim=applyMoveOnBoard(b,h,color,m);if(isInCheck(sim.board,color))continue;if(!includeForbidden&&isInCheck(sim.board,opp)){const nextKey=getPositionKey(sim.board,sim.hands,opp);if((checkPositionCounts[nextKey]||0)>=3)continue;}legal.push(m);}}}const drops=generatePseudoDropMoves(b,h,color);for(const m of drops){const sim=applyMoveOnBoard(b,h,color,m);if(isInCheck(sim.board,color))continue;if(!includeForbidden&&isInCheck(sim.board,opp)){const nextKey=getPositionKey(sim.board,sim.hands,opp);if((checkPositionCounts[nextKey]||0)>=3)continue;if(m.dropType==="P"&&getAllLegalMoves(sim.board,sim.hands,opp,true).length===0)continue;}legal.push(m);}return legal;}function getPieceKorName(p){if(p.promoted)return KOR_PROMO_SHORT[p.type]||KOR_SHORT_NAME[p.type];return KOR_SHORT_NAME[p.type];}function buildNotation(b,m){const p=m.isDrop?{color:turn,type:m.dropType,promoted:false}:b[m.fromR][m.fromC];const sym=(p&&p.color==="G")?"☖":"☗";if(m.isDrop)return sym+toCoord(m.toR,m.toC)+KOR_SHORT_NAME[m.dropType]+"타";return sym+toCoord(m.toR,m.toC)+getPieceKorName(p)+(m.promote?"성":"")+"("+toCoord(m.fromR,m.fromC)+")";}function calculateMaterialScores(b,h){let scoreS=0,scoreG=0;for(let r=0;r<ROWS;r++){for(let c=0;c<COLS;c++){const p=b[r][c];if(!p||p.type==="K")continue;const pts=PIECE_POINTS[p.type]||0;if(p.color==="S")scoreS+=pts;else scoreG+=pts;}}for(const t of["H","M","R","B","G","S","N","L","P"]){scoreS+=(h.S[t]||0)*(PIECE_POINTS[t]||0);scoreG+=(h.G[t]||0)*(PIECE_POINTS[t]||0);}return{scoreS,scoreG};}function selectHandPiece(color,type){if(!gameStarted){setStatus("먼저 '새 대국' 버튼을 눌러 대국을 시작해 주세요.",true);return;}if(spectateMode){setStatus("관전 모드 켜짐: 직접 조작할 수 없습니다. '수 입력'을 이용하세요.",true);return;}if(gameOver){setStatus("종료된 상태입니다. 이전 수로 이동하거나 새 대국을 눌러주세요.",true);return;}if(onlineMode&&onlineConn&&onlineConn.open&&!isReplaying){if(onlineWaitingSetup){setStatus("상대방이 차림을 선택할 때까지 잠시만 기다려 주세요.",true);return;}if(turn!==myOnlineColor){setStatus("상대방("+(turn==="S"?"선수":"후수")+")의 차례입니다. 상대가 착수할 때까지 기다려 주세요.",true);return;}}if(vsAiMode&&!isReplaying&&(isAiThinking||turn===aiSide)){setStatus("AI가 다음 수를 생각 중입니다. 잠시만 기다려 주세요.",true);return;}if(color!==turn){setStatus("자신의 차례에만 포로 기물을 타격할 수 있습니다.",true);return;}if((hands[color][type]||0)<=0)return;if(selectedHandType===type){selectedHandType=null;legalMovesForSelected=[];forbiddenMovesForSelected=[];invalidateBoardCache();updateCapturedBar();drawBoard();return;}selectedSq=null;selectedHandType=type;legalMovesForSelected=getLegalDropsForSingleType(board,hands,turn,type);forbiddenMovesForSelected=getForbiddenDropsForSingleType(board,hands,turn,type);invalidateBoardCache();updateCapturedBar();drawBoard();setStatus("포로 ["+KOR_FULL_NAME[type]+"] 선택됨 — 빈칸을 눌러 타격(打)하세요 ("+legalMovesForSelected.length+"곳 가능)",false);}function updateCapturedBar(){const{scoreS,scoreG}=calculateMaterialScores(board,hands);document.getElementById("ptsS").textContent=String(scoreS);document.getElementById("ptsG").textContent=String(scoreG);const order=["H","M","R","B","G","S","N","L","P"];const renderHandChips=(color,sideElId)=>{const chips=[];for(const t of order){const cnt=hands[color][t]||0;if(cnt>0){const isSel=(turn===color&&selectedHandType===t);const cls="cap-chip"+(isSel?" selected-hand":"");chips.push('<span class="'+cls+'" onclick="selectHandPiece(\''+color+'\',\''+t+'\')" title="클릭하여 '+KOR_FULL_NAME[t]+' 타격">'+HANJA_BASE[t]+(cnt>1?'<span class="cap-cnt">×<span class="cap-num">'+cnt+'</span></span>':'')+'</span>');}}const sideEl=document.getElementById(sideElId);if(sideEl){sideEl.classList.toggle("wrap-pieces",chips.length>5);}return chips.length>0?chips.join(""):"-";};document.getElementById("capByS").innerHTML=renderHandChips("S","capSideS");document.getElementById("capByG").innerHTML=renderHandChips("G","capSideG");const diff=scoreS-scoreG;const advS=document.getElementById("advS");const advG=document.getElementById("advG");if(diff>0){advS.style.display="inline-block";advS.textContent="+"+diff;advG.style.display="none";}else if(diff<0){advG.style.display="inline-block";advG.textContent="+"+Math.abs(diff);advS.style.display="none";}else{advS.style.display="none";advG.style.display="none";}}function evaluateBoardStatic(b,h){let score=0;const sKing=findKing(b,"S");const gKing=findKing(b,"G");for(let r=0;r<ROWS;r++){for(let c=0;c<COLS;c++){const p=b[r][c];if(!p)continue;let val=p.promoted?(PROMO_VALUES[p.type]||PIECE_VALUES[p.type]):(PIECE_VALUES[p.type]||0);const isS=p.color==="S";const enemyK=isS?gKing:sKing;const myK=isS?sKing:gKing;if(p.type==="P"&&!p.promoted)val+=(isS?(8-r):r)*15;else if(["S","G"].includes(p.type))val+=(isS?(8-r):r)*5;if(["H","M","R","B"].includes(p.type)){if(r>=2&&r<=6&&c>=2&&c<=6)val+=35;}if(["G","S"].includes(p.type)&&myK){if(Math.abs(myK.r-r)<=2&&Math.abs(myK.c-c)<=2)val+=45;}if(enemyK){const dist=Math.abs(enemyK.r-r)+Math.abs(enemyK.c-c);if(dist<=3&&["R","B","H","M","N","L","G","S"].includes(p.type))val+=(4-dist)*20;}if(isS)score+=val;else score-=val;}}for(const t of["H","M","R","B","G","S","N","L","P"]){const handBonus=Math.round((PIECE_VALUES[t]||0)*1.2);score+=(h.S[t]||0)*handBonus;score-=(h.G[t]||0)*handBonus;}return score;}function orderMoves(b,moves){return moves.sort((a,moveB)=>{let scoreA=0,scoreB=0;if(!a.isDrop&&b[a.toR][a.toC])scoreA=PIECE_VALUES[b[a.toR][a.toC].type]||0;if(!moveB.isDrop&&b[moveB.toR][moveB.toC])scoreB=PIECE_VALUES[b[moveB.toR][moveB.toC].type]||0;if(a.promote)scoreA+=200;if(moveB.promote)scoreB+=200;return scoreB-scoreA;});}let aiEndTime=0;let aiIsTimeout=false;let abNodes=0;function alphaBeta(b,h,depth,alpha,beta,color,isMaximizing){if(aiIsTimeout)return isMaximizing?-999999:999999;if((++abNodes%10)===0&&performance.now()>aiEndTime){aiIsTimeout=true;return isMaximizing?-999999:999999;}if(depth===0)return evaluateBoardStatic(b,h);let legalMoves=orderMoves(b,getAllLegalMoves(b,h,color));if(legalMoves.length===0)return isMaximizing?-999999:999999;if(legalMoves.length>35)legalMoves=legalMoves.slice(0,35);const opp=color==="S"?"G":"S";if(isMaximizing){let maxEval=-Infinity;for(const m of legalMoves){const sim=applyMoveOnBoard(b,h,color,m);const ev=alphaBeta(sim.board,sim.hands,depth-1,alpha,beta,opp,false);if(aiIsTimeout)return maxEval;maxEval=Math.max(maxEval,ev);alpha=Math.max(alpha,ev);if(beta<=alpha)break;}return maxEval;}else{let minEval=Infinity;for(const m of legalMoves){const sim=applyMoveOnBoard(b,h,color,m);const ev=alphaBeta(sim.board,sim.hands,depth-1,alpha,beta,opp,true);if(aiIsTimeout)return minEval;minEval=Math.min(minEval,ev);beta=Math.min(beta,ev);if(beta<=alpha)break;}return minEval;}}function evaluateBoardState(b,h,nextTurn){const legal=getAllLegalMoves(b,h,nextTurn);const inChk=isInCheck(b,nextTurn);if(legal.length===0){const winS=nextTurn==="G";return{diff:winS?99.9:-99.9,winProbS:winS?99:1,winProbG:winS?1:99,comment:winS?"선수가 매우 유리합니다.":"후수가 매우 유리합니다."};}const rawCp=evaluateBoardStatic(b,h);const ptsDiff=Number((rawCp/100).toFixed(1));const winProbS=Math.min(99,Math.max(1,Math.round(50+49*Math.tanh(rawCp/750))));let comment="균형 상태입니다.";if(winProbS>=80)comment="선수가 매우 유리합니다.";else if(winProbS<=20)comment="후수가 매우 유리합니다.";else if(winProbS>=65)comment="선수가 조금 유리합니다.";else if(winProbS<=35)comment="후수가 조금 유리합니다.";return{diff:ptsDiff,winProbS,winProbG:100-winProbS,comment};}function getRecommendedMoves(b,h,nextColor,topN=3){let legal=orderMoves(b,getAllLegalMoves(b,h,nextColor));if(legal.length===0)return[];if(legal.length>25)legal=legal.slice(0,25);const scoredMoves=[];const opp=nextColor==="S"?"G":"S";const depth=3;aiEndTime=performance.now()+400;aiIsTimeout=false;abNodes=0;for(const m of legal){const sim=applyMoveOnBoard(b,h,nextColor,m);let score=0;if(isInCheck(sim.board,opp)&&getAllLegalMoves(sim.board,sim.hands,opp).length===0){score=nextColor==="S"?999999:-999999;}else{score=alphaBeta(sim.board,sim.hands,depth,-Infinity,Infinity,opp,nextColor!=="S");if(aiIsTimeout){score=evaluateBoardStatic(sim.board,sim.hands);}}const sortScore=nextColor==="S"?score:-score;scoredMoves.push({move:m,san:buildNotation(b,m),score:sortScore,rawScore:score});}scoredMoves.sort((a,bItem)=>bItem.score-a.score);const unique=[];const seen=new Set();for(const item of scoredMoves){if(!seen.has(item.san)){seen.add(item.san);unique.push(item);if(unique.length>=topN)break;}}return unique;}function chooseShogiAiMove(b,h,aiColor,timeLimitMs=700){let legal=orderMoves(b,getAllLegalMoves(b,h,aiColor));if(legal.length===0)return null;if(legal.length>50)legal=legal.slice(0,50);aiEndTime=performance.now()+timeLimitMs;aiIsTimeout=false;abNodes=0;let finalBestMove=legal[0];for(let d=1;d<=3;d++){let currentBestMove=legal[0];let currentBestScore=aiColor==="S"?-Infinity:Infinity;for(const m of legal){if(performance.now()>aiEndTime){aiIsTimeout=true;break;}const sim=applyMoveOnBoard(b,h,aiColor,m);const opp=aiColor==="S"?"G":"S";if(isInCheck(sim.board,opp)&&getAllLegalMoves(sim.board,sim.hands,opp).length===0)return m;const score=alphaBeta(sim.board,sim.hands,d-1,-Infinity,Infinity,opp,aiColor!=="S");if(aiIsTimeout)break;const randomizedScore=score+(Math.random()*20-10)*(aiColor==="S"?1:-1);if(aiColor==="S"){if(randomizedScore>currentBestScore){currentBestScore=randomizedScore;currentBestMove=m;}}else{if(randomizedScore<currentBestScore){currentBestScore=randomizedScore;currentBestMove=m;}}}if(aiIsTimeout){if(d===1)finalBestMove=currentBestMove;break;}finalBestMove=currentBestMove;legal=[finalBestMove,...legal.filter(m=>m!==finalBestMove)];}return finalBestMove;}function triggerAiMoveIfNeeded(){if(!vsAiMode||!gameStarted||gameOver||isReplaying)return;if(turn!==aiSide)return;isAiThinking=true;updateUI();setStatus("AI가 다음 수를 생각 중입니다...",false);if(aiMoveTimer)clearTimeout(aiMoveTimer);const startTime=performance.now();const animWait=promoFlipEffect?460:20;aiMoveTimer=setTimeout(()=>{if(!vsAiMode||!gameStarted||gameOver||isReplaying||turn!==aiSide){aiMoveTimer=null;isAiThinking=false;updateUI();return;}const budget=700;const chosen=chooseShogiAiMove(board,hands,aiSide,budget);const elapsed=performance.now()-startTime;const remain=Math.max(0,850-elapsed);if(remain>0){aiMoveTimer=setTimeout(()=>{aiMoveTimer=null;if(!vsAiMode||!gameStarted||gameOver||isReplaying||turn!==aiSide){isAiThinking=false;updateUI();return;}isAiThinking=false;if(chosen)executeMove(chosen);else updateUI();},remain);}else{aiMoveTimer=null;isAiThinking=false;if(chosen)executeMove(chosen);else updateUI();}},animWait);}function toggleSound(){soundEnabled=!soundEnabled;const btn=document.getElementById("soundBtn");if(soundEnabled){btn.className="btn-on";playToggleOnSound();setStatus("효과음이 켜졌습니다.",false);}else{btn.className="btn-off";playToggleOffSound(true);setStatus("효과음이 꺼졌습니다.",false);}}function syncAiHintButtons(){const replayBtn=document.getElementById("aiHintBtn");const specBtn=document.getElementById("spectateAiHintBtn");const cls=showAiHints?"btn-on":"btn-off";if(replayBtn)replayBtn.className=cls;if(specBtn)specBtn.className=cls;}function toggleAiHint(){showAiHints=!showAiHints;syncAiHintButtons();if(showAiHints){playToggleOnSound();setStatus("AI 추천 수 표시가 켜졌습니다.",false);}else{playToggleOffSound();setStatus("AI 추천 수 표시가 꺼졌습니다.",false);}updateAiAnalysisPanel();invalidateBoardCache();drawBoard();}function toggleDangerHint(){showDangerHints=!showDangerHints;const btn=document.getElementById("dangerHintBtn");const numBtn=document.getElementById("numBtn");btn.className=showDangerHints?"btn-on":"btn-off";if(showDangerHints){showNums=true;numBtn.className="btn-on";numBtn.disabled=true;playToggleOnSound();setStatus("위험 힌트 표시가 켜졌습니다.",false);}else{numBtn.disabled=false;playToggleOffSound();setStatus("위험 힌트 표시가 꺼졌습니다.",false);}invalidateBoardCache();drawBoard();}function toggleNums(){if(showDangerHints)return;showNums=!showNums;const btn=document.getElementById("numBtn");btn.className=showNums?"btn-on":"btn-off";if(showNums){playToggleOnSound();setStatus("이동 힌트 표시가 켜졌습니다.",false);}else{playToggleOffSound();setStatus("이동 힌트 표시가 꺼졌습니다.",false);}invalidateBoardCache();drawBoard();}function isModeSwitchLocked(){if(gameStarted||moves.length>0||isReplaying||isAiThinking)return true;return false;}function toggleAiMode(){if(isModeSwitchLocked())return;document.getElementById("nameEditBox").style.display="none";const btn=document.getElementById("aiModeBtn");const pCard=document.getElementById("promptCard");const sBtn=document.getElementById("spectateBtn");const vsBtn=document.getElementById("vsAiBtn");if(!aiModeEnabled){if(vsAiMode){vsAiMode=false;vsBtn.className="btn-off btn-right";players.S=userCustomPlayers.S;players.G=userCustomPlayers.G;}else{userCustomPlayers={S:players.S,G:players.G};}aiModeEnabled=true;btn.className="btn-on";pCard.style.display="block";playToggleOnSound();aiSessionPlayers={S:"Gemini",G:"ChatGPT"};players.S="Gemini";players.G="ChatGPT";spectateMode=true;sBtn.className="btn-on";selectedSq=null;selectedHandType=null;legalMovesForSelected=[];forbiddenMovesForSelected=[];syncPlayerDOM();invalidateBoardCache();drawBoard();setStatus("AI 모드(Gemini vs ChatGPT) 및 관전 모드가 켜졌습니다.",false);}else{aiModeEnabled=false;btn.className="btn-off";pCard.style.display="none";playToggleOffSound();players.S=userCustomPlayers.S;players.G=userCustomPlayers.G;spectateMode=false;sBtn.className="btn-off";syncPlayerDOM();invalidateBoardCache();drawBoard();setStatus("AI 모드가 꺼졌습니다.",false);}}function toggleVsAiMode(){if(isModeSwitchLocked())return;document.getElementById("nameEditBox").style.display="none";const vsBtn=document.getElementById("vsAiBtn");const aiBtn=document.getElementById("aiModeBtn");const pCard=document.getElementById("promptCard");const sBtn=document.getElementById("spectateBtn");if(!vsAiMode){if(aiModeEnabled){aiModeEnabled=false;aiBtn.className="btn-off";pCard.style.display="none";players.S=userCustomPlayers.S;players.G=userCustomPlayers.G;}else{userCustomPlayers={S:players.S,G:players.G};}spectateMode=false;sBtn.className="btn-off";vsAiMode=true;aiSide="G";vsBtn.className="btn-on btn-right";playToggleOnSound();players.S=userCustomPlayers.S;players.G="AI";vsAiSessionPlayers={S:players.S,G:"AI"};syncPlayerDOM();invalidateBoardCache();drawBoard();setStatus("AI와 대국 모드가 켜졌습니다. '새 대국'을 누르면 자체 AI와 대국합니다.",false);if(gameStarted&&turn===aiSide)triggerAiMoveIfNeeded();}else{vsAiMode=false;vsBtn.className="btn-off btn-right";playToggleOffSound();players.S=userCustomPlayers.S;players.G=userCustomPlayers.G;syncPlayerDOM();invalidateBoardCache();drawBoard();setStatus("AI와 대국 모드가 꺼졌습니다.",false);}}function toggleSpectate(){if(isModeSwitchLocked()||aiModeEnabled||vsAiMode)return;spectateMode=!spectateMode;const btn=document.getElementById("spectateBtn");if(spectateMode){btn.className="btn-on";selectedSq=null;selectedHandType=null;legalMovesForSelected=[];forbiddenMovesForSelected=[];playToggleOnSound();setStatus("관전 모드가 켜졌습니다. 쇼기판을 직접 클릭할 수 없으며, 수 입력으로만 진행됩니다.",false);}else{btn.className="btn-off";playToggleOffSound();setStatus("관전 모드가 해제되었습니다.",false);}updateAiAnalysisPanel();invalidateBoardCache();drawBoard();}function syncNameEditInputs(){const sInput=document.getElementById("sNameInput");const gInput=document.getElementById("gNameInput");const hint=document.getElementById("nameEditHint");if(!sInput||!gInput)return;sInput.value=players.S;gInput.value=players.G;if(onlineMode){if(myOnlineColor==="S"){sInput.disabled=false;gInput.disabled=true;}else{sInput.disabled=true;gInput.disabled=false;}if(hint)hint.textContent="한글·영문 최대 13자까지 입력할 수 있습니다. 친구의 이름은 수정할 수 없습니다.";}else if(vsAiMode){if(aiSide==="S"){sInput.disabled=true;sInput.value="AI";gInput.disabled=false;}else{sInput.disabled=false;gInput.disabled=true;gInput.value="AI";}if(hint)hint.textContent="한글·영문 최대 13자까지 입력할 수 있습니다. (AI의 이름은 수정할 수 없습니다.)";}else{sInput.disabled=false;gInput.disabled=false;if(hint)hint.textContent="한글·영문 최대 13자까지 입력할 수 있습니다.";}}function toggleNameEdit(){if(gameStarted||moves.length>0||isReplaying){setStatus("대국 시작 후에는 이름을 수정할 수 없습니다.",true);return;}const box=document.getElementById("nameEditBox");const isHidden=box.style.display===""||box.style.display==="none";if(isHidden){syncNameEditInputs();box.style.display="flex";if((onlineMode&&myOnlineColor==="G")||(vsAiMode&&aiSide==="S"))document.getElementById("gNameInput").focus();else document.getElementById("sNameInput").focus();}else{box.style.display="none";}}function resetPlayerNames(){if(gameStarted||moves.length>0||isReplaying){setStatus("대국 시작 후에는 이름을 초기화할 수 없습니다.",true);return;}document.getElementById("nameEditBox").style.display="none";if(onlineMode){if(myOnlineColor==="S"){players.S="선";userCustomPlayers.S="선";}else{players.G="후";userCustomPlayers.G="후";}syncPlayerDOM();drawBoard();if(onlineConn&&onlineConn.open&&!isRemoteAction){sendPeerData({type:"SYNC_NAMES",players});}setStatus("내 이름이 기본값으로 초기화되었습니다.",false);}else if(aiModeEnabled){players.S="Gemini";players.G="ChatGPT";aiSessionPlayers={S:"Gemini",G:"ChatGPT"};syncPlayerDOM();drawBoard();setStatus("AI 플레이어 이름이 초기화되었습니다: Gemini vs ChatGPT",false);}else if(vsAiMode){aiSide="G";players.S="선";players.G="AI";vsAiSessionPlayers={S:"선",G:"AI"};userCustomPlayers={S:"선",G:"후"};syncPlayerDOM();drawBoard();setStatus("AI와 대국 이름이 초기화되었습니다: 선 vs AI",false);}else{players.S="선";players.G="후";userCustomPlayers={S:"선",G:"후"};syncPlayerDOM();drawBoard();setStatus("플레이어 이름이 초기화되었습니다: 선 vs 후",false);}}function swapPlayers(){if(gameStarted||moves.length>0||isReplaying){setStatus("대국 시작 후에는 진영을 교체할 수 없습니다.",true);return;}if(onlineMode){if(!isOnlineHost){setStatus("방장만 진영을 교체할 수 있습니다.",true);return;}requestOnlineSwapSide();return;}if(vsAiMode){const oldHumanSide=aiSide==="S"?"G":"S";let humanName=players[oldHumanSide];aiSide=aiSide==="S"?"G":"S";const newHumanSide=aiSide==="S"?"G":"S";if(oldHumanSide==="S"&&(humanName==="선"||humanName==="선수"))humanName="후";else if(oldHumanSide==="G"&&(humanName==="후"||humanName==="후수"))humanName="선";players[aiSide]="AI";players[newHumanSide]=humanName;vsAiSessionPlayers={S:players.S,G:players.G};}else if(aiModeEnabled){const t=players.S;players.S=players.G;players.G=t;aiSessionPlayers={S:players.S,G:players.G};}else{const t=players.S;players.S=players.G;players.G=t;userCustomPlayers={S:players.S,G:players.G};}if(document.getElementById("nameEditBox").style.display==="flex")syncNameEditInputs();syncPlayerDOM();setStatus("진영이 교체되었습니다.",false);if(vsAiMode&&gameStarted&&turn===aiSide)triggerAiMoveIfNeeded();}function applyPlayerNames(){if(onlineMode){if(myOnlineColor==="S"){const newS=document.getElementById("sNameInput").value.trim()||"선";players.S=newS;userCustomPlayers.S=newS;}else{const newG=document.getElementById("gNameInput").value.trim()||"후";players.G=newG;userCustomPlayers.G=newG;}}else if(vsAiMode){if(aiSide==="G"){const newS=document.getElementById("sNameInput").value.trim()||"선";players.S=newS;players.G="AI";userCustomPlayers.S=newS;}else{const newG=document.getElementById("gNameInput").value.trim()||"후";players.S="AI";players.G=newG;userCustomPlayers.G=newG;}vsAiSessionPlayers={S:players.S,G:players.G};}else if(aiModeEnabled){const newS=document.getElementById("sNameInput").value.trim()||"Gemini";const newG=document.getElementById("gNameInput").value.trim()||"ChatGPT";players.S=newS;players.G=newG;aiSessionPlayers={S:newS,G:newG};}else{const newS=document.getElementById("sNameInput").value.trim()||"선";const newG=document.getElementById("gNameInput").value.trim()||"후";players.S=newS;players.G=newG;userCustomPlayers={S:newS,G:newG};}document.getElementById("nameEditBox").style.display="none";syncPlayerDOM();if(onlineMode&&onlineConn&&onlineConn.open&&!isRemoteAction){sendPeerData({type:"SYNC_NAMES",players});}setStatus("플레이어 이름이 수정되었습니다: 선("+players.S+") vs 후("+players.G+")",false);}function updatePrompts(){const sText="쇼기 대국을 하자."+NL+"표준 9x9 쇼기판(가로 오른쪽부터 1~9, 세로 위쪽부터 1~9)을 사용한다."+NL+"너는 선수(S, 선공)이고 상대는 후수(G, 후공)이다."+NL+"대국 시작 전, 너의 차림을 [표준 / 신수] 중에서 하나 선택해 줘 (신수는 비차→구행, 각행→마갈)."+NL+"답변은 설명 없이 첫 줄에 선택한 차림과 첫 수를 아래 형식으로 출력한다."+NL+"표준, 77보76"+NL+NL+"차림을 고르고 첫 수를 착수해 줘.";const gText="쇼기 대국을 하자."+NL+"표준 9x9 쇼기판(가로 오른쪽부터 1~9, 세로 위쪽부터 1~9)을 사용한다."+NL+"상대는 선수(S, 선공)이고 너는 후수(G, 후공)이다."+NL+"선수를 기다리지 말고, 대국 시작 전 너의 차림을 [표준 / 신수] 중에서 하나 선택해 줘 (신수는 비차→구행, 각행→마갈)."+NL+"답변은 설명 없이 첫 줄에 선택한 차림을 출력해 줘."+NL+"예: 표준"+NL+NL+"차림을 고르고 대답해 줘.";const sEl=document.getElementById("sPrompt");const gEl=document.getElementById("gPrompt");if(sEl&&gEl){sEl.value=sText;sEl.textContent=sText;gEl.value=gText;gEl.textContent=gText;}}function updatePlayerBarLayout(){const bar=document.getElementById("playersBar");if(!bar)return;const totalLen=(players.S?players.S.length:0)+(players.G?players.G.length:0);if(totalLen>=8)bar.classList.add("long-names");else bar.classList.remove("long-names");}function syncPlayerDOM(){document.getElementById("sName").textContent=players.S;document.getElementById("gName").textContent=players.G;document.getElementById("pSTitle").textContent=players.S;document.getElementById("pGTitle").textContent=players.G;updatePlayerBarLayout();updatePrompts();renderHist();updateUI();}function updateAiAnalysisPanel(){const panel=document.getElementById("aiEvalPanel");const specHintBtn=document.getElementById("spectateAiHintBtn");if(!isReplaying&&!spectateMode){panel.style.display="none";if(specHintBtn)specHintBtn.style.display="none";currentRecommendations=[];return;}panel.style.display="flex";if(!isReplaying&&spectateMode){document.getElementById("evalTitle").textContent="관전 모드 AI 실시간 분석";if(specHintBtn){specHintBtn.style.display="inline-block";specHintBtn.className=showAiHints?"btn-on":"btn-off";}}else{document.getElementById("evalTitle").textContent="복기 모드 AI 엔진 분석";if(specHintBtn)specHintBtn.style.display="none";}const evalRes=evaluateBoardState(board,hands,turn);const barS=document.getElementById("evalBarS");const barG=document.getElementById("evalBarG");barS.style.width=evalRes.winProbS+"%";barS.textContent="선수 "+evalRes.winProbS+"%";barG.textContent="후수 "+evalRes.winProbG+"%";document.getElementById("evalComment").textContent=evalRes.comment;const recBox=document.getElementById("recMovesBox");const compareEl=document.getElementById("evalActualCompare");if(gameOver){currentRecommendations=[];recBox.innerHTML="<span style='font-size:0.78rem;color:rgb(107,114,128);'>대국이 종료된 수순입니다.</span>";compareEl.textContent="";return;}currentRecommendations=getRecommendedMoves(board,hands,turn,3);const nextKor=turn==="S"?"선수":"후수";if(!showAiHints){recBox.innerHTML="<span style='font-size:0.78rem;color:rgb(107,114,128);'>추천 수 표시가 꺼져 있습니다.</span>";}else{recBox.innerHTML="<strong style='font-size:0.78rem;color:rgb(31,41,55);'>"+nextKor+" 추천 수:</strong> "+currentRecommendations.map((rec,idx)=>{const cls=idx===0?"rec-chip rank1":"rec-chip";const clickAction=spectateMode?"showCustomModal('관전 모드에서는 직접 둘 수 없습니다. 수 입력을 사용해 주세요.', false)":"playRecommendedMove("+idx+")";return'<span class="'+cls+'" onclick="'+clickAction+'" title="AI 추천 수">'+(idx+1)+"순위 "+rec.san+"</span>";}).join("");}if(!isReplaying&&spectateMode){compareEl.textContent=showAiHints?"관전 중 실시간 추천 수 표시 중":"관전 중 (추천 표시 꺼짐)";}else if(!isBranching&&replayStep<allReplayMoves.length){const actualNext=allReplayMoves[replayStep];const matchIdx=currentRecommendations.findIndex(x=>Boolean(x.move.isDrop)===Boolean(actualNext.isDrop)&&(actualNext.isDrop?x.move.dropType===actualNext.dropType:(x.move.fromR===actualNext.fromR&&x.move.fromC===actualNext.fromC&&Boolean(x.move.promote)===Boolean(actualNext.promote)))&&x.move.toR===actualNext.toR&&x.move.toC===actualNext.toC);if(matchIdx===0){compareEl.innerHTML="<strong style='color:rgb(5,150,105);'>실전 다음 수: "+actualNext.san+" (AI 1순위 일치!)</strong>";}else if(matchIdx>0){compareEl.innerHTML="<strong style='color:rgb(37,99,235);'>실전 다음 수: "+actualNext.san+" (AI "+(matchIdx+1)+"순위)</strong>";}else{compareEl.textContent="실전 다음 수: "+actualNext.san;}}else{compareEl.textContent="";}}function playRecommendedMove(idx){if(!isReplaying||gameOver)return;const rec=currentRecommendations[idx];if(!rec)return;isBranching=true;executeMove(rec.move);}function drawShogiPentagon(cCtx,cx,cy,w,h,isSente){const dir=isSente?1:-1;cCtx.beginPath();cCtx.moveTo(cx,cy-dir*(h*0.50));cCtx.lineTo(cx+w*0.40,cy-dir*(h*0.25));cCtx.lineTo(cx+w*0.48,cy+dir*(h*0.48));cCtx.lineTo(cx-w*0.48,cy+dir*(h*0.48));cCtx.lineTo(cx-w*0.40,cy-dir*(h*0.25));cCtx.closePath();}function drawCenteredHanja(cCtx,text,cx,cy){cCtx.textAlign="center";cCtx.textBaseline="alphabetic";const m=cCtx.measureText(text);let dx=0;let dy=0;if(typeof m.actualBoundingBoxAscent==="number"&&typeof m.actualBoundingBoxDescent==="number"){dy=(m.actualBoundingBoxAscent-m.actualBoundingBoxDescent)/2;}else{cCtx.textBaseline="middle";}if(typeof m.actualBoundingBoxLeft==="number"&&typeof m.actualBoundingBoxRight==="number"){dx=(m.actualBoundingBoxLeft-m.actualBoundingBoxRight)/2;}cCtx.fillText(text,cx+dx,cy+dy);}function initBadgePieceIcons(){const makeIconUrl=(color)=>{const c=document.createElement("canvas");const size=120;c.width=size;c.height=size;const bCtx=c.getContext("2d");const cx=size/2;const cy=size/2;const w=size*0.80;const h=size*0.84;drawShogiPentagon(bCtx,cx,cy,w,h,true);bCtx.fillStyle="#f3dba5";bCtx.fill();bCtx.lineWidth=4.2;bCtx.strokeStyle="#7a5120";bCtx.stroke();const hanja=color==="S"?"王":"玉";bCtx.font="900 52px 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Serif KR', serif";bCtx.fillStyle="rgb(24, 24, 27)";drawCenteredHanja(bCtx,hanja,cx,cy+h*0.06);return c.toDataURL("image/png");};const sImg=document.getElementById("sBadgeIcon");const gImg=document.getElementById("gBadgeIcon");if(sImg)sImg.src=makeIconUrl("S");if(gImg)gImg.src=makeIconUrl("G");}function getBoardMetrics(){const padX=28;const padY=30;const gridW=LOGICAL_W-padX*2;const gridH=LOGICAL_H-padY*2;const cellW=gridW/COLS;const cellH=gridH/ROWS;return{padX,padY,cellW,cellH,gridW,gridH};}function drawSinglePiece(cCtx,p,cx,cy,cellW,cellH,scaleX,liftScale,displayPromoted){const isSente=p.color==="S";let sizeScale=0.86;if(p.type==="K"||p.type==="H"||p.type==="M"||p.type==="R"||p.type==="B")sizeScale=0.90;else if(p.type==="P")sizeScale=0.80;cCtx.save();cCtx.translate(cx,cy);if(scaleX!==1||liftScale!==1)cCtx.scale(scaleX*liftScale,liftScale);cCtx.shadowColor="rgba(0, 0, 0, 0.22)";cCtx.shadowBlur=2.5;cCtx.shadowOffsetY=1.5;drawShogiPentagon(cCtx,0,0,cellW*sizeScale,cellH*sizeScale,isSente);cCtx.fillStyle="#f3dba5";cCtx.fill();cCtx.shadowColor="transparent";cCtx.lineWidth=1.5;cCtx.strokeStyle="#7a5120";cCtx.stroke();let hanja="";if(displayPromoted)hanja=HANJA_PROMO[p.type]||HANJA_BASE[p.type];else if(p.type==="K")hanja=isSente?HANJA_BASE.K_S:HANJA_BASE.K_G;else hanja=HANJA_BASE[p.type];cCtx.translate(0,isSente?2:-2);if(!isSente)cCtx.rotate(Math.PI);cCtx.fillStyle=displayPromoted?"rgb(220, 38, 38)":"rgb(24, 24, 27)";cCtx.textAlign="center";cCtx.textBaseline="middle";const fontPx=cellH*sizeScale*0.365;const offsetY=cellH*sizeScale*0.175;cCtx.font="900 "+fontPx.toFixed(1)+"px 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Serif KR', serif";cCtx.fillText(hanja.charAt(0),0,-offsetY);cCtx.fillText(hanja.charAt(1),0,offsetY);cCtx.restore();}function renderStaticBoardToCache(){staticCacheCtx.setTransform(currentDpr,0,0,currentDpr,0,0);staticCacheCtx.clearRect(0,0,LOGICAL_W,LOGICAL_H);const{padX,padY,cellW,cellH,gridW,gridH}=getBoardMetrics();const bgGrad=staticCacheCtx.createLinearGradient(0,0,LOGICAL_W,LOGICAL_H);bgGrad.addColorStop(0,"#e5bc74");bgGrad.addColorStop(0.5,"#dcaf62");bgGrad.addColorStop(1,"#cfa052");staticCacheCtx.fillStyle=bgGrad;staticCacheCtx.fillRect(0,0,LOGICAL_W,LOGICAL_H);const lastMove=moves.length>0?moves[moves.length-1]:null;if(lastMove){if(!lastMove.isDrop&&lastMove.fromR>=0){staticCacheCtx.fillStyle="rgba(245, 224, 90, 0.42)";staticCacheCtx.fillRect(padX+lastMove.fromC*cellW,padY+lastMove.fromR*cellH,cellW,cellH);}staticCacheCtx.fillStyle="rgba(245, 224, 90, 0.58)";staticCacheCtx.fillRect(padX+lastMove.toC*cellW,padY+lastMove.toR*cellH,cellW,cellH);}if(selectedSq){staticCacheCtx.fillStyle="rgba(246, 232, 104, 0.68)";staticCacheCtx.fillRect(padX+selectedSq.c*cellW,padY+selectedSq.r*cellH,cellW,cellH);}const sKing=findKing(board,"S");const gKing=findKing(board,"G");if(sKing&&isInCheck(board,"S")){staticCacheCtx.fillStyle="rgba(235, 97, 80, 0.76)";staticCacheCtx.fillRect(padX+sKing.c*cellW,padY+sKing.r*cellH,cellW,cellH);}if(gKing&&isInCheck(board,"G")){staticCacheCtx.fillStyle="rgba(235, 97, 80, 0.76)";staticCacheCtx.fillRect(padX+gKing.c*cellW,padY+gKing.r*cellH,cellW,cellH);}if(showNums&&(selectedSq||selectedHandType)&&legalMovesForSelected.length>0){const seenDest=new Set();legalMovesForSelected.forEach(m=>{const key=m.toR+","+m.toC;if(seenDest.has(key))return;seenDest.add(key);const hasEnemyBg=Boolean(board[m.toR][m.toC]);if(hasEnemyBg){staticCacheCtx.fillStyle=(showDangerHints&&m.isDangerous)?"rgba(235, 97, 80, 0.65)":"rgba(20, 20, 20, 0.22)";staticCacheCtx.fillRect(padX+m.toC*cellW,padY+m.toR*cellH,cellW,cellH);}});}staticCacheCtx.strokeStyle="rgb(65, 44, 15)";staticCacheCtx.lineWidth=1.4;for(let i=0;i<=9;i++){const x=Math.round(padX+i*cellW);const y=Math.round(padY+i*cellH);staticCacheCtx.beginPath();staticCacheCtx.moveTo(x,padY);staticCacheCtx.lineTo(x,padY+gridH);staticCacheCtx.stroke();staticCacheCtx.beginPath();staticCacheCtx.moveTo(padX,y);staticCacheCtx.lineTo(padX+gridW,y);staticCacheCtx.stroke();}staticCacheCtx.fillStyle="rgb(60, 40, 12)";staticCacheCtx.font="bold 11px -apple-system, BlinkMacSystemFont, sans-serif";staticCacheCtx.textAlign="center";staticCacheCtx.textBaseline="middle";for(let c=0;c<COLS;c++){const x=Math.round(padX+(c+0.5)*cellW);staticCacheCtx.fillText(toShogiColChar(c),x,13);staticCacheCtx.fillText(toShogiColChar(c),x,LOGICAL_H-13);}for(let r=0;r<ROWS;r++){const y=Math.round(padY+(r+0.5)*cellH);staticCacheCtx.fillText(toShogiRowChar(r),13,y);staticCacheCtx.fillText(toShogiRowChar(r),LOGICAL_W-13,y);}if((isReplaying||spectateMode)&&showAiHints&&!gameOver&&currentRecommendations.length>0){currentRecommendations.forEach((rec,idx)=>{const m=rec.move;if(m.isPass)return;const x2=padX+(m.toC+0.5)*cellW;const y2=padY+(m.toR+0.5)*cellH;staticCacheCtx.save();staticCacheCtx.strokeStyle=idx===0?"rgba(5, 150, 105, 0.88)":"rgba(37, 99, 235, 0.75)";staticCacheCtx.fillStyle=idx===0?"rgba(5, 150, 105, 0.88)":"rgba(37, 99, 235, 0.75)";staticCacheCtx.lineWidth=idx===0?4:3;if(!m.isDrop){const x1=padX+(m.fromC+0.5)*cellW;const y1=padY+(m.fromR+0.5)*cellH;staticCacheCtx.beginPath();staticCacheCtx.moveTo(x1,y1);let startX=x1,startY=y1;if(m.via){const vx=padX+(m.via.c+0.5)*cellW;const vy=padY+(m.via.r+0.5)*cellH;staticCacheCtx.lineTo(vx,vy);startX=vx;startY=vy;}staticCacheCtx.lineTo(x2,y2);staticCacheCtx.stroke();const angle=Math.atan2(y2-startY,x2-startX);const headLen=10;staticCacheCtx.beginPath();staticCacheCtx.moveTo(x2,y2);staticCacheCtx.lineTo(x2-headLen*Math.cos(angle-Math.PI/6),y2-headLen*Math.sin(angle-Math.PI/6));staticCacheCtx.lineTo(x2-headLen*Math.cos(angle+Math.PI/6),y2-headLen*Math.sin(angle+Math.PI/6));staticCacheCtx.closePath();staticCacheCtx.fill();}staticCacheCtx.beginPath();staticCacheCtx.arc(x2,y2,9.5,0,Math.PI*2);staticCacheCtx.fillStyle=idx===0?"rgb(6, 95, 70)":"rgb(30, 64, 175)";staticCacheCtx.fill();staticCacheCtx.fillStyle="white";staticCacheCtx.font="bold 9px sans-serif";staticCacheCtx.textAlign="center";staticCacheCtx.textBaseline="middle";staticCacheCtx.fillText(idx===0?"★1":String(idx+1),x2,y2);staticCacheCtx.restore();});}for(let r=0;r<ROWS;r++){for(let c=0;c<COLS;c++){const p=board[r][c];if(!p)continue;if(promoFlipEffect&&promoFlipEffect.r===r&&promoFlipEffect.c===c)continue;const cx=padX+(c+0.5)*cellW;const cy=padY+(r+0.5)*cellH;drawSinglePiece(staticCacheCtx,p,cx,cy,cellW,cellH,1,1,p.promoted);}}if(showNums&&(selectedSq||selectedHandType)&&legalMovesForSelected.length>0){const seen=new Set();legalMovesForSelected.forEach(m=>{const key=m.toR+","+m.toC;if(seen.has(key))return;seen.add(key);const tx=padX+(m.toC+0.5)*cellW;const ty=padY+(m.toR+0.5)*cellH;const hasEnemy=Boolean(board[m.toR][m.toC]);if(!hasEnemy){staticCacheCtx.save();staticCacheCtx.beginPath();staticCacheCtx.arc(tx,ty,cellW*0.15,0,Math.PI*2);staticCacheCtx.fillStyle=(showDangerHints&&m.isDangerous)?"rgba(235, 97, 80, 0.9)":"rgba(20, 20, 20, 0.38)";staticCacheCtx.fill();staticCacheCtx.restore();}});}if((selectedSq||selectedHandType)&&forbiddenMovesForSelected.length>0){const seenForb=new Set();forbiddenMovesForSelected.forEach(m=>{const key=m.toR+","+m.toC;if(seenForb.has(key))return;seenForb.add(key);const tx=Math.round(padX+(m.toC+0.5)*cellW);const ty=Math.round(padY+(m.toR+0.5)*cellH);const arm=4.5;staticCacheCtx.save();staticCacheCtx.lineWidth=1.6;staticCacheCtx.strokeStyle="rgba(220, 38, 38, 0.72)";staticCacheCtx.beginPath();staticCacheCtx.moveTo(tx-arm,ty-arm);staticCacheCtx.lineTo(tx+arm,ty+arm);staticCacheCtx.moveTo(tx+arm,ty-arm);staticCacheCtx.lineTo(tx-arm,ty+arm);staticCacheCtx.stroke();staticCacheCtx.restore();});}staticCacheValid=true;}function drawBoard(fromAnimLoop=false){if(!fromAnimLoop)staticCacheValid=false;if(!staticCacheValid)renderStaticBoardToCache();ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,canvas.width,canvas.height);ctx.drawImage(staticCacheCanvas,0,0);ctx.restore();const{padX,padY,cellW,cellH}=getBoardMetrics();if(rippleEffect){const rx=padX+(rippleEffect.c+0.5)*cellW;const ry=padY+(rippleEffect.r+0.5)*cellH;ctx.save();ctx.beginPath();ctx.arc(rx,ry,cellW*0.5*rippleEffect.scale,0,Math.PI*2);ctx.fillStyle="rgba(20, 20, 20, "+rippleEffect.alpha.toFixed(3)+")";ctx.fill();ctx.restore();}if(promoFlipEffect){const r=promoFlipEffect.r;const c=promoFlipEffect.c;const p=board[r][c];if(p){const cx=padX+(c+0.5)*cellW;const cy=padY+(r+0.5)*cellH;const prog=promoFlipEffect.progress;const scaleX=Math.max(0.06,Math.abs(Math.cos(prog*Math.PI)));const liftScale=1+0.14*Math.sin(prog*Math.PI);const displayPromoted=prog>=0.5;drawSinglePiece(ctx,p,cx,cy,cellW,cellH,scaleX,liftScale,displayPromoted);}}}let pointerStart=null;canvas.addEventListener("pointerdown",(e)=>{pointerStart={x:e.clientX,y:e.clientY};});canvas.addEventListener("pointerup",(e)=>{if(!pointerStart)return;const dx=e.clientX-pointerStart.x;const dy=e.clientY-pointerStart.y;pointerStart=null;if(Math.hypot(dx,dy)>10)return;handleBoardTap(e.clientX,e.clientY);});function handleBoardTap(clientX,clientY){
+  if(onlineMode && (!onlineConn || !onlineConn.open)){setStatus("친구와 연결이 끊어졌습니다. 재연결을 기다려주세요.", true);return;}
+if(!gameStarted){setStatus("먼저 '새 대국' 버튼을 눌러 대국을 시작해 주세요.",true);return;}if(spectateMode){setStatus("관전 모드 켜짐: 직접 조작할 수 없습니다. '수 입력'을 이용하세요.",true);return;}if(gameOver){setStatus("종료된 상태입니다. 이전 수로 이동하거나 새 대국을 눌러주세요.",true);return;}if(onlineMode&&onlineConn&&onlineConn.open&&!isReplaying){if(onlineWaitingSetup){setStatus("상대방이 차림을 선택할 때까지 잠시만 기다려 주세요.",true);return;}if(turn!==myOnlineColor){setStatus("상대방("+(turn==="S"?"선수":"후수")+")의 차례입니다. 상대가 착수할 때까지 기다려 주세요.",true);return;}}if(vsAiMode&&!isReplaying&&(isAiThinking||turn===aiSide)){setStatus("AI가 다음 수를 생각 중입니다. 잠시만 기다려 주세요.",true);return;}const rect=canvas.getBoundingClientRect();const x=(clientX-rect.left)*(LOGICAL_W/rect.width);const y=(clientY-rect.top)*(LOGICAL_H/rect.height);const{padX,padY,cellW,cellH}=getBoardMetrics();const c=Math.floor((x-padX)/cellW);const r=Math.floor((y-padY)/cellH);if(r<0||r>=ROWS||c<0||c>=COLS)return;if(selectedSq||selectedHandType){let matchingLegal,matchingForbidden;if(selectedHandType){matchingLegal=legalMovesForSelected.find(m=>m.isDrop&&m.toR===r&&m.toC===c);matchingForbidden=forbiddenMovesForSelected.find(m=>m.isDrop&&m.toR===r&&m.toC===c);}else{matchingLegal=legalMovesForSelected.filter(m=>!m.isDrop&&m.toR===r&&m.toC===c);matchingForbidden=forbiddenMovesForSelected.find(m=>!m.isDrop&&m.toR===r&&m.toC===c);}if(matchingLegal&&(Array.isArray(matchingLegal)?matchingLegal.length>0:true)){if(isReplaying)isBranching=true;if(selectedHandType){executeMove(matchingLegal);return;}else{const promoMove=matchingLegal.find(m=>Boolean(m.promote)===true);const unpromoMove=matchingLegal.find(m=>Boolean(m.promote)===false);if(promoMove&&unpromoMove){const p=board[selectedSq.r][selectedSq.c];pendingPromotionCandidates=[promoMove,unpromoMove];document.getElementById("promoModalTitle").textContent=KOR_FULL_NAME[p.type]+"("+HANJA_BASE[p.type]+") 승급 선택";document.getElementById("promoModalDesc").textContent=KOR_PROMO_FULL[p.type]+"("+HANJA_PROMO[p.type]+")으로 승급(成)하시겠습니까?";promoModalOpenedAt=performance.now();document.getElementById("promoModal").style.display="flex";return;}executeMove(matchingLegal[0]);return;}}if(matchingForbidden){playForbiddenSound();setStatus(matchingForbidden.reason,true);return;}}const clickedPiece=board[r][c];if(clickedPiece&&clickedPiece.color===turn){selectedHandType=null;if(selectedSq&&selectedSq.r===r&&selectedSq.c===c){selectedSq=null;legalMovesForSelected=[];forbiddenMovesForSelected=[];invalidateBoardCache();updateCapturedBar();drawBoard();return;}selectedSq={r,c};legalMovesForSelected=getLegalMovesForSingleSquare(board,hands,turn,r,c);forbiddenMovesForSelected=getForbiddenMovesForSingleSquare(board,hands,turn,r,c);invalidateBoardCache();updateCapturedBar();triggerRipple(r,c);drawBoard();const pName=clickedPiece.promoted?KOR_PROMO_FULL[clickedPiece.type]:KOR_FULL_NAME[clickedPiece.type];const uniqueDestCount=new Set(legalMovesForSelected.map(m=>m.toR+","+m.toC)).size;setStatus(toCoord(r,c)+" "+pName+" 선택됨 ("+uniqueDestCount+"곳 이동 가능)",false);}else{const hadSelection=Boolean(selectedSq||selectedHandType);const hadEnemy=Boolean(clickedPiece&&clickedPiece.color!==turn);selectedSq=null;selectedHandType=null;legalMovesForSelected=[];forbiddenMovesForSelected=[];invalidateBoardCache();updateCapturedBar();drawBoard();if(hadSelection)setStatus("형식 오류: 수만 입력해주세요.",true);else if(hadEnemy)setStatus("자신의 기물이 아닙니다.",true);}}function confirmPromotionChoice(doPromote){document.getElementById("promoModal").style.display="none";if(!pendingPromotionCandidates)return;const chosen=pendingPromotionCandidates.find(m=>Boolean(m.promote)===Boolean(doPromote))||pendingPromotionCandidates[0];pendingPromotionCandidates=null;executeMove(chosen);}function cancelPromotionChoice(){document.getElementById("promoModal").style.display="none";pendingPromotionCandidates=null;setStatus("승급 및 이동이 취소되었습니다. 다시 선택해 주세요.",false);}function executeMove(m,skipSfx=false){if(!gameStarted||gameOver)return false;const allLegal=getAllLegalMoves(board,hands,turn,true);const valid=allLegal.find(x=>Boolean(x.isDrop)===Boolean(m.isDrop)&&(m.isDrop?x.dropType===m.dropType:(x.fromR===m.fromR&&x.fromC===m.fromC&&Boolean(x.promote)===Boolean(m.promote)))&&x.toR===m.toR&&x.toC===m.toC);if(!valid){let pseudoCheck=null;if(m.isDrop){pseudoCheck={isDrop:true,dropType:m.dropType,fromR:-1,fromC:-1,toR:m.toR,toC:m.toC,promote:false};}else{const pseudos=generatePseudoMovesForSquare(board,m.fromR,m.fromC).filter(x=>x.toR===m.toR&&x.toC===m.toC);if(pseudos.length>0)pseudoCheck=pseudos[0];}if(pseudoCheck){const sim=applyMoveOnBoard(board,hands,turn,pseudoCheck);if(isInCheck(sim.board,turn)){setStatus("형식 오류: 수만 입력해주세요.",true);return false;}}setStatus("형식 오류: 수만 입력해주세요.",true);return false;}if(isPerpetualCheckForbidden(board,hands,turn,valid)){if(!skipSfx)playForbiddenSound();setStatus("연속 왕수 천일수는 금지수입니다. 다른 수를 두어 주세요.",true);return false;}if(isUchifuzumeForbidden(board,hands,turn,valid)){if(!skipSfx)playForbiddenSound();setStatus("보병을 타격하여 즉시 외통(우치후즈메)을 부르는 수는 금지수입니다.",true);return false;}stateSnapshots.push({board:cloneBoard(board),hands:cloneHands(hands),turn,positionCounts:{...positionCounts},checkPositionCounts:{...checkPositionCounts}});const movingPieceBefore=!valid.isDrop?board[valid.fromR][valid.fromC]:null;const didJustPromote=Boolean(!valid.isDrop&&valid.promote&&movingPieceBefore&&!movingPieceBefore.promoted);const san=buildNotation(board,valid);const sim=applyMoveOnBoard(board,hands,turn,valid);board=sim.board;hands=sim.hands;const opp=turn==="S"?"G":"S";const moveRecord={color:turn,isDrop:Boolean(valid.isDrop),dropType:valid.dropType||null,fromR:valid.fromR,fromC:valid.fromC,toR:valid.toR,toC:valid.toC,promote:Boolean(valid.promote),via:valid.via||null,captured:sim.captured||null,san};moves.push(moveRecord);turn=opp;selectedSq=null;selectedHandType=null;legalMovesForSelected=[];forbiddenMovesForSelected=[];const posKey=getPositionKey(board,hands,turn);positionCounts[posKey]=(positionCounts[posKey]||0)+1;const nextInCheck=isInCheck(board,turn);if(nextInCheck)checkPositionCounts[posKey]=(checkPositionCounts[posKey]||0)+1;const nextLegal=getAllLegalMoves(board,hands,turn);const totalMoveCount=moves.length;if(nextLegal.length===0){gameOver=true;winResultText=getPlayerLabel(moveRecord.color,"square")+" 승리 ("+totalMoveCount+"수 외통승!)";if(!skipSfx)playGameEndSound("win");}else if(positionCounts[posKey]>=4){gameOver=true;isDrawed=true;winResultText="천일수(4회 동형 반복): 무승부로 대국이 종료되었습니다.";if(!skipSfx)playGameEndSound("end");}else if(!skipSfx){if(nextInCheck)playCheckSound();else if(sim.captured)playCaptureSound();else playMoveSound();}if(isBatchReplay)return true;invalidateBoardCache();updateCapturedBar();updateUI();if(didJustPromote&&!skipSfx&&movingPieceBefore){triggerPromoFlip(valid.toR,valid.toC,movingPieceBefore.type,movingPieceBefore.color);}else{drawBoard();}if(onlineMode&&onlineConn&&onlineConn.open&&!isRemoteAction&&!isReplaying){sendPeerData({type:"MOVE",move:{isDrop:Boolean(valid.isDrop),dropType:valid.dropType||null,fromR:valid.fromR,fromC:valid.fromC,toR:valid.toR,toC:valid.toC,promote:Boolean(valid.promote),via:valid.via||null}});}const movePrefix=formatMovePrefix(moves.length-1);if(gameOver){setStatus(winResultText,false);if(!isReplaying){if(isDrawed)saveHist("무승부");else saveHist(getPlayerLabel(moveRecord.color,"round")+" 승");}}else{setStatus("착수 완료: "+movePrefix+" "+moveRecord.san,false);if(vsAiMode&&!isReplaying)triggerAiMoveIfNeeded();}return true;}function parseSingleMoveToken(token,b,h,color){let s=String(token||"").trim();if(!s)return{error:"empty"};if(/^(?:[SG선후선수후수\s]*[:：]|^\d+\.)/i.test(s) || s.includes(":"))return{error:"invalid"};while(s.length>0&&"()[]".indexOf(s.charAt(0))!==-1)s=s.slice(1).trim();while(s.length>0&&"()[]".indexOf(s.charAt(s.length-1))!==-1)s=s.slice(0,-1).trim();const dotIdx=s.indexOf(".");if(dotIdx!==-1&&dotIdx<=4)s=s.slice(dotIdx+1).trim();const allLegal=getAllLegalMoves(b,h,color,true);const charMap={"비":"R","비차":"R","飛":"R","R":"R","각":"B","각행":"B","角":"B","B":"B","금":"G","금장":"G","金":"G","G":"G","은":"S","은장":"S","銀":"S","S":"S","계":"N","계마":"N","桂":"N","N":"N","향":"L","향차":"L","香":"L","L":"L","보":"P","보병":"P","歩":"P","P":"P","구":"H","구행":"H","鉤":"H","鉤行":"H","H":"H","마":"M","마갈":"M","摩":"M","摩羯":"M","M":"M"};if(s.indexOf("*")!==-1||s.indexOf("타")!==-1||s.indexOf("打")!==-1){let digits="",letters="";const cleanDrop=s.replace(/[☗☖▲△]/g,"");for(let i=0;i<cleanDrop.length;i++){const ch=cleanDrop.charAt(i);if(ch>="1"&&ch<="9")digits+=ch;else if(ch!=="*"&&ch!=="타"&&ch!=="打"&&ch!==" ")letters+=ch;}const to=parseSq(digits.slice(0,2));const dType=charMap[letters.toUpperCase()]||charMap[letters];if(to&&dType){const cands=allLegal.filter(m=>m.isDrop&&m.dropType===dType&&m.toR===to.r&&m.toC===to.c);if(cands.length>0)return{candidates:cands};}}s=s.replace(/[☗☖▲△]/g,"").trim();const wantPromo=s.indexOf("+")!==-1||s.indexOf("성")!==-1||s.indexOf("成")!==-1;const parenMatch=s.match(/^(\d{2}).*\((\d{2})\)/);let digitPairs=[],curDigits="";for(let i=0;i<s.length;i++){const ch=s.charAt(i);if(ch>="1"&&ch<="9"){curDigits+=ch;if(curDigits.length===2){digitPairs.push(curDigits);curDigits="";}}else curDigits="";}if(parenMatch){const to=parseSq(parenMatch[1]);const from=parseSq(parenMatch[2]);if(from&&to){let cands=allLegal.filter(m=>!m.isDrop&&m.fromR===from.r&&m.fromC===from.c&&m.toR===to.r&&m.toC===to.c);if(cands.length>1)cands=cands.filter(m=>Boolean(m.promote)===wantPromo);if(cands.length>0)return{candidates:cands};}}if(digitPairs.length>=2){const p1=parseSq(digitPairs[0]);const p2=parseSq(digitPairs[1]);if(p1&&p2){let cands=allLegal.filter(m=>!m.isDrop&&m.fromR===p1.r&&m.fromC===p1.c&&m.toR===p2.r&&m.toC===p2.c);if(cands.length===0)cands=allLegal.filter(m=>!m.isDrop&&m.fromR===p2.r&&m.fromC===p2.c&&m.toR===p1.r&&m.toC===p1.c);if(cands.length>1)cands=cands.filter(m=>Boolean(m.promote)===wantPromo);if(cands.length>0)return{candidates:cands};}}return{error:"invalid"};}async function applyLog(){let rawCheck=document.getElementById("logInput").value.trim();if(rawCheck.includes(":")||rawCheck.includes("：")||/^[SG선후]\s*[:：]/i.test(rawCheck)){setStatus("형식 오류: 수만 입력해주세요.",true);return;}if(!gameStarted){setStatus("먼저 '새 대국' 버튼을 눌러 대국을 시작해 주세요.",true);return;}if(gameOver){setStatus("대국이 종료되어 수를 입력할 수 없습니다.",true);return;}if(onlineMode&&onlineConn&&onlineConn.open&&!isReplaying){if(onlineWaitingSetup||turn!==myOnlineColor){setStatus("상대방 차례에는 수 입력을 할 수 없습니다.",true);return;}}if(vsAiMode&&!isReplaying&&isAiThinking){setStatus("AI가 다음 수를 생각 중입니다. 잠시만 기다려 주세요.",true);return;}let raw=document.getElementById("logInput").value.trim();if(!raw){setStatus("형식 오류: 수만 입력해주세요.",true);return;}if(raw.startsWith("표준")||raw.startsWith("신수")){raw=raw.slice(2).replace(/^[,，/:\s]+/,"");}raw=raw.replace(/(?:[SGsg선후]\s*[:：]\s*)/g,"");const tokens=raw.split(/[\n,;\s]+/).map(t=>t.trim()).filter(Boolean);let cnt=0;for(const tok of tokens){if(gameOver)break;if(/^\d+\.+$/.test(tok))continue;const res=parseSingleMoveToken(tok,board,hands,turn);if(res.error==="empty")continue;if(res.error||!res.candidates||res.candidates.length===0){setStatus("형식 오류: 수만 입력해주세요.",true);return;}if(isReplaying)isBranching=true;if(!executeMove(res.candidates[0]))return;cnt++;}if(cnt>0)document.getElementById("logInput").value="";}function handleEnter(e){if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();applyLog();}}function formatKiboLines(moveArray){const lines=[];for(let i=0;i<moveArray.length;i+=2){const sMove=moveArray[i];const gMove=moveArray[i+1];let line=(i+1)+". "+sMove.san;if(gMove)line+="  "+(i+2)+". "+gMove.san;lines.push(line);}return lines;}function updateUI(){syncActiveSession();if(typeof saveOnlineRoomSession==="function")saveOnlineRoomSession();const noMoves=moves.length===0;const lockSetup=gameStarted||!noMoves||isReplaying||isAiThinking||onlineWaitingSetup;document.getElementById("swapBtn").disabled=lockSetup||(vsAiMode&&gameStarted)||(onlineMode&&!isOnlineHost);document.getElementById("editNameBtn").disabled=lockSetup;document.getElementById("resetNameBtn").disabled=lockSetup;if(lockSetup){document.getElementById("nameEditBox").style.display="none";}let disableUndo=noMoves;if(isReplaying){disableUndo=moves.length<=replayStep;}else if(onlineMode&&gameOver){disableUndo=true;}else if(vsAiMode){if(isAiThinking)disableUndo=true;else if(aiSide==="S"&&moves.length<=1&&!isResigned&&!isDrawed)disableUndo=true;}document.getElementById("newGameBtn").disabled=(onlineMode && (!isOnlineHost || !onlineConn || !onlineConn.open)) || (gameStarted&&!gameOver&&!isReplaying) || onlineWaitingSetup;document.getElementById("undoBtn").disabled=disableUndo;const baseResignDisabled=noMoves||gameOver||isReplaying||isAiThinking||onlineWaitingSetup;document.getElementById("resignSBtn").disabled=baseResignDisabled||(vsAiMode&&aiSide==="S")||(onlineMode&&myOnlineColor!=="S");document.getElementById("resignGBtn").disabled=baseResignDisabled||(vsAiMode&&aiSide==="G")||(onlineMode&&myOnlineColor!=="G");document.getElementById("drawBtn").disabled=baseResignDisabled||vsAiMode;document.getElementById("endGameBtn").disabled=(onlineMode && (!isOnlineHost || !onlineConn || !onlineConn.open)) || (!gameStarted&&!isReplaying);document.getElementById("copyKiboLastBtn").disabled=noMoves;document.getElementById("copyKiboLineBtn").disabled=noMoves;document.getElementById("copyKiboOneBtn").disabled=noMoves;const hasStartedOrReplaying=(gameStarted||moves.length>0||isReplaying||isAiThinking||onlineMode);document.getElementById("aiModeBtn").disabled=hasStartedOrReplaying;document.getElementById("vsAiBtn").disabled=hasStartedOrReplaying;const specBtn=document.getElementById("spectateBtn");if(aiModeEnabled){specBtn.disabled=true;specBtn.className="btn-on";}else if(vsAiMode){specBtn.disabled=true;specBtn.className="btn-off";}else{specBtn.disabled=hasStartedOrReplaying;specBtn.className=spectateMode?"btn-on":"btn-off";}const nBtn=document.getElementById("numBtn");const dBtn=document.getElementById("dangerHintBtn");if(aiModeEnabled){if(nBtn)nBtn.disabled=true;if(dBtn)dBtn.disabled=true;}else{if(dBtn)dBtn.disabled=false;if(nBtn)nBtn.disabled=showDangerHints;}syncAiHintButtons();updatePlayerBarLayout();document.getElementById("mCount").textContent=String(moves.length);const badge=document.getElementById("turnBadge");const banner=document.getElementById("winBanner");const replayPanel=document.getElementById("replayPanel");const replayStatus=document.getElementById("replayStatus");const sBadge=document.getElementById("sBadge");const gBadge=document.getElementById("gBadge");const showTurnHighlight=(gameStarted||isReplaying)&&!gameOver;if(sBadge&&gBadge){sBadge.classList.toggle("active-turn",showTurnHighlight&&turn==="S");gBadge.classList.toggle("active-turn",showTurnHighlight&&turn==="G");}replayPanel.style.display=isReplaying?"flex":"none";const branchBtn=document.getElementById("branchBtn");if(branchBtn)branchBtn.className=isBranching?"btn-on":"";const nextMoveNum=moves.length+1;if(isReplaying){replayStatus.textContent="복기 모드 ("+replayStep+" / "+allReplayMoves.length+"수)";badge.textContent="복기 모드 ("+replayStep+" / "+allReplayMoves.length+"수)";badge.style.background="rgb(254,243,199)";badge.style.color="rgb(146,64,14)";banner.style.display=(gameOver&&winResultText)?"block":"none";if(gameOver&&winResultText)banner.textContent=winResultText;}else{if(!gameStarted){badge.textContent="대국 전 (새 대국을 눌러 시작)";badge.style.background="rgb(219,234,254)";badge.style.color="rgb(30,64,175)";banner.style.display="none";}else if(gameOver){badge.textContent="대국 종료";badge.style.background="rgb(254,243,199)";badge.style.color="rgb(146,64,14)";banner.style.display="block";banner.textContent=winResultText;}else{badge.textContent=nextMoveNum+"수째: "+getTurnPlayerText(turn);badge.style.background="rgb(219,234,254)";badge.style.color="rgb(30,64,175)";banner.style.display="none";}}const kb=document.getElementById("kiboBox");if(noMoves){kb.textContent="아직 착수된 기물이 없습니다.";}else{kb.textContent=moves.map((m,i)=>formatMovePrefix(i)+" "+m.san).join(NL);kb.scrollTop=kb.scrollHeight;}updateAiAnalysisPanel();}async function resignGame(color,isAi=false){if(gameOver||moves.length===0||isReplaying)return;if(!isAi&&isAiThinking)return;if(vsAiMode&&color===aiSide)return;const pName=players[color];if(!isAi){const ok=await showCustomModal(pName+"님, 정말 기권하시겠습니까?",true);if(!ok)return;}if(aiMoveTimer){clearTimeout(aiMoveTimer);aiMoveTimer=null;}isAiThinking=false;gameOver=true;isResigned=true;const wColor=color==="S"?"G":"S";winResultText=getPlayerLabel(color,"square")+" 기권 - "+getPlayerLabel(wColor,"square")+" 승리";playGameEndSound("end");setStatus(winResultText,false);if(!isReplaying)saveHist(getPlayerLabel(wColor,"round")+" 승");if(onlineMode){if(onlineConn&&onlineConn.open&&!isRemoteAction){sendPeerData({type:"RESIGN",color});}const finalMsg=winResultText;prepareWaitingBoardForOnline();updateOnlinePanelUI(onlineConn&&onlineConn.open?"connected":"waiting","친구와 실시간 연결됨");syncPlayerDOM();updateCapturedBar();updateUI();drawBoard();setStatus(finalMsg+" (대국이 종료되었습니다.)",false);return;}updateUI();drawBoard();}async function requestDraw(){if(gameOver||moves.length===0||isReplaying||isAiThinking||vsAiMode)return;if(onlineMode&&onlineConn&&onlineConn.open&&!isRemoteAction){const ok=await showCustomModal("상대방에게 무승부를 제안하시겠습니까?",true);if(ok){sendPeerData({type:"DRAW_REQ"});setStatus("상대방에게 무승부를 제안했습니다. 응답을 기다립니다...",false);}return;}const ok=isRemoteAction?true:await showCustomModal("양측 합의하에 무승부로 처리하시겠습니까?",true);if(ok){if(aiMoveTimer){clearTimeout(aiMoveTimer);aiMoveTimer=null;}isAiThinking=false;gameOver=true;isDrawed=true;winResultText="양측 합의: 무승부로 대국이 종료되었습니다.";playGameEndSound("end");setStatus(winResultText,false);if(!isReplaying)saveHist("무승부");if(onlineMode){const finalMsg=winResultText;prepareWaitingBoardForOnline();updateOnlinePanelUI(onlineConn&&onlineConn.open?"connected":"waiting","친구와 실시간 연결됨");syncPlayerDOM();updateCapturedBar();updateUI();drawBoard();setStatus(finalMsg,false);return;}updateUI();drawBoard();}}async function undoMove(){if(moves.length===0||isAiThinking)return;if(isReplaying&&moves.length<=replayStep)return;if(onlineMode&&onlineConn&&onlineConn.open&&!isRemoteAction&&!isReplaying){const ok=await showCustomModal("상대방에게 한 수 무르기를 요청하시겠습니까?",true);if(ok){sendPeerData({type:"UNDO_REQ"});setStatus("상대방에게 무르기를 요청했습니다. 수락을 기다립니다...",false);}return;}document.getElementById("promoModal").style.display="none";pendingPromotionCandidates=null;promoFlipEffect=null;if(!isReplaying&&currentSavedId!==null){deleteHistoryItem(currentSavedId,true);currentSavedId=null;}if(isResigned){gameOver=false;isResigned=false;winResultText="";updateUI();drawBoard();setStatus("기권이 취소되었습니다. 대국을 이어가세요.",false);return;}if(isDrawed&&winResultText.includes("양측 합의")){gameOver=false;isDrawed=false;winResultText="";updateUI();drawBoard();setStatus("무승부가 취소되었습니다. 대국을 이어가세요.",false);return;}gameOver=false;isDrawed=false;winResultText="";let popCount=1;if(vsAiMode&&!isReplaying){const lastMove=moves[moves.length-1];if(lastMove.color===aiSide&&moves.length>=2)popCount=2;}let undoneMove=null;for(let i=0;i<popCount;i++){undoneMove=moves.pop();const snap=stateSnapshots.pop();if(snap){board=cloneBoard(snap.board);hands=cloneHands(snap.hands);turn=snap.turn;positionCounts={...snap.positionCounts};checkPositionCounts={...(snap.checkPositionCounts||{})};}}selectedSq=null;selectedHandType=null;legalMovesForSelected=[];forbiddenMovesForSelected=[];invalidateBoardCache();updateCapturedBar();updateUI();drawBoard();const promoCancelNote=(undoneMove&&undoneMove.promote)?" (승급 취소됨)":"";setStatus("무르기 완료: "+(undoneMove?undoneMove.san:"")+promoCancelNote,false);}function restoreActiveModePlayers(){if(aiModeEnabled){players.S=aiSessionPlayers.S;players.G=aiSessionPlayers.G;}else if(vsAiMode){players.S=vsAiSessionPlayers.S;players.G=vsAiSessionPlayers.G;}else{players.S=userCustomPlayers.S;players.G=userCustomPlayers.G;}}function endGame(){if(!gameStarted&&!isReplaying)return;if(aiMoveTimer){clearTimeout(aiMoveTimer);aiMoveTimer=null;}isAiThinking=false;let savedUnfin=false;if(gameStarted&&!gameOver&&moves.length>0&&!isReplaying){saveUnfinished();savedUnfin=true;}senteFormation="STD";goteFormation="STD";initNewGameData();gameOver=false;gameStarted=false;winResultText="";currentSavedId=null;currentUnfinId=null;isResigned=false;isDrawed=false;isReplaying=false;isBranching=false;allReplayMoves=[];replayStep=0;restoreActiveModePlayers();syncPlayerDOM();updateCapturedBar();updateUI();drawBoard();if(onlineMode&&onlineConn&&onlineConn.open&&!isRemoteAction){sendPeerData({type:"END_GAME"});}if(savedUnfin)setStatus("대국이 종료되었습니다. (진행 중이던 대국은 미완료 대국에 저장되었습니다.)",false);else setStatus("대국이 종료되어 대기 상태로 돌아왔습니다.",false);}function selectFormation(side,fCode){if(side==="S"){senteFormation=fCode;document.querySelectorAll("#senteSetupBtns .setup-opt").forEach(btn=>{btn.classList.toggle("active",btn.dataset.f===fCode);});}else{goteFormation=fCode;document.querySelectorAll("#goteSetupBtns .setup-opt").forEach(btn=>{btn.classList.toggle("active",btn.dataset.f===fCode);});}}function resetBoard(){if(aiMoveTimer){clearTimeout(aiMoveTimer);aiMoveTimer=null;}isAiThinking=false;selectFormation("S","STD");selectFormation("G","STD");const senteGroup=document.getElementById("senteSetupGroup");const goteGroup=document.getElementById("goteSetupGroup");if(senteGroup&&goteGroup){if(onlineMode&&onlineConn&&onlineConn.open){senteGroup.style.display=myOnlineColor==="S"?"block":"none";goteGroup.style.display=myOnlineColor==="G"?"block":"none";}else if(vsAiMode){senteGroup.style.display=aiSide==="S"?"none":"block";goteGroup.style.display=aiSide==="G"?"none":"block";}else{senteGroup.style.display="block";goteGroup.style.display="block";}}document.getElementById("setupModal").style.display="flex";}function cancelSetupModal(){document.getElementById("setupModal").style.display="none";if(onlineMode&&onlineConn&&onlineConn.open&&isGuestPickingFormation){isGuestPickingFormation=false;sendPeerData({type:"SETUP_CANCEL"});setStatus("새 대국 차림 선택을 취소했습니다.",false);}}function confirmSetupModal(){document.getElementById("setupModal").style.display="none";if(onlineMode&&onlineConn&&onlineConn.open){if(isGuestPickingFormation){isGuestPickingFormation=false;const myForm=myOnlineColor==="S"?senteFormation:goteFormation;sendPeerData({type:"GUEST_SETUP_DONE",guestColor:myOnlineColor,guestFormation:myForm});startOnlineShogiGame();return;}if(isOnlineHost){if(gameStarted&&!gameOver&&moves.length>0&&!isReplaying)saveUnfinished();const hostForm=myOnlineColor==="S"?senteFormation:goteFormation;onlineWaitingSetup=true;updateUI();sendPeerData({type:"HOST_SETUP_REQ",players,hostColor:myOnlineColor,hostFormation:hostForm});setStatus("상대방에게 대국 시작 및 차림 선택을 요청했습니다. 상대방의 선택을 기다립니다...",false);return;}}if(gameStarted&&!gameOver&&moves.length>0&&!isReplaying)saveUnfinished();if(vsAiMode){const forms=["STD","VAR"];selectFormation(aiSide,forms[Math.floor(Math.random()*forms.length)]);}initNewGameData();gameOver=false;gameStarted=true;winResultText="";currentSavedId=null;currentUnfinId=null;isResigned=false;isDrawed=false;isReplaying=false;isBranching=false;restoreActiveModePlayers();if(aiModeEnabled){spectateMode=true;document.getElementById("spectateBtn").className="btn-on";}else if(vsAiMode){spectateMode=false;document.getElementById("spectateBtn").className="btn-off";}syncPlayerDOM();document.getElementById("logInput").value="";updateCapturedBar();updateUI();drawBoard();const sShort=FORMATION_NAMES[senteFormation].split("(")[0];const gShort=FORMATION_NAMES[goteFormation].split("(")[0];setStatus("새 대국이 시작되었습니다 (선수 "+sShort+" vs 후수 "+gShort+"). 착수해 주세요.",false);if(vsAiMode&&turn===aiSide)triggerAiMoveIfNeeded();}function flashCopyBtn(btn){if(!btn)return;if(!btn.dataset.origText)btn.dataset.origText=btn.textContent;btn.textContent="복사됨!";btn.classList.add("btn-copied");if(btn._copyTimer)clearTimeout(btn._copyTimer);btn._copyTimer=setTimeout(()=>{btn.textContent=btn.dataset.origText;btn.classList.remove("btn-copied");},1200);}function fallbackCopyText(text){const ta=document.createElement("textarea");ta.value=text;ta.setAttribute("readonly","");ta.style.position="fixed";ta.style.top="-9999px";ta.style.left="-9999px";document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,text.length);let ok=false;try{ok=document.execCommand("copy");}catch(e){}document.body.removeChild(ta);return ok;}function copyToClipboard(text,successMsg,btn){if(!text){setStatus("복사할 내용이 없습니다.",true);return;}const onSuccess=()=>{setStatus(successMsg,false);flashCopyBtn(btn);};const onFail=()=>{if(fallbackCopyText(text))onSuccess();else setStatus("복사에 실패했습니다. 직접 선택해 복사해 주세요.",true);};if(navigator.clipboard&&typeof navigator.clipboard.writeText==="function"){navigator.clipboard.writeText(text).then(onSuccess).catch(onFail);}else onFail();}function copyText(id,btn){const el=document.getElementById(id);if(!el)return;copyToClipboard(el.value,"시작 프롬프트가 복사되었습니다.",btn);}function copyLast(btn){if(moves.length===0){setStatus("아직 착수된 기물이 없습니다.",true);return;}const lastIdx=moves.length-1;const t=formatMovePrefix(lastIdx)+" "+moves[lastIdx].san;copyToClipboard(t,"마지막 수 복사 완료: "+t,btn);}function copyState(btn){const lines=formatKiboLines(moves);const kiboText=lines.length>0?lines.join(" "):"없음";const nextPrefix=formatMovePrefix(moves.length);const s="[현재 쇼기판 상태 요약]"+NL+"- 선수 차림: "+FORMATION_NAMES[senteFormation]+" / 후수 차림: "+FORMATION_NAMES[goteFormation]+NL+"- 진행 기보: "+kiboText+NL+"- 현재 차례: "+(turn==="S"?"선수(S)":"후수(G)")+NL+"위 기보에 이어서 '"+nextPrefix+" (시작좌표+기물+도착좌표)' 형식으로 다음 수를 답해줘.";copyToClipboard(s,"현재 판 상태 요약이 복사되었습니다.",btn);}function copyKibo(one,btn){if(moves.length===0){setStatus("아직 복사할 기보가 없습니다.",true);return;}const lines=formatKiboLines(moves);const t=lines.join(one?" ":NL);copyToClipboard(t,(one?"한 줄 기보":"줄바꿈 기보")+"가 복사되었습니다.",btn);}function formatFullDate(timestamp){const d=new Date(timestamp);const yyyy=d.getFullYear();const mm=String(d.getMonth()+1).padStart(2,"0");const dd=String(d.getDate()).padStart(2,"0");const timeStr=d.toLocaleTimeString("ko-KR",{hour12:false,hour:"2-digit",minute:"2-digit",second:"2-digit"});return yyyy+". "+mm+". "+dd+". "+timeStr;}async function showFullDateModal(timestamp){await showCustomModal("전체 날짜 및 시간:"+NL+formatFullDate(timestamp),false);}function serializeMoves(moveArr){return moveArr.map(m=>({isDrop:Boolean(m.isDrop),dropType:m.dropType||null,fromR:m.fromR,fromC:m.fromC,toR:m.toR,toC:m.toC,promote:Boolean(m.promote),via:m.via||null,san:m.san}));}function saveHist(res){if(isReplaying)return;const newId=Date.now();const record={id:newId,timestamp:newId,date:new Date().toLocaleTimeString("ko-KR",{hour12:false,hour:"2-digit",minute:"2-digit"}),s:players.S,g:players.G,senteFormation,goteFormation,res,cnt:moves.length,rawMoves:serializeMoves(moves)};histList.unshift(record);currentSavedId=newId;saveStorageHist();renderHist();}function renderHist(){document.getElementById("clearHistBtn").disabled=histList.length===0;let sWins=0,gWins=0,draws=0;histList.forEach(x=>{if(x.res==="무승부")draws++;else if(x.res.includes("선 승")||x.res.includes("(선) 승")||x.res.includes("선수 승")||x.res.includes("(선수) 승"))sWins++;else if(x.res.includes("후 승")||x.res.includes("(후) 승")||x.res.includes("후수 승")||x.res.includes("(후수) 승"))gWins++;else if(x.res.includes(x.s))sWins++;else gWins++;});document.getElementById("scoreBox").textContent="선: "+sWins+"승 | 후: "+gWins+"승 | 무승부: "+draws+"회";const tb=document.getElementById("hBody");if(histList.length===0){tb.innerHTML="<tr><td colspan='5' style='text-align:center;color:rgb(107,114,128);'>저장된 대국 기록이 없습니다.</td></tr>";return;}tb.innerHTML=histList.map(x=>{const ts=x.timestamp||x.id;return"<tr>"+"<td><div class='date-wrap'><span class='date-text'>"+x.date+"</span><button class='info-btn' onclick='showFullDateModal("+ts+")' title='상세 날짜 확인'>i</button></div></td>"+"<td>"+x.s+"/"+x.g+"</td>"+"<td>"+x.res+"</td>"+"<td>"+x.cnt+"수</td>"+"<td><button onclick='loadHist("+x.id+")' "+(onlineMode?"disabled":"")+">복기</button> <button class='btn-danger' onclick='deleteHistoryItem("+x.id+", false)'>삭제</button></td>"+"</tr>";}).join("");}function saveUnfinished(){if(isReplaying||moves.length===0)return;const now=Date.now();const useId=currentUnfinId||now;const record={id:useId,timestamp:now,date:new Date().toLocaleTimeString("ko-KR",{hour12:false,hour:"2-digit",minute:"2-digit"}),s:players.S,g:players.G,senteFormation,goteFormation,vsAiMode,aiSide,aiModeEnabled,spectateMode,cnt:moves.length,rawMoves:serializeMoves(moves)};unfinList=unfinList.filter(x=>x.id!==useId);unfinList.unshift(record);currentUnfinId=useId;try{localStorage.removeItem(STORAGE_KEY_ACTIVE);}catch(e){}saveStorageUnfin();renderUnfin();}function renderUnfin(){document.getElementById("clearUnfinBtn").disabled=unfinList.length===0;const tb=document.getElementById("unfinBody");if(unfinList.length===0){tb.innerHTML="<tr><td colspan='4' style='text-align:center;color:rgb(107,114,128);'>저장된 미완료 대국이 없습니다.</td></tr>";return;}tb.innerHTML=unfinList.map(x=>{const ts=x.timestamp||x.id;return"<tr>"+"<td><div class='date-wrap'><span class='date-text'>"+x.date+"</span><button class='info-btn' onclick='showFullDateModal("+ts+")' title='상세 날짜 확인'>i</button></div></td>"+"<td>"+x.s+"/"+x.g+"</td>"+"<td>"+x.cnt+"수</td>"+"<td><button onclick='loadUnfin("+x.id+")'>이어 두기</button> <button class='btn-danger' onclick='deleteUnfin(\"+x.id+\", false)' \"+(onlineMode && !isOnlineHost ? \"disabled\" : \"\")+\">삭제</button></td>"+"</tr>";}).join("");}function loadUnfin(id){const item=unfinList.find(x=>x.id===id);if(!item)return;if(aiMoveTimer){clearTimeout(aiMoveTimer);aiMoveTimer=null;}isAiThinking=false;if(gameStarted&&!gameOver&&moves.length>0&&!isReplaying){saveUnfinished();}senteFormation=item.senteFormation||"STD";goteFormation=item.goteFormation||"STD";initNewGameData();gameOver=false;gameStarted=true;winResultText="";isReplaying=false;isBranching=false;allReplayMoves=[];replayStep=0;isResigned=false;isDrawed=false;currentUnfinId=item.id;players.S=item.s;players.G=item.g;vsAiMode=Boolean(item.vsAiMode);aiSide=item.aiSide||"G";aiModeEnabled=Boolean(item.aiModeEnabled);spectateMode=Boolean(item.spectateMode);if(vsAiMode){vsAiSessionPlayers={S:players.S,G:players.G};}else if(aiModeEnabled){aiSessionPlayers={S:players.S,G:players.G};}else{userCustomPlayers={S:players.S,G:players.G};}document.getElementById("vsAiBtn").className=(vsAiMode?"btn-on":"btn-off")+" btn-right";document.getElementById("aiModeBtn").className=aiModeEnabled?"btn-on":"btn-off";document.getElementById("promptCard").style.display=aiModeEnabled?"block":"none";document.getElementById("spectateBtn").className=spectateMode?"btn-on":"btn-off";syncPlayerDOM();document.getElementById("logInput").value="";if(item.rawMoves)item.rawMoves.forEach(m=>executeMove(m,true));deleteUnfin(id,true);currentUnfinId=item.id;syncActiveSession();updateCapturedBar();updateUI();drawBoard();setStatus("미완료 대국을 불러왔습니다. 이어서 두세요.",false);if(vsAiMode)triggerAiMoveIfNeeded();
+  if (onlineMode && onlineConn && onlineConn.open && !isRemoteAction && isOnlineHost) {
+    sendPeerData({
+      type: "WELCOME_SYNC",
+      players,
+      hostColor: myOnlineColor,
+      senteFormation,
+      goteFormation,
+      gameStarted: gameStarted,
+      gameOver: gameOver,
+      rawMoves: serializeMoves(moves),
+      winResultText: winResultText
+    });
+  }
+}async function deleteUnfin(id,silent){if(!silent){const ok=await showCustomModal("정말로 삭제하시겠습니까?",true);if(!ok)return;}unfinList=unfinList.filter(x=>x.id!==id);saveStorageUnfin();renderUnfin();if(!silent)setStatus("미완료 대국이 삭제되었습니다.",false);}async function clearUnfinished(){if(unfinList.length===0)return;const ok=await showCustomModal("정말로 삭제하시겠습니까?",true);if(!ok)return;unfinList=[];saveStorageUnfin();renderUnfin();setStatus("모든 미완료 대국이 삭제되었습니다.",false);}let isBatchReplay=false;
+function renderReplayBoard(playSfx){initNewGameData();gameOver=false;winResultText="";isResigned=false;isDrawed=false;const slice=allReplayMoves.slice(0,replayStep);isBatchReplay=true;slice.forEach((m,idx)=>{const isLast=idx===slice.length-1;executeMove(m,!(playSfx&&isLast));});isBatchReplay=false;invalidateBoardCache();updateCapturedBar();updateUI();drawBoard();}function loadHist(id){const item=histList.find(x=>x.id===id);if(!item)return;if(aiMoveTimer){clearTimeout(aiMoveTimer);aiMoveTimer=null;}isAiThinking=false;if(gameStarted&&!gameOver&&moves.length>0&&!isReplaying)saveUnfinished();senteFormation=item.senteFormation||"STD";goteFormation=item.goteFormation||"STD";players.S=item.s;players.G=item.g;syncPlayerDOM();document.getElementById("logInput").value="";allReplayMoves=item.rawMoves||[];isReplaying=true;isBranching=false;gameStarted=true;currentSavedId=null;replayStep=0;spectateMode=false;document.getElementById("spectateBtn").className="btn-off";renderReplayBoard(true);  if (gameOver) { setStatus(winResultText, false); } else { setStatus("복기 모드 시작: 엔진 분석 결과가 적용되었습니다.", false); }}function toggleBranching(){if(!isReplaying)return;isBranching=!isBranching;if(isBranching){playToggleOnSound();setStatus("복기 모드: 이어 두기가 켜졌습니다.",false);}else{playToggleOffSound();renderReplayBoard(false);drawBoard();if(gameOver){setStatus(winResultText,false);}else{setStatus("복기: "+replayStep+"수째 상태",false);}}updateUI();}
+function replayFirst(){if(!isReplaying)return;isBranching=false;replayStep=0;document.getElementById("logInput").value="";renderReplayBoard(true);  if (gameOver) { setStatus(winResultText, false); } else { setStatus("복기 처음 상태("+replayStep+"수)로 돌아왔습니다.", false); }}function replayPrev(){if(!isReplaying||replayStep<=0)return;isBranching=false;replayStep--;document.getElementById("logInput").value="";renderReplayBoard(true);  if (gameOver) { setStatus(winResultText, false); } else { setStatus("복기: "+replayStep+"수째 상태", false); }}function replayNext(){if(!isReplaying||replayStep>=allReplayMoves.length)return;isBranching=false;replayStep++;document.getElementById("logInput").value="";renderReplayBoard(true);  if (gameOver) { setStatus(winResultText, false); } else { setStatus("복기: "+replayStep+"수째 상태", false); }}function resumePlay(){if(!isReplaying)return;renderReplayBoard(false);if(gameOver){setStatus("이미 대국이 종료된 수순입니다. 이전 수로 이동한 뒤 이어 두세요.",true);return;}isBranching=true;document.getElementById("logInput").value="";updateUI();drawBoard();setStatus(replayStep+"수째 상태에서 이어 둡니다. (기록에는 저장되지 않습니다)",false);}async function deleteHistoryItem(id,silent){if(!silent){const ok=await showCustomModal("정말로 삭제하시겠습니까?",true);if(!ok)return;}histList=histList.filter(h=>h.id!==id);saveStorageHist();renderHist();if(!silent)setStatus("대국 기록이 삭제되었습니다.",false);}async function clearHist(){if(histList.length===0)return;const ok=await showCustomModal("정말로 삭제하시겠습니까?",true);if(!ok)return;histList=[];currentSavedId=null;saveStorageHist();renderHist();setStatus("모든 대국 기록이 삭제되었습니다.",false);}function setStatus(m,err){const el=document.getElementById("statusMsg");const normalized=String(m).replace(/[\n]+/g," ").trim();const sentences=normalized.replace(/([다요음)\]][!?]\.|[!?])\s+/g, "$1|~|").split("|~|");el.innerHTML="";if(sentences.length<=1){el.textContent=normalized;}else{sentences.forEach((s,idx)=>{const span=document.createElement("span");span.className="sentence-chunk";span.textContent=s;el.appendChild(span);if(idx<sentences.length-1){el.appendChild(document.createTextNode(" "));}});}el.className="status "+(err?"err":"ok");}function downloadHTML(){const html=initialHTMLSnapshot||('<!DOCTYPE html>'+NL+'<html lang="ko">'+document.documentElement.innerHTML+'</html>');const blob=new Blob([html],{type:"text/html;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="쇼기.html";document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);}initNewGameData();initBadgePieceIcons();updatePlayerBarLayout();updatePrompts();updateCapturedBar();drawBoard();
+// ================= 친구와 온라인 대국 (PeerJS WebRTC) 기능 =================
+let onlineMode = false;
+let peerInstance = null;
+let onlineConn = null;
+let currentRoomCode = "";
+let myOnlineColor = "S";
+let isOnlineHost = false;
+let isRemoteAction = false;
+let manualDisconnect = false;
+let reconnectTimer = null;
+let heartbeatTimer = null;
+let onlineWaitingSetup = false;
+let isGuestPickingFormation = false;
+const PEER_PREFIX = "SHOGI-KR-ROOM-";
+const STORAGE_KEY_ONLINE_ROOM = "shogi_online_room_persistent_v1";
+
+function saveOnlineRoomSession() {
+  try {
+    if (onlineMode && currentRoomCode && !manualDisconnect) {
+      const payload = {
+        roomCode: currentRoomCode,
+        isHost: isOnlineHost,
+        myColor: myOnlineColor,
+        players: players,
+        senteFormation: senteFormation,
+        goteFormation: goteFormation,
+        gameStarted: gameStarted,
+        gameOver: gameOver,
+        rawMoves: serializeMoves(moves),
+        winResultText: winResultText,
+        savedAt: Date.now()
+      };
+      localStorage.setItem(STORAGE_KEY_ONLINE_ROOM, JSON.stringify(payload));
+      sessionStorage.setItem(STORAGE_KEY_ONLINE_ROOM, JSON.stringify(payload));
+    } else if (manualDisconnect) {
+      localStorage.removeItem(STORAGE_KEY_ONLINE_ROOM);
+      sessionStorage.removeItem(STORAGE_KEY_ONLINE_ROOM);
+    }
+  } catch (e) {}
+}
+
+function clearOnlineRoomSession() {
+  try {
+    localStorage.removeItem(STORAGE_KEY_ONLINE_ROOM);
+    sessionStorage.removeItem(STORAGE_KEY_ONLINE_ROOM);
+  } catch (e) {}
+}
+
+function getOnlineRoleBadgeText() {
+  const sideKor = myOnlineColor === "S" ? "선" : "후";
+  return isOnlineHost ? ("방장/내 진영: " + sideKor) : ("내 진영: " + sideKor);
+}
+
+function showFloatingToast(msg) {
+  const existing = document.querySelector(".floating-toast");
+  if (existing) existing.remove();
+  const el = document.createElement("div");
+  el.className = "floating-toast";
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => {
+    if (el.parentNode) el.remove();
+  }, 3000);
+}
+
+function toggleFriendPanel(forceShow) {
+  const panel = document.getElementById("friendPanel");
+  const btn = document.getElementById("friendBattleBtn");
+  const isHidden = panel.style.display === "" || panel.style.display === "none";
+  const show = typeof forceShow === "boolean" ? forceShow : isHidden;
+  panel.style.display = show ? "flex" : "none";
+  if (show || onlineMode) {
+    btn.classList.add("active-online");
+  } else {
+    btn.classList.remove("active-online");
+  }
+}
+
+function generateRoomCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+function disableAiModesForOnline() {
+  if (vsAiMode) {
+    vsAiMode = false;
+    document.getElementById("vsAiBtn").className = "btn-off btn-right";
+  }
+  if (aiModeEnabled) {
+    aiModeEnabled = false;
+    document.getElementById("aiModeBtn").className = "btn-off";
+    document.getElementById("promptCard").style.display = "none";
+  }
+  if (spectateMode) {
+    spectateMode = false;
+    document.getElementById("spectateBtn").className = "btn-off";
+  }
+}
+
+function updateOnlinePanelUI(state, detailText) {
+  const dot = document.getElementById("onlineDot");
+  const title = document.getElementById("onlineStatusTitle");
+  const roleBadge = document.getElementById("myRoleBadge");
+  const discBtn = document.getElementById("disconnectPeerBtn");
+  const setupArea = document.getElementById("friendSetupArea");
+  const connArea = document.getElementById("friendConnectedArea");
+  const friendBtn = document.getElementById("friendBattleBtn");
+  const joinBox = document.getElementById("joinRoomBox");
+  const guideText = document.getElementById("connectedGuideText");
+
+  if (guideText) {
+    guideText.textContent = isOnlineHost ? "새 대국 버튼을 눌러 대국을 시작하세요." : "방장이 새 대국을 시작할 때까지 기다려 주세요.";
+  }
+
+  if (state === "disconnected") {
+    dot.className = "online-dot";
+    title.textContent = detailText || "친구와 실시간 온라인 대국";
+    roleBadge.style.display = "none";
+    discBtn.style.display = "none";
+    setupArea.style.display = "flex";
+    connArea.style.display = "none";
+    document.getElementById("hostCodeArea").style.display = "none";
+    if (joinBox) joinBox.style.display = "flex";
+    document.getElementById("createRoomBtn").disabled = false;
+    document.getElementById("joinRoomBtn").disabled = false;
+    if (document.getElementById("friendPanel").style.display === "none") {
+      friendBtn.classList.remove("active-online");
+    }
+  } else if (state === "waiting") {
+    dot.className = "online-dot waiting";
+    title.textContent = detailText || "친구 접속 대기 중...";
+    roleBadge.style.display = "inline-block";
+    roleBadge.textContent = getOnlineRoleBadgeText();
+    discBtn.style.display = "inline-block";
+    setupArea.style.display = "flex";
+    connArea.style.display = "none";
+    if (isOnlineHost) {
+      document.getElementById("hostCodeArea").style.display = "inline-flex";
+      document.getElementById("myRoomCode").textContent = currentRoomCode;
+      if (joinBox) joinBox.style.display = "none";
+    } else {
+      document.getElementById("hostCodeArea").style.display = "none";
+      if (joinBox) joinBox.style.display = "flex";
+    }
+    document.getElementById("createRoomBtn").disabled = true;
+    document.getElementById("joinRoomBtn").disabled = true;
+    friendBtn.classList.add("active-online");
+  } else if (state === "connected") {
+    dot.className = "online-dot connected";
+    title.textContent = detailText || "친구와 실시간 연결됨";
+    roleBadge.style.display = "inline-block";
+    roleBadge.textContent = getOnlineRoleBadgeText();
+    discBtn.style.display = "inline-block";
+    setupArea.style.display = "none";
+    connArea.style.display = "flex";
+    document.getElementById("activeRoomCode").textContent = currentRoomCode;
+    friendBtn.classList.add("active-online");
+  }
+}
+
+function prepareWaitingBoardForOnline() {
+  if (aiMoveTimer) {
+    clearTimeout(aiMoveTimer);
+    aiMoveTimer = null;
+  }
+  isAiThinking = false;
+  onlineWaitingSetup = false;
+  isGuestPickingFormation = false;
+  senteFormation = "STD";
+  goteFormation = "STD";
+  initNewGameData();
+  gameOver = false;
+  gameStarted = false;
+  winResultText = "";
+  currentSavedId = null;
+  currentUnfinId = null;
+  isResigned = false;
+  isDrawed = false;
+  isReplaying = false;
+  isBranching = false;
+  allReplayMoves = [];
+  replayStep = 0;
+  document.getElementById("logInput").value = "";
+}
+
+function startOnlineShogiGame() {
+  onlineWaitingSetup = false;
+  isGuestPickingFormation = false;
+  initNewGameData();
+  gameOver = false;
+  gameStarted = true;
+  winResultText = "";
+  currentSavedId = null;
+  currentUnfinId = null;
+  isResigned = false;
+  isDrawed = false;
+  isReplaying = false;
+  isBranching = false;
+  restoreActiveModePlayers();
+  syncPlayerDOM();
+  document.getElementById("logInput").value = "";
+  updateOnlinePanelUI("connected", "친구와 실시간 대국 중");
+  updateCapturedBar();
+  updateUI();
+  drawBoard();
+  saveOnlineRoomSession();
+  const sShort = FORMATION_NAMES[senteFormation].split("(")[0];
+  const gShort = FORMATION_NAMES[goteFormation].split("(")[0];
+  const myKor = myOnlineColor === "S" ? "선수(선공)" : "후수(후공)";
+  setStatus("친구와 새 대국이 시작되었습니다 (선수 " + sShort + " vs 후수 " + gShort + ")! 내 진영: " + myKor, false);
+}
+
+function startHeartbeat() {
+  stopHeartbeat();
+  heartbeatTimer = setInterval(() => {
+    if (onlineMode && onlineConn && onlineConn.open) {
+      sendPeerData({ type: "PING" });
+    }
+  }, 4000);
+}
+
+function stopHeartbeat() {
+  if (heartbeatTimer) {
+    clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+  }
+}
+
+function createOnlineRoom(reuseCode) {
+  if (typeof Peer === "undefined") {
+    setStatus("온라인 대국 모듈(PeerJS)을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.", true);
+    return;
+  }
+  manualDisconnect = false;
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+  if (peerInstance) {
+    try { peerInstance.destroy(); } catch (e) {}
+    peerInstance = null;
+  }
+  disableAiModesForOnline();
+  if (!reuseCode) {
+    prepareWaitingBoardForOnline();
+    currentRoomCode = generateRoomCode();
+    isOnlineHost = true;
+    myOnlineColor = "S";
+  }
+  if(!onlineMode){offlineUnfinList=[...unfinList];unfinList=[];if(typeof renderUnfin==='function')renderUnfin();}
+  onlineMode = true;
+  if(typeof renderHist==='function')renderHist();
+  saveOnlineRoomSession();
+  updateOnlinePanelUI("waiting", reuseCode ? "방 [" + currentRoomCode + "] 복구 중..." : "방 생성 중...");
+
+  peerInstance = new Peer(PEER_PREFIX + currentRoomCode);
+
+  peerInstance.on("open", () => {
+    if(!onlineMode){offlineUnfinList=[...unfinList];unfinList=[];if(typeof renderUnfin==='function')renderUnfin();}
+    onlineMode = true;
+    if(typeof renderHist==='function')renderHist();
+    saveOnlineRoomSession();
+    updateOnlinePanelUI("waiting", "방 생성 완료! 친구 입장을 기다립니다...");
+    if (!reuseCode) {
+      setStatus("방 [" + currentRoomCode + "] 생성 완료! 방 코드를 친구에게 보내주세요.", false);
+    } else {
+      setStatus("방 [" + currentRoomCode + "]이 유지되었습니다. 친구 연결을 기다립니다...", false);
+    }
+    updateCapturedBar();
+    updateUI();
+    drawBoard();
+  });
+
+  peerInstance.on("disconnected", () => {
+    if (!manualDisconnect && peerInstance && !peerInstance.destroyed) {
+      try { peerInstance.reconnect(); } catch (e) {}
+    }
+  });
+
+  peerInstance.on("connection", (conn) => {
+    if (onlineConn && onlineConn.open) {
+      try { onlineConn.close(); } catch (e) {}
+    }
+    onlineConn = conn;
+    setupPeerConnection(reuseCode);
+  });
+
+  peerInstance.on("error", (err) => {
+    if (err.type === "unavailable-id") {
+      if (reuseCode) {
+        reconnectTimer = setTimeout(() => {
+          if (!manualDisconnect && onlineMode && isOnlineHost) {
+            createOnlineRoom(true);
+          }
+        }, 1200);
+      } else {
+        createOnlineRoom(false);
+      }
+      return;
+    }
+    if (!manualDisconnect && onlineMode) {
+      reconnectTimer = setTimeout(() => {
+        if (!manualDisconnect && onlineMode && isOnlineHost) {
+          createOnlineRoom(true);
+        }
+      }, 1500);
+      return;
+    }
+    setStatus("온라인 연결 오류: " + (err.message || err.type), true);
+  });
+}
+
+function joinOnlineRoom(codeParam, isReconnect) {
+  if (typeof Peer === "undefined") {
+    setStatus("온라인 대국 모듈(PeerJS)을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.", true);
+    return;
+  }
+  const inputEl = document.getElementById("joinCodeInput");
+  const code = (codeParam || inputEl.value || "").trim().toUpperCase();
+  if (!code || code.length < 4) {
+    setStatus("입장할 6자리 방 코드를 입력해 주세요.", true);
+    return;
+  }
+  manualDisconnect = false;
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+  if (peerInstance) {
+    try { peerInstance.destroy(); } catch (e) {}
+    peerInstance = null;
+  }
+  disableAiModesForOnline();
+  if (!isReconnect) {
+    prepareWaitingBoardForOnline();
+    myOnlineColor = "G";
+  }
+  currentRoomCode = code;
+  isOnlineHost = false;
+  if(!onlineMode){offlineUnfinList=[...unfinList];unfinList=[];if(typeof renderUnfin==='function')renderUnfin();}
+  onlineMode = true;
+  if(typeof renderHist==='function')renderHist();
+  saveOnlineRoomSession();
+  updateOnlinePanelUI("waiting", isReconnect ? "방 [" + code + "] 재연결 중..." : "방 [" + code + "] 연결 중...");
+  if (!isReconnect) {
+    setStatus("방 [" + code + "]에 접속하고 있습니다...", false);
+  } else {
+    setStatus("방 [" + code + "] 연결을 복구하고 있습니다...", false);
+  }
+
+  peerInstance = new Peer();
+  peerInstance.on("open", () => {
+    onlineConn = peerInstance.connect(PEER_PREFIX + code, { reliable: true });
+    setupPeerConnection(isReconnect);
+  });
+
+  peerInstance.on("disconnected", () => {
+    if (!manualDisconnect && peerInstance && !peerInstance.destroyed) {
+      try { peerInstance.reconnect(); } catch (e) {}
+    }
+  });
+
+  peerInstance.on("error", (err) => {
+    if (!manualDisconnect && onlineMode) {
+      if (isReconnect || err.type === "peer-unavailable" || err.type === "network" || err.type === "disconnected" || err.type === "server-error") {
+        if (!isReconnect && err.type === "peer-unavailable") {
+          setStatus("해당 방 코드(" + code + ")를 찾을 수 없습니다. 코드를 다시 확인해 주세요.", true);
+          disconnectOnline(true);
+          return;
+        }
+        reconnectTimer = setTimeout(() => {
+          if (!manualDisconnect && onlineMode && !isOnlineHost) {
+            joinOnlineRoom(currentRoomCode, true);
+          }
+        }, 1500);
+        return;
+      }
+    }
+    setStatus("방 접속 오류: " + (err.message || err.type), true);
+  });
+}
+
+function replayOnlineRawMoves(rawMovesList, sForm, gForm) {
+  prepareWaitingBoardForOnline();
+  senteFormation = sForm || "STD";
+  goteFormation = gForm || "STD";
+  initNewGameData();
+  gameStarted = true;
+  isBatchReplay = true;
+  rawMovesList.forEach(m => {
+    executeMove(m, true);
+  });
+  isBatchReplay = false;
+}
+
+function setupPeerConnection(isReconnect) {
+  if (!onlineConn) return;
+
+  onlineConn.on("open", () => {
+    if(!onlineMode){offlineUnfinList=[...unfinList];unfinList=[];if(typeof renderUnfin==='function')renderUnfin();}
+    onlineMode = true;
+    if(typeof renderHist==='function')renderHist();
+    saveOnlineRoomSession();
+    startHeartbeat();
+    if (!isReconnect) playToggleOnSound();
+    if (isOnlineHost) {
+      if (players.S === "선" && players.G === "후") {
+        players.S = "선";
+        players.G = "후";
+        userCustomPlayers = { S: players.S, G: players.G };
+      }
+      sendPeerData({
+        type: "WELCOME_SYNC",
+        players,
+        hostColor: myOnlineColor,
+        senteFormation: senteFormation,
+        goteFormation: goteFormation,
+        gameStarted: gameStarted,
+        gameOver: gameOver,
+        rawMoves: serializeMoves(moves),
+        winResultText: winResultText,
+        unfinList: unfinList
+      });
+      if (!gameStarted && moves.length === 0) {
+        showFloatingToast("친구가 방에 입장했습니다. 새 대국 버튼을 눌러 대국을 시작해 주세요.");
+        setStatus("친구가 입장했습니다. '새 대국' 버튼을 눌러 대국을 시작해 주세요.", false);
+      } else {
+        showFloatingToast("친구와 다시 연결되었습니다.");
+      }
+    } else {
+      sendPeerData({
+        type: "GUEST_HELLO",
+        senteFormation: senteFormation,
+        goteFormation: goteFormation,
+        gameStarted: gameStarted,
+        rawMoves: serializeMoves(moves)
+      });
+      if (!isReconnect) {
+        showFloatingToast("방에 입장했습니다. 방장이 대국을 시작할 때까지 기다려 주세요.");
+        setStatus("친구와 연결되었습니다. 방장이 대국을 시작할 때까지 기다려 주세요.", false);
+      }
+    }
+    updateOnlinePanelUI("connected", gameStarted && !gameOver ? "친구와 실시간 대국 중" : "친구와 실시간 연결됨");
+    syncPlayerDOM();
+    updateCapturedBar();
+    updateUI();
+    drawBoard();
+  });
+
+  onlineConn.on("data", async (data) => {
+    if (!data || !data.type) return;
+    if (data.type === "PING") {
+      sendPeerData({ type: "PONG" });
+      return;
+    }
+    if (data.type === "PONG") {
+      return;
+    }
+    isRemoteAction = true;
+    try {
+      if (data.type === "ROOM_FULL") {
+        setStatus("이미 대국 중인 방입니다 (정원 초과).", true);
+        disconnectOnline(true);
+      } else if (data.type === "BYE") {
+        showFloatingToast("친구가 연결을 종료했습니다.");
+        setStatus("상대방이 온라인 연결을 종료했습니다.", true);
+        unfinList = [];
+        if (typeof renderUnfin === "function") renderUnfin();
+        if (isOnlineHost) {
+          if (onlineConn) {
+            try { onlineConn.close(); } catch (e) {}
+            onlineConn = null;
+          }
+          prepareWaitingBoardForOnline();
+          saveOnlineRoomSession();
+          updateOnlinePanelUI("waiting", "친구가 나갔습니다. 새 친구 입장을 기다립니다...");
+          updateCapturedBar();
+          updateUI();
+          drawBoard();
+        } else {
+          disconnectOnline(true);
+        }
+      } else if (data.type === "SYNC_UNFIN") {
+        if (Array.isArray(data.unfinList)) {
+          unfinList = data.unfinList;
+          if (typeof renderUnfin === "function") renderUnfin();
+        }
+      } else if (data.type === "GUEST_HELLO") {
+        if (isOnlineHost && (!gameStarted || moves.length === 0) && data.gameStarted && Array.isArray(data.rawMoves) && data.rawMoves.length > 0) {
+          replayOnlineRawMoves(data.rawMoves, data.senteFormation, data.goteFormation);
+          saveOnlineRoomSession();
+          updateOnlinePanelUI("connected", "친구와 실시간 대국 중");
+          syncPlayerDOM();
+          updateCapturedBar();
+          updateUI();
+          drawBoard();
+        }
+      } else if (data.type === "WELCOME_SYNC") {
+        if (Array.isArray(data.unfinList)) {
+          unfinList = data.unfinList;
+        } else {
+          unfinList = [];
+        }
+        if (typeof renderUnfin === "function") renderUnfin();
+
+        myOnlineColor = data.hostColor === "S" ? "G" : "S";
+        if (data.players) {
+          players.S = data.players.S;
+          players.G = data.players.G;
+          userCustomPlayers = { S: players.S, G: players.G };
+        }
+        if (data.gameStarted && Array.isArray(data.rawMoves) && data.rawMoves.length > 0) {
+          replayOnlineRawMoves(data.rawMoves, data.senteFormation, data.goteFormation);
+          updateOnlinePanelUI("connected", "친구와 실시간 대국 중");
+          syncPlayerDOM();
+          updateCapturedBar();
+          updateUI();
+          drawBoard();
+          if (data.isResume) {
+            showFloatingToast("방장이 미완료 대국 이어 두기를 시작했습니다.");
+            setStatus("미완료 대국을 불러왔습니다. 이어서 두세요.", false);
+          } else {
+            if (data.isResume) { showFloatingToast("방장이 미완료 대국 이어 두기를 시작했습니다."); setStatus("미완료 대국을 불러왔습니다. 이어서 두세요.", false); } else { setStatus("진행 중인 대국에 다시 연결되었습니다.", false); }
+          }
+        } else if (!gameStarted || moves.length === 0) {
+          prepareWaitingBoardForOnline();
+          if (data.senteFormation) senteFormation = data.senteFormation;
+          if (data.goteFormation) goteFormation = data.goteFormation;
+          initNewGameData();
+          if (data.gameStarted) {
+            gameStarted = true;
+            updateOnlinePanelUI("connected", "친구와 실시간 대국 중");
+            setStatus("친구와 새 대국이 시작되었습니다! 내 진영: " + (myOnlineColor === "S" ? "선수(선공)" : "후수(후공)"), false);
+          } else {
+            updateOnlinePanelUI("connected", "친구와 실시간 연결됨");
+            setStatus("친구와 연결되었습니다. 방장이 대국을 시작할 때까지 기다려 주세요.", false);
+          }
+          syncPlayerDOM();
+          updateCapturedBar();
+          updateUI();
+          drawBoard();
+        }
+        saveOnlineRoomSession();
+      } else if (data.type === "HOST_SETUP_REQ") {
+        if (data.players) {
+          players.S = data.players.S;
+          players.G = data.players.G;
+          userCustomPlayers = { S: players.S, G: players.G };
+        }
+        myOnlineColor = data.hostColor === "S" ? "G" : "S";
+        if (data.hostColor === "S") {
+          senteFormation = data.hostFormation || "STD";
+        } else {
+          goteFormation = data.hostFormation || "STD";
+        }
+        isGuestPickingFormation = true;
+        selectFormation(myOnlineColor, "STD");
+        const senteGroup = document.getElementById("senteSetupGroup");
+        const goteGroup = document.getElementById("goteSetupGroup");
+        if (senteGroup && goteGroup) {
+          senteGroup.style.display = myOnlineColor === "S" ? "block" : "none";
+          goteGroup.style.display = myOnlineColor === "G" ? "block" : "none";
+        }
+        document.getElementById("setupModal").style.display = "flex";
+        showFloatingToast("방장이 새 대국을 요청했습니다. 내 차림을 선택해 주세요.");
+      } else if (data.type === "GUEST_SETUP_DONE") {
+        if (data.guestColor === "S") senteFormation = data.guestFormation || "STD";
+        else goteFormation = data.guestFormation || "STD";
+        startOnlineShogiGame();
+        showFloatingToast("상대방이 차림 선택을 완료하여 대국이 시작되었습니다.");
+      } else if (data.type === "SETUP_CANCEL") {
+        onlineWaitingSetup = false;
+        isGuestPickingFormation = false;
+        updateUI();
+        showFloatingToast("상대방이 새 대국 차림 선택을 취소했습니다.");
+        setStatus("상대방이 새 대국 차림 선택을 취소했습니다.", true);
+      } else if (data.type === "MOVE") {
+        if (data.move) {
+          executeMove(data.move, false);
+        }
+        saveOnlineRoomSession();
+      } else if (data.type === "END_GAME") {
+        endGame();
+        saveOnlineRoomSession();
+        updateOnlinePanelUI("connected", "친구와 실시간 연결됨");
+        showFloatingToast("상대방이 대국을 대기 상태로 종료했습니다.");
+      } else if (data.type === "RESIGN") {
+        await resignGame(data.color, true);
+        saveOnlineRoomSession();
+        showFloatingToast("상대방이 기권하여 대국이 종료되었습니다.");
+      } else if (data.type === "DRAW_REQ") {
+        isRemoteAction = false;
+        const accept = await showCustomModal("상대방이 무승부를 제안했습니다. 수락하시겠습니까?", true);
+        if (accept) {
+          sendPeerData({ type: "DRAW_ACCEPT" });
+          isRemoteAction = true;
+          await requestDraw();
+          isRemoteAction = false;
+          saveOnlineRoomSession();
+          showFloatingToast("무승부로 대국이 종료되었습니다.");
+        } else {
+          sendPeerData({ type: "DRAW_REJECT" });
+          setStatus("상대방의 무승부 제안을 거절했습니다.", false);
+        }
+      } else if (data.type === "DRAW_ACCEPT") {
+        await requestDraw();
+        saveOnlineRoomSession();
+        showFloatingToast("상대방이 무승부를 수락하여 대국이 종료되었습니다.");
+      } else if (data.type === "DRAW_REJECT") {
+        setStatus("상대방이 무승부 제안을 거절했습니다.", true);
+        showFloatingToast("상대방이 무승부 제안을 거절했습니다.");
+      } else if (data.type === "UNDO_REQ") {
+        isRemoteAction = false;
+        const accept = await showCustomModal("상대방이 한 수 무르기를 요청했습니다. 수락하시겠습니까?", true);
+        if (accept) {
+          sendPeerData({ type: "UNDO_ACCEPT" });
+          isRemoteAction = true;
+          await undoMove();
+          isRemoteAction = false;
+          saveOnlineRoomSession();
+        } else {
+          sendPeerData({ type: "UNDO_REJECT" });
+          setStatus("상대방의 무르기 요청을 거절했습니다.", false);
+        }
+      } else if (data.type === "UNDO_ACCEPT") {
+        await undoMove();
+        saveOnlineRoomSession();
+        showFloatingToast("상대방이 무르기를 수락했습니다.");
+      } else if (data.type === "UNDO_REJECT") {
+        setStatus("상대방이 무르기 요청을 거절했습니다.", true);
+        showFloatingToast("상대방이 무르기 요청을 거절했습니다.");
+      } else if (data.type === "SWAP_SIDE") {
+        myOnlineColor = myOnlineColor === "S" ? "G" : "S";
+        const tmp = players.S;
+        players.S = players.G;
+        players.G = tmp;
+        userCustomPlayers = { S: players.S, G: players.G };
+        saveOnlineRoomSession();
+        if (document.getElementById("nameEditBox").style.display === "flex") {
+          syncNameEditInputs();
+        }
+        syncPlayerDOM();
+        updateOnlinePanelUI("connected", "친구와 실시간 연결됨");
+        showFloatingToast("진영이 교체되었습니다. 내 진영: " + (myOnlineColor === "S" ? "선" : "후"));
+        setStatus("진영이 교체되었습니다. 내 진영: " + (myOnlineColor === "S" ? "선수(선공)" : "후수(후공)"), false);
+      } else if (data.type === "SYNC_NAMES") {
+        if (data.players) {
+          players.S = data.players.S;
+          players.G = data.players.G;
+          userCustomPlayers = { S: players.S, G: players.G };
+          saveOnlineRoomSession();
+          if (document.getElementById("nameEditBox").style.display === "flex") {
+            syncNameEditInputs();
+          }
+          syncPlayerDOM();
+          showFloatingToast("플레이어 이름이 변경되었습니다: " + players.S + " vs " + players.G);
+        }
+      }
+    } finally {
+      isRemoteAction = false;
+    }
+  });
+
+  onlineConn.on("close", () => {
+    stopHeartbeat();
+    if (manualDisconnect || !onlineMode) return;
+    if (isOnlineHost) {
+      updateOnlinePanelUI("waiting", "친구 재접속 대기 중...");
+      setStatus("친구와의 연결이 일시 끊어졌습니다. 재접속을 기다립니다...", false);
+    } else {
+      updateOnlinePanelUI("waiting", "방 [" + currentRoomCode + "] 재연결 중...");
+      setStatus("연결을 유지하기 위해 재접속 중입니다...", false);
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      reconnectTimer = setTimeout(() => {
+        if (!manualDisconnect && onlineMode && !isOnlineHost) {
+          joinOnlineRoom(currentRoomCode, true);
+        }
+      }, 1200);
+    }
+  });
+
+  onlineConn.on("error", () => {
+    if (manualDisconnect || !onlineMode) return;
+    if (!isOnlineHost) {
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      reconnectTimer = setTimeout(() => {
+        if (!manualDisconnect && onlineMode && !isOnlineHost) {
+          joinOnlineRoom(currentRoomCode, true);
+        }
+      }, 1500);
+    }
+  });
+}
+
+function sendPeerData(payload) {
+  if (onlineConn && onlineConn.open) {
+    try {
+      onlineConn.send(payload);
+    } catch (e) {}
+  }
+}
+
+function requestOnlineSwapSide() {
+  if (!onlineMode) return;
+  if (!isOnlineHost) {
+    setStatus("방장만 진영을 교체할 수 있습니다.", true);
+    return;
+  }
+  if (gameStarted || moves.length > 0 || isReplaying) {
+    setStatus("대국 시작 후에는 진영을 교체할 수 없습니다.", true);
+    return;
+  }
+  myOnlineColor = myOnlineColor === "S" ? "G" : "S";
+  const tmp = players.S;
+  players.S = players.G;
+  players.G = tmp;
+  userCustomPlayers = { S: players.S, G: players.G };
+  saveOnlineRoomSession();
+  if (document.getElementById("nameEditBox").style.display === "flex") {
+    syncNameEditInputs();
+  }
+  syncPlayerDOM();
+  if (onlineConn && onlineConn.open) {
+    updateOnlinePanelUI("connected", "친구와 실시간 연결됨");
+    sendPeerData({ type: "SWAP_SIDE" });
+  } else {
+    updateOnlinePanelUI("waiting", "방 생성 완료! 친구 입장을 기다립니다...");
+  }
+  showFloatingToast("진영을 교체했습니다. 내 진영: " + (myOnlineColor === "S" ? "선" : "후"));
+  setStatus("진영이 교체되었습니다. 내 진영: " + (myOnlineColor === "S" ? "선수(선공)" : "후수(후공)"), false);
+}
+
+function disconnectOnline(silent) {
+  manualDisconnect = true;
+  onlineWaitingSetup = false;
+  isGuestPickingFormation = false;
+  stopHeartbeat();
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+  clearOnlineRoomSession();
+  if (onlineConn) {
+    if (!silent && onlineConn.open) {
+      try { onlineConn.send({ type: "BYE" }); } catch (e) {}
+    }
+    try { onlineConn.close(); } catch (e) {}
+    onlineConn = null;
+  }
+  if (peerInstance) {
+    try { peerInstance.destroy(); } catch (e) {}
+    peerInstance = null;
+  }
+  onlineMode = false;
+  unfinList = [...offlineUnfinList];
+  if (typeof renderUnfin === "function") renderUnfin();
+  if (typeof renderHist === "function") renderHist();
+  isOnlineHost = false;
+  currentRoomCode = "";
+  updateOnlinePanelUI("disconnected");
+  updateUI();
+  if (!silent) {
+    playToggleOffSound();
+    setStatus("친구와의 온라인 대국 연결을 종료했습니다.", false);
+  }
+}
+
+function copyRoomCode(btn) {
+  if (!currentRoomCode) return;
+  copyToClipboard(currentRoomCode, "방 코드(" + currentRoomCode + ")가 복사되었습니다!", btn);
+}
+
+function checkAutoJoinFromURL() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const roomParam = params.get("room");
+    if (roomParam && roomParam.trim().length >= 4) {
+      const cleanCode = roomParam.trim().toUpperCase();
+      toggleFriendPanel(true);
+      document.getElementById("joinCodeInput").value = cleanCode;
+      setTimeout(() => {
+        joinOnlineRoom(cleanCode, false);
+      }, 400);
+      return;
+    }
+    const savedRaw = localStorage.getItem(STORAGE_KEY_ONLINE_ROOM) || sessionStorage.getItem(STORAGE_KEY_ONLINE_ROOM);
+    if (savedRaw) {
+      const saved = JSON.parse(savedRaw);
+      if (saved && saved.roomCode) {
+        currentRoomCode = saved.roomCode;
+        isOnlineHost = Boolean(saved.isHost);
+        myOnlineColor = saved.myColor || (isOnlineHost ? "S" : "G");
+        if (saved.players) {
+          players.S = saved.players.S || "선";
+          players.G = saved.players.G || "후";
+          userCustomPlayers = { S: players.S, G: players.G };
+        }
+        if (saved.senteFormation) senteFormation = saved.senteFormation;
+        if (saved.goteFormation) goteFormation = saved.goteFormation;
+        if (saved.gameStarted && Array.isArray(saved.rawMoves) && saved.rawMoves.length > 0) {
+          replayOnlineRawMoves(saved.rawMoves, senteFormation, goteFormation);
+        }
+        syncPlayerDOM();
+        updateCapturedBar();
+        updateUI();
+        drawBoard();
+        toggleFriendPanel(true);
+        if (isOnlineHost) {
+          createOnlineRoom(true);
+        } else {
+          document.getElementById("joinCodeInput").value = currentRoomCode;
+          joinOnlineRoom(currentRoomCode, true);
+        }
+      }
+    }
+  } catch (e) {}
+}
+
+
+// ================= [최종 패치] 방장/친구 미완료 대국 권한 및 실시간 이어두기 동기화 =================
+(function applyFinalOnlineUnfinPatch() {
+  // 1. 초기 오프라인 미완료 대국 백업 복구 (초기화 시 빈 배열로 덮어써진 문제 해결)
+  if (!onlineMode) {
+    unfinList = loadStorageUnfin();
+    offlineUnfinList = [...unfinList];
+  }
+
+  // 2. 종료되지 않은 대국 렌더링: 친구(Guest)는 [전체 삭제], [이어 두기], [삭제] 모두 비활성화
+  window.renderUnfin = function() {
+    const isGuest = onlineMode && !isOnlineHost;
+    const clearBtn = document.getElementById("clearUnfinBtn");
+    if (clearBtn) clearBtn.disabled = unfinList.length === 0 || isGuest;
+
+    const tb = document.getElementById("unfinBody");
+    if (!tb) return;
+    if (unfinList.length === 0) {
+      tb.innerHTML = "<tr><td colspan='4' style='text-align:center;color:rgb(107,114,128);'>저장된 미완료 대국이 없습니다.</td></tr>";
+      return;
+    }
+    tb.innerHTML = unfinList.map(x => {
+      const ts = x.timestamp || x.id;
+      const p1 = x.b || x.w || x.c || x.s || "";
+      const p2 = (x.b ? x.w : (x.w ? x.b : (x.c ? x.h : x.g))) || "";
+      const disAttr = isGuest ? "disabled" : "";
+      return "<tr>" +
+        "<td><div class='date-wrap'><span class='date-text'>" + x.date + "</span><button class='info-btn' onclick='showFullDateModal(" + ts + ")' title='상세 날짜 확인'>i</button></div></td>" +
+        "<td>" + p1 + "/" + p2 + "</td>" +
+        "<td>" + x.cnt + "수</td>" +
+        "<td><button onclick='loadUnfin(" + x.id + ")' " + disAttr + ">이어 두기</button> " +
+        "<button class='btn-danger' onclick='deleteUnfin(" + x.id + ", false)' " + disAttr + ">삭제</button></td>" +
+      "</tr>";
+    }).join("");
+  };
+
+  // 3. 친구(Guest)의 개별 삭제 및 전체 삭제 원천 차단 + 방장이 삭제 시 친구 화면에도 즉시 반영
+  const origDeleteUnfin = window.deleteUnfin;
+  window.deleteUnfin = async function(id, silent) {
+    if (!silent && onlineMode && !isOnlineHost) return;
+    await origDeleteUnfin(id, silent);
+    if (!silent && onlineMode && isOnlineHost && onlineConn && onlineConn.open) {
+      sendPeerData({ type: "SYNC_UNFIN", unfinList: unfinList });
+    }
+  };
+
+  const origClearUnfinished = window.clearUnfinished;
+  window.clearUnfinished = async function() {
+    if (onlineMode && !isOnlineHost) return;
+    await origClearUnfinished();
+    if (onlineMode && isOnlineHost && onlineConn && onlineConn.open) {
+      sendPeerData({ type: "SYNC_UNFIN", unfinList: unfinList });
+    }
+  };
+
+  // 4. 방장이 [이어 두기] 클릭 시 친구가 새로고침하지 않아도 즉시 실시간 동기화
+  const origLoadUnfin = window.loadUnfin;
+  window.loadUnfin = function(id) {
+    if (onlineMode && !isOnlineHost) return;
+    origLoadUnfin(id);
+    if (onlineMode && onlineConn && onlineConn.open && !isRemoteAction && isOnlineHost) {
+      updateOnlinePanelUI("connected", "친구와 실시간 대국 중");
+      const payload = {
+        type: "WELCOME_SYNC",
+        isResume: true,
+        players: players,
+        hostColor: myOnlineColor,
+        gameStarted: gameStarted,
+        gameOver: gameOver,
+        winResultText: winResultText,
+        unfinList: unfinList
+      };
+      if (typeof serializeMoves === "function") {
+        payload.rawMoves = serializeMoves(moves);
+      } else {
+        payload.moves = moves;
+      }
+      if (typeof choFormation !== "undefined") {
+        payload.choFormation = choFormation;
+        payload.hanFormation = hanFormation;
+        payload.bikjangEnabled = bikjangEnabled;
+      }
+      if (typeof senteFormation !== "undefined") {
+        payload.senteFormation = senteFormation;
+        payload.goteFormation = goteFormation;
+      }
+      sendPeerData(payload);
+      saveOnlineRoomSession();
+    }
+  };
+
+  // 5. 연결 종료 시 방장/친구 모두 온라인 미완료 대국 즉시 삭제 후 오프라인 목록 복원
+  const origDisconnectOnline = window.disconnectOnline;
+  if (typeof origDisconnectOnline === "function") {
+    window.disconnectOnline = function(silent) {
+      unfinList = [];
+      origDisconnectOnline(silent);
+      unfinList = [...offlineUnfinList];
+      renderUnfin();
+    };
+  }
+
+  renderUnfin();
+})();
+
+initialHTMLSnapshot='<!DOCTYPE html>'+NL+'<html lang="ko">'+document.documentElement.innerHTML+'</html>';recoverActiveSessionOnStartup();renderHist();renderUnfin();checkAutoJoinFromURL();</script></body></html>
