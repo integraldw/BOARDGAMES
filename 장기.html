@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="ko"><head>  <meta charset="UTF-8">  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">  <meta name="referrer" content="no-referrer">  <title>장기</title>  <link rel="manifest" href="manifest.json">  <link rel="apple-touch-icon" href="icon-192.png">  <meta name="theme-color" content="#E5B869">  <meta name="apple-mobile-web-app-capable" content="yes">  <meta name="apple-mobile-web-app-status-bar-style" content="default">  <meta name="apple-mobile-web-app-title" content="장기">  <style>    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent !important; }    body { background: rgb(244, 245, 247); color: rgb(31, 41, 55); padding: 8px; line-height: 1.4; }    .wrap { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }    .card { background: white; border: 1px solid rgb(229, 231, 235); border-radius: 10px; padding: 10px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03); }    h1 { font-size: 1.1rem; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px; }    h2 { font-size: 0.92rem; margin-bottom: 6px; color: rgb(17, 24, 39); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px; }    .top-dl { background: rgb(239, 246, 255); border: 1px solid rgb(191, 219, 254); padding: 8px 10px; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; font-size: 0.82rem; font-weight: 600; color: rgb(30, 64, 175); }    .players-bar { display: flex; align-items: center; justify-content: space-between; gap: 6px; background: rgb(249, 250, 251); padding: 8px; border-radius: 8px; border: 1px solid rgb(229, 231, 235); margin-bottom: 8px; font-size: 0.85rem; flex-wrap: wrap; }    .players-bar.long-names { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 8px; }    .players-bar.long-names #cBadge { grid-column: 1; grid-row: 1; justify-self: start; }    .players-bar.long-names #playerBtns { grid-column: 2; grid-row: 1 / span 2; justify-self: start; align-self: center; margin-left: min(114px, max(0px, calc(100% - 216px))); }    .players-bar.long-names #hBadge { grid-column: 1; grid-row: 2; justify-self: start; }    .badge { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; width: fit-content; max-width: 100%; padding: 4px 8px; border-radius: 7px; background: white; border: 1.5px solid rgb(209, 213, 219); color: rgb(31, 41, 55); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: all 0.2s ease; line-height: 1; }    .badge.active-turn { background: linear-gradient(135deg, rgb(254, 243, 199), rgb(253, 230, 138)); border: 1.5px solid rgb(245, 158, 11); color: rgb(146, 64, 14); box-shadow: 0 1px 4px rgba(245, 158, 11, 0.25); }    .badge-icon { width: 17px; height: 17px; object-fit: contain; margin: 0 -1px 0 -2px; transform: translateY(-0.2px) scale(1.12); filter: drop-shadow(0 1px 1px rgba(0,0,0,0.18)); flex-shrink: 0; }    .player-btns { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; padding: 3px 5px; border-radius: 7px; background: white; border: 1px solid rgb(229, 231, 235); }    .turn-pill { padding: 3px 8px; border-radius: 99px; font-size: 0.78rem; font-weight: 600; background: rgb(219, 234, 254); color: rgb(30, 64, 175); }    .win-banner { display: none; background: linear-gradient(135deg, rgb(254, 243, 199), rgb(253, 230, 138)); border: 2px solid rgb(245, 158, 11); color: rgb(146, 64, 14); padding: 8px; border-radius: 8px; text-align: center; font-weight: 800; font-size: 0.98rem; margin-bottom: 8px; }    button { cursor: pointer; border: 1px solid rgb(209, 213, 219); background: white; color: rgb(31, 41, 55); padding: 5px 9px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; transition: all 0.15s ease; touch-action: manipulation; user-select: none; outline: none; white-space: nowrap; }    button:disabled { opacity: 0.4; cursor: not-allowed; }    .btn-row-nowrap { display: flex; gap: 3px; flex-wrap: nowrap; width: 100%; align-items: center; }    .btn-row-nowrap button { padding: 5px 6px; font-size: 0.76rem; flex-shrink: 0; }    .btn-pri { background: rgb(37, 99, 235); color: white; border-color: rgb(37, 99, 235); }    .btn-danger { color: rgb(220, 38, 38); border-color: rgb(254, 202, 202); background: rgb(254, 242, 242); }    .btn-copied { background: rgb(5, 150, 105) !important; color: white !important; border-color: rgb(5, 150, 105) !important; }    .btn-off { background: rgb(243, 244, 246); color: rgb(31, 41, 55); border-color: rgb(209, 213, 219); }    .btn-on { background: rgb(37, 99, 235); color: white; border-color: rgb(37, 99, 235); }    .btn-right { margin-left: auto; }    .captured-bar { display: flex; flex-direction: column; gap: 4px; background: rgb(249, 250, 251); border: 1px solid rgb(229, 231, 235); border-radius: 7px; padding: 5px 8px; margin-bottom: 6px; font-size: 0.78rem; }    .cap-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 24px; flex-wrap: wrap; }    .cap-side { display: flex; align-items: center; gap: 4px; flex-wrap: nowrap; width: 100%; }    .cap-side.wrap-pieces { flex-wrap: wrap; }    .cap-label { order: 1; white-space: nowrap; flex-shrink: 0; }    .cap-pieces { order: 2; display: inline-flex; align-items: center; gap: 3px; min-height: 22px; flex-wrap: wrap; margin-top: 1px; }    .adv-pill { order: 3; background: rgb(219, 234, 254); color: rgb(30, 64, 175); padding: 1px 5px; border-radius: 99px; font-size: 0.7rem; font-weight: 700; margin-left: auto; flex-shrink: 0; }    .cap-side.wrap-pieces .adv-pill { order: 2; }    .cap-side.wrap-pieces .cap-pieces { order: 3; flex-basis: 100%; width: 100%; margin-top: 2px; }    .cap-chip { display: inline-flex; align-items: center; justify-content: center; gap: 1px; padding: 1px 5px; height: 22px; min-width: 22px; border-radius: 4px; background: #f3dba5; border: 1.5px solid #7a5120; font-family: "Malgun Gothic", "Apple SD Gothic Neo", serif; font-size: 11px; font-weight: 800; line-height: 1; box-shadow: 0 1px 1px rgba(0,0,0,0.12); }    .cap-chip.cho { color: rgb(22, 101, 52); }    .cap-chip.han { color: rgb(185, 28, 28); }    .cap-cnt { font-family: sans-serif; font-size: 10px; font-weight: 800; color: black; margin-left: 1px; }    .cap-num { display: inline-block; transform: translateY(-0.5px); }    .board-box { display: flex; justify-content: center; margin-top: 4px; margin-bottom: 8px; position: relative; }    canvas { background: rgb(224, 181, 103); border-radius: 8px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15); width: 460px; max-width: calc(100vw - 32px); height: auto; aspect-ratio: 460 / 510; touch-action: pan-y !important; user-select: none; -webkit-user-select: none; outline: none; }    .row { display: flex; gap: 6px; align-items: stretch; }    textarea { flex: 1; padding: 6px 8px; border: 1px solid rgb(209, 213, 219); border-radius: 6px; font-size: 0.82rem; outline: none; resize: none; }    input[type="text"] { padding: 5px 8px; border: 1px solid rgb(209, 213, 219); border-radius: 6px; font-size: 0.8rem; outline: none; width: 100px; }    input[type="text"]:disabled { background: rgb(229, 231, 235); color: rgb(107, 114, 128); cursor: not-allowed; }    .status-panel { margin-top: 8px; background: rgb(249, 250, 251); border: 1px solid rgb(229, 231, 235); border-radius: 8px; padding: 7px 10px; display: flex; flex-direction: column; gap: 3px; }    .status-header { font-size: 0.76rem; font-weight: 700; color: rgb(107, 114, 128); }    .status { font-size: 0.82rem; font-weight: 600; min-height: 18px; word-break: keep-all; white-space: pre-wrap; line-height: 1.5; }    .err { color: rgb(220, 38, 38); }    .ok { color: rgb(5, 150, 105); }    .kibo { height: 100px; overflow-y: auto; background: rgb(249, 250, 251); border: 1px solid rgb(229, 231, 235); border-radius: 6px; padding: 6px; font-family: monospace; font-size: 0.8rem; white-space: pre-wrap; }    .p-grid { display: flex; flex-direction: column; gap: 6px; }    .p-card { background: rgb(249, 250, 251); border: 1px solid rgb(229, 231, 235); border-radius: 6px; padding: 6px; display: flex; flex-direction: column; gap: 4px; }    .p-card textarea { height: 95px; font-size: 0.76rem; background: white; resize: none; }    .score { display: flex; gap: 8px; margin-bottom: 4px; font-size: 0.82rem; font-weight: 700; background: rgb(248, 250, 252); padding: 5px 8px; border-radius: 6px; border: 1px solid rgb(229, 231, 235); flex-wrap: wrap; }    .h-list { width: 100%; max-height: 130px; overflow-y: auto; overflow-x: auto; border: 1px solid rgb(229, 231, 235); border-radius: 6px; }    table { border-collapse: collapse; font-size: 0.76rem; width: 100%; table-layout: auto; }    th, td { padding: 3px 4px; border-bottom: 1px solid rgb(229, 231, 235); height: 24px; white-space: nowrap; text-align: center; vertical-align: middle; }    th { background: rgb(249, 250, 251); }    td button { padding: 3px 6px; font-size: 0.74rem; border-radius: 5px; }    .date-wrap { display: inline-flex; align-items: center; justify-content: center; gap: 4px; vertical-align: middle; }    .date-text { line-height: 1; display: inline-flex; align-items: center; }    td button.info-btn { display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; border-radius: 50%; background: rgb(209, 213, 219); color: white; font-size: 10px; font-weight: bold; line-height: 1; border: none; cursor: pointer; padding: 0; margin: 0; flex-shrink: 0; }    td button.info-btn:hover { background: rgb(37, 99, 235); }    .replay-controls { display: none; background: rgb(254, 243, 199); border: 1px solid rgb(252, 211, 77); padding: 6px; border-radius: 6px; margin-bottom: 8px; align-items: center; justify-content: space-between; gap: 4px; flex-wrap: wrap; }    .name-edit-box { display: none; background: rgb(243, 244, 246); border: 1px solid rgb(209, 213, 219); padding: 6px 8px; border-radius: 6px; margin-bottom: 8px; flex-direction: column; gap: 6px; font-size: 0.8rem; }    .ai-eval-panel { display: none; background: rgb(248, 250, 252); border: 1px solid rgb(203, 213, 225); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; flex-direction: column; gap: 6px; }    .eval-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; font-weight: 700; flex-wrap: wrap; gap: 4px; }    .eval-bar-wrap { width: 100%; height: 16px; background: rgb(243, 244, 246); border-radius: 99px; overflow: hidden; display: flex; border: 1px solid rgb(156, 163, 175); }    .eval-bar-c { background: rgb(22, 101, 52); color: white; font-size: 0.68rem; font-weight: 700; display: flex; align-items: center; padding-left: 6px; transition: width 0.25s ease; white-space: nowrap; }    .eval-bar-h { background: rgb(185, 28, 28); color: white; font-size: 0.68rem; font-weight: 700; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; flex: 1; white-space: nowrap; }    .eval-bottom-row { display: flex; justify-content: space-between; align-items: flex-end; gap: 6px; flex-wrap: wrap; }    .rec-list { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; flex: 1; min-width: 0; }    .rec-chip { font-size: 0.74rem; padding: 3px 6px; border-radius: 5px; border: 1px solid rgb(191, 219, 254); background: rgb(239, 246, 255); color: rgb(30, 64, 175); cursor: pointer; font-weight: 600; }    .rec-chip.rank1 { background: rgb(220, 252, 231); border-color: rgb(134, 239, 172); color: rgb(22, 101, 52); }    .eval-meta { font-size: 0.74rem; color: rgb(75, 85, 99); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; }    .custom-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.45); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 16px; }    .custom-modal-card { background: white; border-radius: 12px; padding: 22px 24px 18px 24px; max-width: 320px; width: 100%; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18); display: flex; flex-direction: column; gap: 18px; animation: modalFadeIn 0.15s ease-out; text-align: center; }    @keyframes modalFadeIn { from { transform: scale(0.94); opacity: 0; } to { transform: scale(1); opacity: 1; } }    .custom-modal-text { font-size: 0.92rem; font-weight: 600; color: rgb(31, 41, 55); line-height: 1.5; white-space: pre-wrap; word-break: keep-all; text-align: center; margin: 0 auto; }    .custom-modal-actions { display: flex; justify-content: center; align-items: center; gap: 8px; width: 100%; }    .modal-btn-cancel { background: white; border: 1px solid rgb(209, 213, 219); color: rgb(31, 41, 55); padding: 6px 14px; border-radius: 6px; font-size: 0.84rem; font-weight: 600; cursor: pointer; flex: 1; }    .modal-btn-cancel:hover { background: rgb(243, 244, 246); }    .modal-btn-ok { background: rgb(37, 99, 235); border: 1px solid rgb(37, 99, 235); color: white; padding: 6px 16px; border-radius: 6px; font-size: 0.84rem; font-weight: 600; cursor: pointer; flex: 1; }    .modal-btn-ok:hover { background: rgb(29, 78, 216); }    .promo-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.48); z-index: 9999; align-items: center; justify-content: center; padding: 16px; }    .promo-box { background: white; border-radius: 12px; padding: 16px 16px; border: 2px solid rgb(37, 99, 235); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25); text-align: center; max-width: 380px; width: 100%; }    .promo-title { font-size: 0.92rem; font-weight: 800; margin-bottom: 10px; color: rgb(17, 24, 39); }    .setup-group { text-align: left; margin-bottom: 10px; }    .setup-label { font-size: 0.8rem; font-weight: 700; margin-bottom: 5px; display: block; }    .setup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }    .setup-opt { padding: 7px 4px; border-radius: 7px; border: 1.5px solid rgb(209, 213, 219); background: rgb(249, 250, 251); font-size: 0.72rem; font-weight: 700; cursor: pointer; text-align: center; letter-spacing: -0.3px; }    .setup-opt.active { background: rgb(239, 246, 255); border-color: rgb(37, 99, 235); color: rgb(30, 64, 175); }    .bikjang-desc { font-size: 0.8rem; color: rgb(55, 65, 81); background: rgb(249, 250, 251); border: 1px solid rgb(229, 231, 235); border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; line-height: 1.5; word-break: keep-all; text-align: left; }    .title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 4px; }    .title-left { display: flex; align-items: center; gap: 8px; }    .title-left h1 { font-size: 1.1rem; margin: 0; color: rgb(31, 41, 55); line-height: 1.2; }    .title-right { display: flex; align-items: center; gap: 6px; }    .btn-back {      background: #f9fafb;      border: 1.5px solid #e5e7eb;      border-radius: 6px;      color: #1f2937;      font-weight: 700;      font-size: 0.78rem;      padding: 4px 8px;      text-decoration: none;      transition: background 0.15s, border-color 0.15s, color 0.15s;      display: inline-flex;      align-items: center;      justify-content: center;      outline: none;      user-select: none;      -webkit-user-select: none;      touch-action: manipulation;      -webkit-tap-highlight-color: transparent !important;    }    @media (hover: hover) and (pointer: fine) {      .btn-back:hover {        background: #eff6ff;        border-color: #93c5fd;        color: #1e40af;      }    }    .btn-back:active {      background: #eff6ff;      border-color: #93c5fd;      color: #1e40af;      outline: none !important;      -webkit-tap-highlight-color: transparent !important;    }    .btn-back:focus {      outline: none !important;      -webkit-tap-highlight-color: transparent !important;    }   #cName, #hName { font-weight: normal !important; } 
+    button { position: relative; overflow: hidden; }
+    .btn-ripple { position: absolute; border-radius: 50%; transform: scale(0); animation: btnRippleAnim 0.75s ease-out; pointer-events: none; background: rgba(31, 41, 55, 0.16); }
+    .btn-pri .btn-ripple, .btn-copied .btn-ripple { background: rgba(255, 255, 255, 0.35); }
+    .btn-danger .btn-ripple { background: rgba(220, 38, 38, 0.18); }
+    @keyframes btnRippleAnim { to { transform: scale(3.5); opacity: 0; } }
+  </style>  <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <style>
+    .btn-friend {
+      background: #eff6ff;
+      border: 1.5px solid #93c5fd;
+      border-radius: 6px;
+      color: #1e40af;
+      font-weight: 700;
+      font-size: 0.78rem;
+      padding: 4px 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .btn-friend.active-online {
+      background: #2563eb;
+      border-color: #1d4ed8;
+      color: #ffffff;
+      box-shadow: 0 1px 4px rgba(37, 99, 235, 0.3);
+    }
+    .friend-panel {
+      display: none;
+      background: linear-gradient(135deg, #eff6ff, #f8fafc);
+      border: 1.5px solid #93c5fd;
+      border-radius: 8px;
+      padding: 10px;
+      margin-bottom: 8px;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.82rem;
+    }
+    .friend-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .friend-panel-title {
+      font-weight: 800;
+      color: #1e3a8a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.86rem;
+    }
+    .online-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #9ca3af;
+      display: inline-block;
+    }
+    .online-dot.connected {
+      background: #10b981;
+      box-shadow: 0 0 6px #10b981;
+    }
+    .online-dot.waiting {
+      background: #f59e0b;
+      box-shadow: 0 0 6px #f59e0b;
+    }
+    .friend-room-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid #dbeafe;
+      padding: 7px 9px;
+      border-radius: 7px;
+    }
+    .room-code-badge {
+      font-family: monospace;
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      color: #1d4ed8;
+      background: #eff6ff;
+      padding: 3px 8px;
+      border-radius: 5px;
+      border: 1px dashed #60a5fa;
+      user-select: all;
+    }
+    .floating-toast {
+      position: fixed;
+      top: 18px;
+      left: 12px;
+      right: 12px;
+      max-width: 584px;
+      margin: 0 auto;
+      background: rgba(17, 24, 39, 0.92);
+      color: #ffffff;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-align: center;
+      z-index: 9999;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      pointer-events: none;
+      animation: modalFadeIn 0.15s ease-out;
+    }
+  </style>
+</head><body><div id="customModalOverlay" class="custom-modal-overlay" style="display:none;" onclick="if(event.target===this)closeCustomModal(false)">  <div class="custom-modal-card">    <div id="customModalText" class="custom-modal-text">양측 합의하에 무승부로 처리하시겠습니까?</div>    <div class="custom-modal-actions">      <button id="customModalCancelBtn" class="modal-btn-cancel" onclick="closeCustomModal(false)">취소</button>      <button id="customModalOkBtn" class="modal-btn-ok" onclick="closeCustomModal(true)">확인</button>    </div>  </div></div><div id="setupModal" class="promo-overlay">  <div class="promo-box">    <div class="promo-title">정식 차림(마·상 포진) 선택</div>    <div class="setup-group" id="choSetupGroup">      <span class="setup-label" style="color:rgb(22,101,52);">초(楚·선공) 차림 — 왼쪽부터</span>      <div class="setup-grid" id="choSetupBtns">        <button type="button" class="setup-opt" data-f="SMSM" onclick="selectFormation('C','SMSM')">왼상(상 · 마 - 상 · 마)</button>        <button type="button" class="setup-opt" data-f="MSMS" onclick="selectFormation('C','MSMS')">오른상(마 · 상 - 마 · 상)</button>        <button type="button" class="setup-opt active" data-f="MSSM" onclick="selectFormation('C','MSSM')">안상(마 · 상 - 상 · 마)</button>        <button type="button" class="setup-opt" data-f="SMMS" onclick="selectFormation('C','SMMS')">바깥상(상 · 마 - 마 · 상)</button>      </div>    </div>    <div class="setup-group" id="hanSetupGroup">      <span class="setup-label" style="color:rgb(185,28,28);">한(漢·후공) 차림 — 왼쪽부터</span>      <div class="setup-grid" id="hanSetupBtns">        <button type="button" class="setup-opt" data-f="SMSM" onclick="selectFormation('H','SMSM')">왼상(상 · 마 - 상 · 마)</button>        <button type="button" class="setup-opt" data-f="MSMS" onclick="selectFormation('H','MSMS')">오른상(마 · 상 - 마 · 상)</button>        <button type="button" class="setup-opt active" data-f="MSSM" onclick="selectFormation('H','MSSM')">안상(마 · 상 - 상 · 마)</button>        <button type="button" class="setup-opt" data-f="SMMS" onclick="selectFormation('H','SMMS')">바깥상(상 · 마 - 마 · 상)</button>      </div>    </div>    <div style="display:flex;gap:8px;margin-top:12px;">      <button onclick="cancelSetupModal()" style="flex:1;padding:8px 0;border-radius:8px;">취소</button>      <button class="btn-pri" onclick="confirmSetupModal()" style="flex:1;padding:8px 0;border-radius:8px;">대국 시작</button>    </div>  </div></div><div id="bikjangModal" class="promo-overlay">  <div class="promo-box">    <div class="promo-title">빅장 규칙 설정</div>    <div class="bikjang-desc">      <strong>빅장이란?</strong><br>      양측의 궁(楚·漢)이 같은 세로줄에서 중간에 가로막는 기물 없이 직접 마주 보게 되는 상태를 말합니다.<br><br>      • <strong>있음:</strong> 빅장 상태가 발생했을 때 상대가 이를 피하지 않고 유지(한수쉼 포함)하면 즉시 <strong>무승부</strong>로 처리됩니다.<br>      • <strong>없음:</strong> 두 궁이 마주 보더라도 무승부 처리 없이 일반 대국을 계속 진행합니다.    </div>    <div style="display:flex;gap:8px;">      <button onclick="applyBikjangRule(false)" style="flex:1;padding:9px 0;border-radius:8px;font-size:0.84rem;">없음</button>      <button class="btn-pri" onclick="applyBikjangRule(true)" style="flex:1;padding:9px 0;border-radius:8px;font-size:0.84rem;">있음 (정식 기본)</button>    </div>  </div></div><div class="wrap">  <div class="card">    <div class="title-row">      <div class="title-left">        <h1>장기</h1>        <a href="index.html" class="btn-back">돌아가기</a>        <button id="friendBattleBtn" class="btn-friend" onclick="toggleFriendPanel()">친구와 대국</button>      </div>      <div class="title-right">        <span id="turnBadge" class="turn-pill">대국 전 (새 대국을 눌러 시작)</span>      </div>    </div>
+    <div id="friendPanel" class="friend-panel">
+      <div class="friend-panel-header">
+        <div class="friend-panel-title">
+          <span id="onlineDot" class="online-dot"></span>
+          <span id="onlineStatusTitle">친구와 실시간 온라인 대국</span>
+        </div>
+        <div style="display:flex;gap:4px;align-items:center;">
+          <span id="myRoleBadge" style="font-size:0.75rem;font-weight:700;color:#1e40af;background:#dbeafe;padding:2px 7px;border-radius:99px;display:none;"></span>
+          <button id="disconnectPeerBtn" class="btn-danger" style="display:none;padding:3px 7px;font-size:0.75rem;" onclick="disconnectOnline()">연결 종료</button>
+          <button style="padding:3px 7px;font-size:0.75rem;" onclick="toggleFriendPanel()">접기</button>
+        </div>
+      </div>
+      <div id="friendSetupArea" style="display:flex;flex-direction:column;gap:6px;">
+        <div class="friend-room-box">
+          <span style="font-weight:700;color:#374151;">방 만들기:</span>
+          <button class="btn-pri" id="createRoomBtn" onclick="createOnlineRoom()">새 방 생성</button>
+          <span id="hostCodeArea" style="display:none;align-items:center;gap:5px;flex-wrap:wrap;">
+            <span>방 코드: <strong id="myRoomCode" class="room-code-badge">------</strong></span>
+            <button onclick="copyRoomCode(this)">코드 복사</button>
+          </span>
+        </div>
+        <div id="joinRoomBox" class="friend-room-box">
+          <span style="font-weight:700;color:#374151;">방 참가하기:</span>
+          <input type="text" id="joinCodeInput" maxlength="10" placeholder="6자리 코드" style="width:95px;text-transform:uppercase;font-weight:700;" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')">
+          <button class="btn-pri" id="joinRoomBtn" onclick="joinOnlineRoom()">입장</button>
+        </div>
+        <div style="color:red;font-weight:bold;font-size:0.8rem;">종료되지 않은 대국은 방이 삭제되면 함께 삭제됩니다.</div>
+      </div>
+      <div id="friendConnectedArea" style="display:none;flex-direction:column;gap:6px;">
+        <div class="friend-room-box" style="justify-content:space-between;">
+          <div>
+            <span style="font-weight:700;color:#065f46;">연결된 방:</span>
+            <strong id="activeRoomCode" class="room-code-badge">------</strong>
+          </div>
+          <span id="connectedGuideText" style="font-size:0.75rem;color:#374151;font-weight:600;">새 대국 버튼을 눌러 대국을 시작하세요.</span>
+        </div>
+      </div>
+    </div>    <div id="playersBar" class="players-bar">      <div id="cBadge" class="badge"><img id="cBadgeIcon" src="data:image/png;base64,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" class="badge-icon" alt="초"><span style="overflow:hidden;text-overflow:ellipsis;">초: <strong id="cName">초</strong></span></div>      <div id="playerBtns" class="player-btns">        <button id="swapBtn" onclick="swapPlayers()">진영 교체</button>        <button id="editNameBtn" onclick="toggleNameEdit()">이름 수정</button>        <button id="resetNameBtn" onclick="resetPlayerNames()" title="플레이어 이름을 기본값으로 초기화">이름 초기화</button>      </div>      <div id="hBadge" class="badge"><img id="hBadgeIcon" src="data:image/png;base64,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" class="badge-icon" alt="한"><span style="overflow:hidden;text-overflow:ellipsis;">한: <strong id="hName">한</strong></span></div>    </div>    <div id="nameEditBox" class="name-edit-box">      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">        <label><strong>초:</strong> <input type="text" id="cNameInput" maxlength="13" oninput="limitInputLength(this, 13)" placeholder="초"></label>        <label><strong>한:</strong> <input type="text" id="hNameInput" maxlength="13" oninput="limitInputLength(this, 13)" placeholder="한"></label>      </div>      <div id="nameEditHint" style="font-size:0.72rem;color:rgb(107,114,128);">한글·영문 최대 13자까지 입력할 수 있습니다.</div>      <div style="display:flex;gap:4px;justify-content:flex-end;">        <button class="btn-pri" onclick="applyPlayerNames()">저장</button>        <button onclick="toggleNameEdit()">닫기</button>      </div>    </div>    <div id="winBanner" class="win-banner"></div>    <div id="aiEvalPanel" class="ai-eval-panel">      <div class="eval-header">        <span id="evalTitle">AI 형세 분석 및 추천 수</span>      </div>      <div class="eval-bar-wrap">        <div id="evalBarC" class="eval-bar-c" style="width:50%;">초 50%</div>        <div id="evalBarH" class="eval-bar-h">한 50%</div>      </div>      <div class="eval-meta">        <span id="evalComment">대국이 시작되면 분석이 시작됩니다.</span>        <span id="evalActualCompare"></span>      </div>      <div class="eval-bottom-row">        <div class="rec-list" id="recMovesBox"></div>        <button onclick="toggleAiHint()" id="spectateAiHintBtn" class="btn-on" style="display:none;flex-shrink:0;margin-left:auto;">추천 표시</button>      </div>    </div>    <div class="captured-bar">      <div class="cap-row">        <div class="cap-side" id="capSideC">          <strong class="cap-label">초(<span id="ptsC">72</span>점):</strong>          <span id="capByC" class="cap-pieces">-</span>          <span id="advC" class="adv-pill" style="display:none;">+0</span>        </div>      </div>      <div class="cap-row" style="border-top:1px dashed rgb(229,231,235);padding-top:3px;">        <div class="cap-side" id="capSideH">          <strong class="cap-label">한(<span id="ptsH">73.5</span>점):</strong>          <span id="capByH" class="cap-pieces">-</span>          <span id="advH" class="adv-pill" style="display: inline-block;">+1.5</span>        </div>      </div>    </div>    <div class="board-box">      <canvas id="boardCanvas" width="920" height="1020"></canvas>    </div>    <div id="replayPanel" class="replay-controls">      <span id="replayStatus" style="font-weight:700;font-size:0.8rem;color:rgb(146,64,14);">복기 모드</span>      <div style="display:flex;gap:4px;flex-wrap:wrap;">        <button onclick="replayFirst()">처음으로</button>        <button onclick="replayPrev()">이전 수</button>        <button onclick="replayNext()">다음 수</button>
+        <button onclick="toggleBranching()" id="branchBtn">이어 두기</button>        <button onclick="toggleAiHint()" id="aiHintBtn" class="btn-on">추천 표시</button>      </div>    </div>    <div style="display:flex;flex-direction:column;gap:5px;margin-top:6px;">      <div class="btn-group" style="display:flex;gap:4px;flex-wrap:wrap;width:100%;align-items:center;">        <button class="btn-danger" onclick="resetBoard()" id="newGameBtn">새 대국</button>        <button onclick="undoMove()" id="undoBtn" disabled="">무르기</button>        <button onclick="passTurn()" id="passBtn" disabled="">한수쉼</button>        <button onclick="requestDraw()" id="drawBtn" disabled="">무승부</button>        <button class="btn-danger" onclick="resignGame('C')" id="resignCBtn" disabled="">초 기권</button>        <button class="btn-danger" onclick="resignGame('H')" id="resignHBtn" disabled="">한 기권</button>        <button class="btn-danger btn-right" onclick="endGame()" id="endGameBtn" disabled="">대국 종료</button>      </div>      <div class="btn-group" style="display:flex;gap:4px;flex-wrap:wrap;width:100%;align-items:center;">        <button onclick="toggleSound()" id="soundBtn" class="btn-on">효과음</button>        <button onclick="toggleNums()" id="numBtn" class="btn-on" disabled="">이동 힌트</button>        <button onclick="toggleDangerHint()" id="dangerHintBtn" class="btn-on">위험 힌트</button>        <button onclick="toggleAiMode()" id="aiModeBtn" class="btn-off">AI 모드</button>        <button onclick="toggleSpectate()" id="spectateBtn" class="btn-off">관전 모드</button>        <button onclick="toggleVsAiMode()" id="vsAiBtn" class="btn-off btn-right">AI와 대국</button>      </div>    </div>    <div class="status-panel">      <div class="status-header">상태 메시지</div>      <div id="statusMsg" class="status ok">새 대국 버튼을 눌러 대국을 시작해 주세요.</div>    </div>  </div>  <div class="card">    <h2>      <span>수 입력 (Log 붙여넣기)</span>    </h2>    <div class="row">      <textarea id="logInput" rows="2" placeholder="예: 07마86" onkeydown="handleEnter(event)"></textarea>      <button class="btn-pri" onclick="applyLog()">착수 실행</button>    </div>  </div>  <div class="card" id="promptCard" style="display:none;">    <h2>      <span>시작 프롬프트</span>      <button onclick="copyState(this)">현재 판 상태 요약 복사</button>    </h2>    <div class="p-grid">      <div class="p-card">        <div style="display:flex;justify-content:space-between;align-items:center;">          <strong style="font-size:0.8rem;"><span id="pCTitle">초</span></strong>          <button onclick="copyText('cPrompt', this)">복사</button>        </div>        <textarea id="cPrompt" readonly="">장기 대국을 하자.
+대한장기협회 표준 9x10 장기판(가로 1~9, 세로 1~9·0, 10번째 줄은 0으로 표기)을 사용한다.
+너는 초(C, 선공)이고 상대는 한(H, 후공)이다.
+대국 시작 전, 너의 차림을 [왼상 / 오른상 / 안상 / 바깥상] 중에서 하나 선택해 줘.
+답변은 설명 없이 첫 줄에 선택한 차림과 첫 수를 아래 형식으로 출력한다.
+안상, 07마86
+
+차림을 고르고 첫 수를 착수해 줘.</textarea>      </div>      <div class="p-card">        <div style="display:flex;justify-content:space-between;align-items:center;">          <strong style="font-size:0.8rem;"><span id="pHTitle">한</span></strong>          <button onclick="copyText('hPrompt', this)">복사</button>        </div>        <textarea id="hPrompt" readonly="">장기 대국을 하자.
+대한장기협회 표준 9x10 장기판(가로 1~9, 세로 1~9·0, 10번째 줄은 0으로 표기)을 사용한다.
+상대는 초(C, 선공)이고 너는 한(H, 후공)이다.
+초를 기다리지 말고, 대국 시작 전 너의 차림을 [왼상 / 오른상 / 안상 / 바깥상] 중에서 하나 선택해 줘.
+답변은 설명 없이 첫 줄에 선택한 차림을 출력해 줘.
+예: 안상
+
+차림을 고르고 대답해 줘.</textarea>      </div>    </div>  </div>  <div class="card">    <h2>      <span>현재 기보 (<span id="mCount">0</span>수)</span>      <div style="display:flex;gap:4px;flex-wrap:wrap;">        <button onclick="copyLast(this)" id="copyKiboLastBtn" disabled="">마지막 수 복사</button>        <button onclick="copyKibo(false, this)" id="copyKiboLineBtn" disabled="">줄바꿈 복사</button>        <button onclick="copyKibo(true, this)" id="copyKiboOneBtn" disabled="">한 줄 복사</button>      </div>    </h2>    <div id="kiboBox" class="kibo">아직 착수된 기물이 없습니다.</div>  </div>  <div class="card">    <h2>      <span>종료되지 않은 대국</span>      <button class="btn-danger" id="clearUnfinBtn" onclick="clearUnfinished()" disabled="">전체 삭제</button>    </h2>    <div class="h-list">      <table>        <thead>          <tr>            <th>저장 일시</th>            <th>초/한</th>            <th>진행 수순</th>            <th>관리</th>          </tr>        </thead>        <tbody id="unfinBody"><tr><td colspan="4" style="text-align:center;color:rgb(107,114,128);">저장된 미완료 대국이 없습니다.</td></tr></tbody>      </table>    </div>  </div>  <div class="card">    <h2>      <span>대국 기록</span>      <button class="btn-danger" id="clearHistBtn" onclick="clearHist()" disabled="">전체 삭제</button>    </h2>    <div class="score" id="scoreBox">초: 0승 | 한: 0승 | 무승부: 0회</div>    <div class="h-list">      <table>        <thead>          <tr>            <th>일시</th>            <th>초/한</th>            <th>결과</th>            <th>수순</th>            <th>관리</th>          </tr>        </thead>        <tbody id="hBody"><tr><td colspan="5" style="text-align:center;color:rgb(107,114,128);">저장된 대국 기록이 없습니다.</td></tr></tbody>      </table>    </div>  </div>  <div class="card">    <div class="top-dl" style="margin-top:0;">      <span>스마트폰에 파일로 보관하려면:</span>      <button class="btn-pri" onclick="downloadHTML()">파일로 저장 (장기.html)</button>    </div>  </div></div><script>document.addEventListener("pointerdown",function(e){const btn=e.target.closest("button");if(!btn||btn.disabled)return;const toggleIds=["branchBtn","aiHintBtn","spectateAiHintBtn","soundBtn","numBtn","dangerHintBtn","aiModeBtn","spectateBtn","vsAiBtn"];if(toggleIds.includes(btn.id)||btn.classList.contains("setup-opt"))return;const rect=btn.getBoundingClientRect();const size=Math.max(rect.width,rect.height);const span=document.createElement("span");span.className="btn-ripple";span.style.width=span.style.height=size+"px";span.style.left=(e.clientX-rect.left-size/2)+"px";span.style.top=(e.clientY-rect.top-size/2)+"px";btn.appendChild(span);setTimeout(()=>span.remove(),760);});
+let modalResolve = null;function showCustomModal(text, isConfirm = true) {  return new Promise((resolve) => {    modalResolve = resolve;    document.getElementById("customModalText").innerHTML = text;    const cancelBtn = document.getElementById("customModalCancelBtn");    cancelBtn.style.display = isConfirm ? "inline-block" : "none";    document.getElementById("customModalOverlay").style.display = "flex";  });}function closeCustomModal(result) {  document.getElementById("customModalOverlay").style.display = "none";  if (modalResolve) {    modalResolve(result);    modalResolve = null;  }}const ROWS = 10;const COLS = 9;const LOGICAL_W = 460;const LOGICAL_H = 510;const NL = String.fromCharCode(10);const canvas = document.getElementById("boardCanvas");const ctx = canvas.getContext("2d");let currentDpr = 2;const staticCacheCanvas = document.createElement("canvas");const staticCacheCtx = staticCacheCanvas.getContext("2d");let staticCacheValid = false;function initCanvasResolution() {  currentDpr = Math.min(2, Math.max(1.5, window.devicePixelRatio || 1));  canvas.width = Math.round(LOGICAL_W * currentDpr);  canvas.height = Math.round(LOGICAL_H * currentDpr);  ctx.setTransform(currentDpr, 0, 0, currentDpr, 0, 0);  staticCacheCanvas.width = canvas.width;  staticCacheCanvas.height = canvas.height;  staticCacheValid = false;}initCanvasResolution();function invalidateBoardCache() {  staticCacheValid = false;}const STORAGE_KEY_HIST = "janggi_saved_hist";const STORAGE_KEY_UNFIN = "janggi_saved_unfin";function loadStorageHist() {  try {    const raw = localStorage.getItem(STORAGE_KEY_HIST);    return raw ? JSON.parse(raw) : [];  } catch (e) {    return [];  }}function saveStorageHist() {  try {    localStorage.setItem(STORAGE_KEY_HIST, JSON.stringify(histList));  } catch (e) {}}function loadStorageUnfin() {  try {    const raw = localStorage.getItem(STORAGE_KEY_UNFIN);    return raw ? JSON.parse(raw) : [];  } catch (e) {    return [];  }}let offlineUnfinList = [];
+function saveStorageUnfin() {
+  if(onlineMode) return;  try {    localStorage.setItem(STORAGE_KEY_UNFIN, JSON.stringify(unfinList));  } catch (e) {}}const PIECE_POINTS = { R: 13, C: 7, H: 5, E: 3, A: 3, P: 2, K: 0 };const PIECE_VALUES = { R: 1300, C: 700, H: 500, E: 320, A: 300, P: 200, K: 30000 };const HANJA_MAP = {  C: { K: "楚", R: "車", C: "包", H: "馬", E: "象", A: "士", P: "卒" },  H: { K: "漢", R: "車", C: "包", H: "馬", E: "象", A: "士", P: "兵" }};const KOR_PIECE_NAME = {  C: { K: "궁", R: "차", C: "포", H: "마", E: "상", A: "사", P: "졸" },  H: { K: "궁", R: "차", C: "포", H: "마", E: "상", A: "사", P: "병" }};const FORMATIONS = {  SMSM: ["E", "H", "E", "H"],  MSMS: ["H", "E", "H", "E"],  MSSM: ["H", "E", "E", "H"],  SMMS: ["E", "H", "H", "E"]};const FORMATION_NAMES = {  SMSM: "왼상(상 · 마 - 상 · 마)",  MSMS: "오른상(마 · 상 - 마 · 상)",  MSSM: "안상(마 · 상 - 상 · 마)",  SMMS: "바깥상(상 · 마 - 마 · 상)"};let choFormation = "MSSM";let hanFormation = "MSSM";let bikjangEnabled = true;let board = [];let turn = "C";let positionCounts = {};let checkPositionCounts = {};let consecutivePasses = 0;let bikjangActive = false;let moves = [];let stateSnapshots = [];let selectedSq = null;let legalMovesForSelected = [];let forbiddenMovesForSelected = [];let players = { C: "초", H: "한" };let userCustomPlayers = { C: "초", H: "한" };let aiSessionPlayers = { C: "Gemini", H: "ChatGPT" };let vsAiSessionPlayers = { C: "초", H: "AI" };let showNums = true;let showDangerHints = true;let soundEnabled = true;let showAiHints = true;let spectateMode = false;let aiModeEnabled = false;let vsAiMode = false;let aiSide = "H";let isAiThinking = false;let aiMoveTimer = null;let gameOver = false;let gameStarted = false;let winResultText = "";let currentSavedId = null;let currentUnfinId = null;let isReplaying = false;let isBranching = false;let allReplayMoves = [];let replayStep = 0;let isResigned = false;let isDrawed = false;let histList = loadStorageHist();let unfinList = loadStorageUnfin();let currentRecommendations = [];const STORAGE_KEY_ACTIVE = "janggi_active_session";let initialHTMLSnapshot = "";let rippleEffect = null;let rippleAnimId = null;function syncActiveSession() {  try {    if (gameStarted && !gameOver && moves.length > 0 && !isReplaying && !onlineMode) {      const now = Date.now();      const record = {        id: currentUnfinId || now,        timestamp: now,        date: new Date().toLocaleTimeString("ko-KR",{hour12:false,hour:"2-digit",minute:"2-digit"}),        c: players.C,        h: players.H,        choFormation,        hanFormation,        bikjangEnabled,        vsAiMode,        aiSide,        aiModeEnabled,        spectateMode,        cnt: moves.length,        rawMoves: serializeMoves(moves)      };      currentUnfinId = record.id;      localStorage.setItem(STORAGE_KEY_ACTIVE, JSON.stringify(record));    } else {      localStorage.removeItem(STORAGE_KEY_ACTIVE);    }  } catch (e) {}}function recoverActiveSessionOnStartup() {  try {    const raw = localStorage.getItem(STORAGE_KEY_ACTIVE);    if (!raw) return;    localStorage.removeItem(STORAGE_KEY_ACTIVE);    const rec = JSON.parse(raw);    if (rec && rec.rawMoves && rec.rawMoves.length > 0) {      unfinList = unfinList.filter(x => x.id !== rec.id);      unfinList.unshift(rec);      saveStorageUnfin();    }  } catch (e) {}}window.addEventListener("pageshow", () => {  if (document.activeElement && document.activeElement !== document.body) {    document.activeElement.blur();  }});window.addEventListener("beforeunload", () => {  if (onlineMode && typeof saveOnlineRoomSession === "function") {    saveOnlineRoomSession();    return;  }  if (gameStarted && !gameOver && moves.length > 0 && !isReplaying) {    saveUnfinished();  }});window.addEventListener("pagehide", () => {  syncActiveSession();});document.addEventListener("visibilitychange", () => {  if (document.visibilityState === "hidden") syncActiveSession();});function triggerRipple(r, c) {  rippleEffect = { r, c, alpha: 0.25, scale: 0.85 };  if (rippleAnimId) cancelAnimationFrame(rippleAnimId);  function step() {    if (!rippleEffect) return;    rippleEffect.alpha -= 0.016;    rippleEffect.scale = Math.min(1.05, rippleEffect.scale + 0.016);    if (rippleEffect.alpha <= 0) {      rippleEffect = null;      rippleAnimId = null;      drawBoard(true);      return;    }    drawBoard(true);    rippleAnimId = requestAnimationFrame(step);  }  rippleAnimId = requestAnimationFrame(step);}function toJanggiRowChar(r) {  return r === 9 ? "0" : String(r + 1);}function toJanggiColChar(c) {  return String(c + 1);}function toCoord(r, c) {  return toJanggiColChar(c) + toJanggiRowChar(r);}function parseSq(sqStr) {  let s = sqStr.trim();  if (s.length === 3 && s.endsWith("10")) s = s[0] + "0";  if (s.length === 2 && /^\d{2}$/.test(s)) {    const cChar = s[0];    const rChar = s[1];    const c = parseInt(cChar, 10) - 1;    const r = rChar === "0" ? 9 : (parseInt(rChar, 10) - 1);    if (r >= 0 && r < ROWS && c >= 0 && c < COLS) return { r, c };  }  const m = s.match(/^(\d)\s*[,/]\s*(\d{1,2})$/);  if (m) {    const cVal = parseInt(m[1], 10);    const rVal = parseInt(m[2], 10);    const c = cVal - 1;    const r = (rVal === 0 || rVal === 10) ? 9 : (rVal - 1);    if (r >= 0 && r < ROWS && c >= 0 && c < COLS) return { r, c };  }  return null;}function createInitialBoard(cForm = choFormation, hForm = hanFormation) {  const b = Array.from({ length: ROWS }, () => Array(COLS).fill(null));  const hArr = FORMATIONS[hForm] || FORMATIONS.MSSM;  const cArr = FORMATIONS[cForm] || FORMATIONS.MSSM;  b[0][0] = { color: "H", type: "R" };  b[0][1] = { color: "H", type: hArr[0] };  b[0][2] = { color: "H", type: hArr[1] };  b[0][3] = { color: "H", type: "A" };  b[0][5] = { color: "H", type: "A" };  b[0][6] = { color: "H", type: hArr[2] };  b[0][7] = { color: "H", type: hArr[3] };  b[0][8] = { color: "H", type: "R" };  b[1][4] = { color: "H", type: "K" };  b[2][1] = { color: "H", type: "C" };  b[2][7] = { color: "H", type: "C" };  for (let c = 0; c < COLS; c += 2) {    b[3][c] = { color: "H", type: "P" };  }  for (let c = 0; c < COLS; c += 2) {    b[6][c] = { color: "C", type: "P" };  }  b[7][1] = { color: "C", type: "C" };  b[7][7] = { color: "C", type: "C" };  b[8][4] = { color: "C", type: "K" };  b[9][0] = { color: "C", type: "R" };  b[9][1] = { color: "C", type: cArr[0] };  b[9][2] = { color: "C", type: cArr[1] };  b[9][3] = { color: "C", type: "A" };  b[9][5] = { color: "C", type: "A" };  b[9][6] = { color: "C", type: cArr[2] };  b[9][7] = { color: "C", type: cArr[3] };  b[9][8] = { color: "C", type: "R" };  return b;}function cloneBoard(b) {  return b.map(row => row.map(cell => cell ? { color: cell.color, type: cell.type } : null));}function getPositionKey(b, nextTurn) {  let s = nextTurn + "|";  for (let r = 0; r < ROWS; r++) {    for (let c = 0; c < COLS; c++) {      const p = b[r][c];      s += p ? (p.color + p.type) : ".";    }  }  return s;}function initNewGameData() {  board = createInitialBoard(choFormation, hanFormation);  turn = "C";  positionCounts = {};  checkPositionCounts = {};  consecutivePasses = 0;  bikjangActive = false;  const initKey = getPositionKey(board, turn);  positionCounts[initKey] = 1;  moves = [];  stateSnapshots = [];  selectedSq = null;  legalMovesForSelected = [];  forbiddenMovesForSelected = [];  rippleEffect = null;  invalidateBoardCache();}function limitInputLength(element, maxLength) {  const filtered = element.value.replace(/[^a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣\u1100-\u11FF\u318D\u119E\u11A2\u2022\u2025\u00B7\uFE55]/g, "");  if (element.value !== filtered) {    element.value = filtered;  }  if (element.value.length > maxLength) {    element.value = element.value.slice(0, maxLength);  }}function getPlayerLabel(color, bracketType) {  const name = players[color];  const cKor = color === "C" ? "초" : "한";  if (name === cKor) return name;  return bracketType === "square" ? name + " [" + cKor + "]" : name + " (" + cKor + ")";}function getTurnPlayerText(color) {  const cKor = color === "C" ? "초" : "한";  const pName = players[color];  if (!pName || pName === cKor) return cKor + " 차례";  return cKor + " (" + pName + ") 차례";}function formatMovePrefix(idx) {  const moveNum = idx + 1;  return moveNum + ".";}let audioCtx = null;function getAudioCtx() { if (!audioCtx) { const AC = window.AudioContext || window.webkitAudioContext; if (AC) { audioCtx = new AC(); try { const buf = audioCtx.createBuffer(1,1,audioCtx.sampleRate); const src = audioCtx.createBufferSource(); src.buffer = buf; src.connect(audioCtx.destination); src.start(0); } catch(e){} } } if (audioCtx && audioCtx.state === "suspended") { audioCtx.resume(); } return audioCtx; } function _dummyAudio() {  if (!audioCtx) {    const AC = window.AudioContext || window.webkitAudioContext;    if (AC) audioCtx = new AC();  }  if (audioCtx && audioCtx.state === "suspended") {    audioCtx.resume();  }  return audioCtx;}function playMoveSound() {  if (!soundEnabled) return;  try {    const ac = getAudioCtx();    if (!ac) return;    const now = ac.currentTime;    const osc = ac.createOscillator();    const gain = ac.createGain();    osc.type = "triangle";    osc.frequency.setValueAtTime(310, now);    osc.frequency.exponentialRampToValueAtTime(95, now + 0.05);    gain.gain.setValueAtTime(0.48, now);    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);    osc.connect(gain);    gain.connect(ac.destination);    osc.start(now);    osc.stop(now + 0.07);    const clickOsc = ac.createOscillator();    const clickGain = ac.createGain();    clickOsc.type = "sine";    clickOsc.frequency.setValueAtTime(1300, now);    clickOsc.frequency.exponentialRampToValueAtTime(260, now + 0.018);    clickGain.gain.setValueAtTime(0.22, now);    clickGain.gain.exponentialRampToValueAtTime(0.001, now + 0.022);    clickOsc.connect(clickGain);    clickGain.connect(ac.destination);    clickOsc.start(now);    clickOsc.stop(now + 0.025);  } catch (e) {}}function playCaptureSound() {  if (!soundEnabled) return;  try {    const ac = getAudioCtx();    if (!ac) return;    const now = ac.currentTime;    const thud = ac.createOscillator();    const tGain = ac.createGain();    thud.type = "sine";    thud.frequency.setValueAtTime(240, now);    thud.frequency.exponentialRampToValueAtTime(50, now + 0.22);    tGain.gain.setValueAtTime(0.7, now);    tGain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);    thud.connect(tGain);    tGain.connect(ac.destination);    thud.start(now);    thud.stop(now + 0.25);    const snap = ac.createOscillator();    const sGain = ac.createGain();    snap.type = "triangle";    snap.frequency.setValueAtTime(650, now + 0.02);    snap.frequency.exponentialRampToValueAtTime(140, now + 0.16);    sGain.gain.setValueAtTime(0.45, now + 0.02);    sGain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);    snap.connect(sGain);    sGain.connect(ac.destination);    snap.start(now + 0.02);    snap.stop(now + 0.19);    const bufSize = ac.sampleRate * 0.22;    const buffer = ac.createBuffer(1, bufSize, ac.sampleRate);    const data = buffer.getChannelData(0);    for (let i = 0; i < bufSize; i++) {      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ac.sampleRate * 0.05));    }    const noise = ac.createBufferSource();    noise.buffer = buffer;    const nFilter = ac.createBiquadFilter();    nFilter.type = "lowpass";    nFilter.frequency.value = 1100;    const nGain = ac.createGain();    nGain.gain.setValueAtTime(0.35, now);    nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);    noise.connect(nFilter);    nFilter.connect(nGain);    nGain.connect(ac.destination);    noise.start(now);  } catch (e) {}}function playCheckSound() {  if (!soundEnabled) return;  try {    const ac = getAudioCtx();    if (!ac) return;    const now = ac.currentTime;    playMoveSound();    const chime = ac.createOscillator();    const cGain = ac.createGain();    chime.type = "sine";    chime.frequency.setValueAtTime(987.77, now + 0.015);    chime.frequency.exponentialRampToValueAtTime(880, now + 0.28);    cGain.gain.setValueAtTime(0.001, now);    cGain.gain.linearRampToValueAtTime(0.28, now + 0.025);    cGain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);    chime.connect(cGain);    cGain.connect(ac.destination);    chime.start(now + 0.015);    chime.stop(now + 0.45);  } catch (e) {}}function playForbiddenSound() {  if (!soundEnabled) return;  try {    const ac = getAudioCtx();    if (!ac) return;    const now = ac.currentTime;    const osc = ac.createOscillator();    const gain = ac.createGain();    osc.type = "sawtooth";    osc.frequency.setValueAtTime(180, now);    osc.frequency.linearRampToValueAtTime(110, now + 0.16);    gain.gain.setValueAtTime(0.25, now);    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);    osc.connect(gain);    gain.connect(ac.destination);    osc.start(now);    osc.stop(now + 0.19);  } catch (e) {}}function playToggleOnSound() {  if (!soundEnabled) return;  try {    const ac = getAudioCtx();    if (!ac) return;    const now = ac.currentTime;    const notes = [523.25, 659.25, 783.99];    notes.forEach((freq, idx) => {      const osc = ac.createOscillator();      const gain = ac.createGain();      const start = now + idx * 0.07;      const dur = 0.15;      osc.type = "sine";      osc.frequency.setValueAtTime(freq, start);      gain.gain.setValueAtTime(0.001, start);      gain.gain.linearRampToValueAtTime(0.2, start + 0.01);      gain.gain.exponentialRampToValueAtTime(0.001, start + dur);      osc.connect(gain);      gain.connect(ac.destination);      osc.start(start);      osc.stop(start + dur + 0.02);    });  } catch (e) {}}function playToggleOffSound(forcePlay = false) {  if (!soundEnabled && !forcePlay) return;  try {    const ac = getAudioCtx();    if (!ac) return;    const now = ac.currentTime;    const notes = [659.25, 523.25, 392.00];    notes.forEach((freq, idx) => {      const osc = ac.createOscillator();      const gain = ac.createGain();      const start = now + idx * 0.07;      const dur = 0.15;      osc.type = "sine";      osc.frequency.setValueAtTime(freq, start);      gain.gain.setValueAtTime(0.001, start);      gain.gain.linearRampToValueAtTime(0.18, start + 0.01);      gain.gain.exponentialRampToValueAtTime(0.001, start + dur);      osc.connect(gain);      gain.connect(ac.destination);      osc.start(start);      osc.stop(start + dur + 0.02);    });  } catch (e) {}}function playGameEndSound(type) {  if (!soundEnabled) return;  try {    const ac = getAudioCtx();    if (!ac) return;    const now = ac.currentTime;    if (type === "win") {      const notes = [523.25, 659.25, 783.99, 1046.50];      notes.forEach((freq, idx) => {        const osc = ac.createOscillator();        const gain = ac.createGain();        const start = now + idx * 0.09;        const dur = idx === notes.length - 1 ? 0.45 : 0.18;        osc.type = "triangle";        osc.frequency.setValueAtTime(freq, start);        gain.gain.setValueAtTime(0.001, start);        gain.gain.linearRampToValueAtTime(0.3, start + 0.015);        gain.gain.exponentialRampToValueAtTime(0.001, start + dur);        osc.connect(gain);        gain.connect(ac.destination);        osc.start(start);        osc.stop(start + dur + 0.02);      });    } else {      const notes = [440, 329.63];      notes.forEach((freq, idx) => {        const osc = ac.createOscillator();        const gain = ac.createGain();        const start = now + idx * 0.14;        const dur = 0.3;        osc.type = "sine";        osc.frequency.setValueAtTime(freq, start);        gain.gain.setValueAtTime(0.25, start);        gain.gain.exponentialRampToValueAtTime(0.001, start + dur);        osc.connect(gain);        gain.connect(ac.destination);        osc.start(start);        osc.stop(start + dur + 0.02);      });    }  } catch (e) {}}function inHanPalace(r, c) {  return r >= 0 && r <= 2 && c >= 3 && c <= 5;}function inChoPalace(r, c) {  return r >= 7 && r <= 9 && c >= 3 && c <= 5;}function getPalaceDiagonalNeighbors(r, c) {  const res = [];  if (inHanPalace(r, c)) {    if (r === 1 && c === 4) {      res.push([0, 3], [0, 5], [2, 3], [2, 5]);    } else if ((r === 0 || r === 2) && (c === 3 || c === 5)) {      res.push([1, 4]);    }  }  if (inChoPalace(r, c)) {    if (r === 8 && c === 4) {      res.push([7, 3], [7, 5], [9, 3], [9, 5]);    } else if ((r === 7 || r === 9) && (c === 3 || c === 5)) {      res.push([8, 4]);    }  }  return res;}const PALACE_DIAG_RAYS = [  [[0, 3], [1, 4], [2, 5]],  [[2, 5], [1, 4], [0, 3]],  [[0, 5], [1, 4], [2, 3]],  [[2, 3], [1, 4], [0, 5]],  [[7, 3], [8, 4], [9, 5]],  [[9, 5], [8, 4], [7, 3]],  [[7, 5], [8, 4], [9, 3]],  [[9, 3], [8, 4], [7, 5]]];function generatePseudoMovesForSquare(b, r, c) {  const p = b[r][c];  if (!p) return [];  const list = [];  const color = p.color;  const opp = color === "C" ? "H" : "C";  const addMoveIfValid = (tr, tc) => {    if (tr < 0 || tr >= ROWS || tc < 0 || tc >= COLS) return;    const target = b[tr][tc];    if (!target || target.color === opp) {      list.push({ fromR: r, fromC: c, toR: tr, toC: tc });    }  };  if (p.type === "K" || p.type === "A") {    const inPalaceFn = color === "C" ? inChoPalace : inHanPalace;    const ortho = [[-1, 0], [1, 0], [0, -1], [0, 1]];    for (const [dr, dc] of ortho) {      const nr = r + dr, nc = c + dc;      if (inPalaceFn(nr, nc)) addMoveIfValid(nr, nc);    }    for (const [nr, nc] of getPalaceDiagonalNeighbors(r, c)) {      if (inPalaceFn(nr, nc)) addMoveIfValid(nr, nc);    }  } else if (p.type === "P") {    const forward = color === "C" ? -1 : 1;    addMoveIfValid(r + forward, c);    addMoveIfValid(r, c - 1);    addMoveIfValid(r, c + 1);    for (const [nr, nc] of getPalaceDiagonalNeighbors(r, c)) {      if (nr === r + forward) {        addMoveIfValid(nr, nc);      }    }  } else if (p.type === "H") {    const horseMoves = [      { leg: [-1, 0], to: [-2, -1] }, { leg: [-1, 0], to: [-2, 1] },      { leg: [1, 0],  to: [2, -1] },  { leg: [1, 0],  to: [2, 1] },      { leg: [0, -1], to: [-1, -2] }, { leg: [0, -1], to: [1, -2] },      { leg: [0, 1],  to: [-1, 2] },  { leg: [0, 1],  to: [1, 2] }    ];    for (const hm of horseMoves) {      const lr = r + hm.leg[0], lc = c + hm.leg[1];      if (lr < 0 || lr >= ROWS || lc < 0 || lc >= COLS) continue;      if (b[lr][lc]) continue;      addMoveIfValid(r + hm.to[0], c + hm.to[1]);    }  } else if (p.type === "E") {    const elephantMoves = [      { leg1: [-1, 0], leg2: [-2, -1], to: [-3, -2] },      { leg1: [-1, 0], leg2: [-2, 1],  to: [-3, 2] },      { leg1: [1, 0],  leg2: [2, -1],  to: [3, -2] },      { leg1: [1, 0],  leg2: [2, 1],   to: [3, 2] },      { leg1: [0, -1], leg2: [-1, -2], to: [-2, -3] },      { leg1: [0, -1], leg2: [1, -2],  to: [2, -3] },      { leg1: [0, 1],  leg2: [-1, 2],  to: [-2, 3] },      { leg1: [0, 1],  leg2: [1, 2],   to: [2, 3] }    ];    for (const em of elephantMoves) {      const l1r = r + em.leg1[0], l1c = c + em.leg1[1];      const l2r = r + em.leg2[0], l2c = c + em.leg2[1];      if (l1r < 0 || l1r >= ROWS || l1c < 0 || l1c >= COLS) continue;      if (l2r < 0 || l2r >= ROWS || l2c < 0 || l2c >= COLS) continue;      if (b[l1r][l1c] || b[l2r][l2c]) continue;      addMoveIfValid(r + em.to[0], c + em.to[1]);    }  } else if (p.type === "R") {    const ortho = [[-1, 0], [1, 0], [0, -1], [0, 1]];    for (const [dr, dc] of ortho) {      let nr = r + dr, nc = c + dc;      while (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {        const t = b[nr][nc];        if (!t) {          list.push({ fromR: r, fromC: c, toR: nr, toC: nc });        } else {          if (t.color === opp) list.push({ fromR: r, fromC: c, toR: nr, toC: nc });          break;        }        nr += dr;        nc += dc;      }    }    for (const ray of PALACE_DIAG_RAYS) {      const idx = ray.findIndex(pt => pt[0] === r && pt[1] === c);      if (idx !== -1) {        for (let i = idx + 1; i < ray.length; i++) {          const [nr, nc] = ray[i];          const t = b[nr][nc];          if (!t) {            list.push({ fromR: r, fromC: c, toR: nr, toC: nc });          } else {            if (t.color === opp) list.push({ fromR: r, fromC: c, toR: nr, toC: nc });            break;          }        }      }    }  } else if (p.type === "C") {    const ortho = [[-1, 0], [1, 0], [0, -1], [0, 1]];    for (const [dr, dc] of ortho) {      let nr = r + dr, nc = c + dc;      let screenFound = false;      while (nr >= 0 && nr < ROWS && nc >= 0 && nc < COLS) {        const t = b[nr][nc];        if (!screenFound) {          if (t) {            if (t.type === "C") break;            screenFound = true;          }        } else {          if (!t) {            list.push({ fromR: r, fromC: c, toR: nr, toC: nc });          } else {            if (t.color === opp && t.type !== "C") {              list.push({ fromR: r, fromC: c, toR: nr, toC: nc });            }            break;          }        }        nr += dr;        nc += dc;      }    }    for (const ray of PALACE_DIAG_RAYS) {      if (ray[0][0] === r && ray[0][1] === c) {        const mid = b[ray[1][0]][ray[1][1]];        if (mid && mid.type !== "C") {          const [tr, tc] = ray[2];          const dest = b[tr][tc];          if (!dest || (dest.color === opp && dest.type !== "C")) {            list.push({ fromR: r, fromC: c, toR: tr, toC: tc });          }        }      }    }  }  return list;}function findKing(b, color) {  for (let r = 0; r < ROWS; r++) {    for (let c = 0; c < COLS; c++) {      const p = b[r][c];      if (p && p.color === color && p.type === "K") return { r, c };    }  }  return null;}function isSquareAttackedBy(b, targetR, targetC, attackerColor) {  for (let r = 0; r < ROWS; r++) {    for (let c = 0; c < COLS; c++) {      const p = b[r][c];      if (!p || p.color !== attackerColor) continue;      const movesFromSq = generatePseudoMovesForSquare(b, r, c);      if (movesFromSq.some(m => m.toR === targetR && m.toC === targetC)) return true;    }  }  return false;}function isInCheck(b, color) {  const k = findKing(b, color);  if (!k) return false;  return isSquareAttackedBy(b, k.r, k.c, color === "C" ? "H" : "C");}function isBikjangState(b) {  const cKing = findKing(b, "C");  const hKing = findKing(b, "H");  if (!cKing || !hKing || cKing.c !== hKing.c) return false;  const col = cKing.c;  const minR = Math.min(cKing.r, hKing.r);  const maxR = Math.max(cKing.r, hKing.r);  for (let r = minR + 1; r < maxR; r++) {    if (b[r][col] !== null) return false;  }  return true;}function isInsufficientMaterial(b) {  const choAttackers = [];  const hanAttackers = [];  let nonKingNonCannonCount = 0;  for (let r = 0; r < ROWS; r++) {    for (let c = 0; c < COLS; c++) {      const p = b[r][c];      if (!p || p.type === "K") continue;      if (p.type !== "C") nonKingNonCannonCount++;      if (p.type !== "A") {        if (p.color === "C") choAttackers.push(p.type);        else hanAttackers.push(p.type);      }    }  }  if (choAttackers.length === 0 && hanAttackers.length === 0) return true;  const allAttackersAreCannons =    choAttackers.every(t => t === "C") &&    hanAttackers.every(t => t === "C");  if (allAttackersAreCannons && nonKingNonCannonCount === 0) return true;  return false;}function applyMoveOnBoard(b, m) {  const nb = cloneBoard(b);  if (m.isPass) {    return { board: nb, captured: null };  }  const piece = nb[m.fromR][m.fromC];  const captured = nb[m.toR][m.toC];  nb[m.toR][m.toC] = { color: piece.color, type: piece.type };  nb[m.fromR][m.fromC] = null;  return { board: nb, captured };}function isPerpetualCheckForbidden(b, color, m) {  if (m.isPass) return false;  const opp = color === "C" ? "H" : "C";  const sim = applyMoveOnBoard(b, m);  if (!isInCheck(sim.board, opp)) return false;  const nextKey = getPositionKey(sim.board, opp);  return (checkPositionCounts[nextKey] || 0) >= 2;}function getLegalMovesForSingleSquare(b, color, r, c) {  const p = b[r][c];  if (!p || p.color !== color) return [];  const opp = color === "C" ? "H" : "C";  const pseudo = generatePseudoMovesForSquare(b, r, c);  const legal = [];  for (const m of pseudo) {    const sim = applyMoveOnBoard(b, m);    if (isInCheck(sim.board, color)) continue;    if (isPerpetualCheckForbidden(b, color, m)) continue;    m.isDangerous = isSquareAttackedBy(sim.board, m.toR, m.toC, opp);    legal.push(m);  }  return legal;}function getForbiddenMovesForSingleSquare(b, color, r, c) {  const p = b[r][c];  if (!p || p.color !== color) return [];  const pseudo = generatePseudoMovesForSquare(b, r, c);  const forbidden = [];  for (const m of pseudo) {    const sim = applyMoveOnBoard(b, m);    if (!isInCheck(sim.board, color)) {      if (isPerpetualCheckForbidden(b, color, m)) {        forbidden.push({ ...m, reason: "연속 장군(동일 형태 3회 반복 장군)은 금지수입니다. 다른 수를 두어 주세요." });      }    }  }  return forbidden;}function getAllLegalMoves(b, color, includeForbiddenCheck = false) {  const legal = [];  for (let r = 0; r < ROWS; r++) {    for (let c = 0; c < COLS; c++) {      const p = b[r][c];      if (!p || p.color !== color) continue;      const pseudo = generatePseudoMovesForSquare(b, r, c);      for (const m of pseudo) {        const sim = applyMoveOnBoard(b, m);        if (!isInCheck(sim.board, color)) {          if (!includeForbiddenCheck && isPerpetualCheckForbidden(b, color, m)) {            continue;          }          legal.push(m);        }      }    }  }  return legal;}function toOfficialCoord(r, c) {  return toJanggiRowChar(r) + toJanggiColChar(c);}function buildNotation(b, m) {  if (m.isPass) return "한수쉼";  const p = b[m.fromR][m.fromC];  const korName = KOR_PIECE_NAME[p.color][p.type];  return toOfficialCoord(m.fromR, m.fromC) + korName + toOfficialCoord(m.toR, m.toC);}function calculateMaterialScores(b) {  let scoreC = 0;  let scoreH = 1.5;  for (let r = 0; r < ROWS; r++) {    for (let c = 0; c < COLS; c++) {      const p = b[r][c];      if (!p || p.type === "K") continue;      const pts = PIECE_POINTS[p.type] || 0;      if (p.color === "C") scoreC += pts;      else scoreH += pts;    }  }  return { scoreC, scoreH };}function updateCapturedBar() {  const capByC = { R: 0, C: 0, H: 0, E: 0, A: 0, P: 0 };  const capByH = { R: 0, C: 0, H: 0, E: 0, A: 0, P: 0 };  for (const m of moves) {    if (m.captured) {      if (m.color === "C") capByC[m.captured.type] = (capByC[m.captured.type] || 0) + 1;      else capByH[m.captured.type] = (capByH[m.captured.type] || 0) + 1;    }  }  const { scoreC, scoreH } = calculateMaterialScores(board);  document.getElementById("ptsC").textContent = String(scoreC);  document.getElementById("ptsH").textContent = scoreH.toFixed(1);  const order = ["R", "C", "H", "E", "A", "P"];  const renderCapIcons = (counts, capturedColor, sideElId) => {    const chips = [];    const cls = capturedColor === "C" ? "cho" : "han";    for (const t of order) {      const cnt = counts[t] || 0;      if (cnt > 0) {        const hanja = HANJA_MAP[capturedColor][t];        chips.push(          '<span class="cap-chip ' + cls + '">' +          hanja + (cnt > 1 ? '<span class="cap-cnt">×<span class="cap-num">' + cnt + '</span></span>' : '') +          '</span>'        );      }    }    const sideEl = document.getElementById(sideElId);    if (sideEl) {      sideEl.classList.toggle("wrap-pieces", chips.length > 5);    }    return chips.length > 0 ? chips.join("") : "-";  };  document.getElementById("capByC").innerHTML = renderCapIcons(capByC, "H", "capSideC");  document.getElementById("capByH").innerHTML = renderCapIcons(capByH, "C", "capSideH");  const diff = Number((scoreC - scoreH).toFixed(1));  const advC = document.getElementById("advC");  const advH = document.getElementById("advH");  if (diff > 0) {    advC.style.display = "inline-block";    advC.textContent = "+" + diff;    advH.style.display = "none";  } else if (diff < 0) {    advH.style.display = "inline-block";    advH.textContent = "+" + Math.abs(diff);    advC.style.display = "none";  } else {    advC.style.display = "none";    advH.style.display = "none";  }}function evaluateBoardStatic(b){let score=0;const cKing=findKing(b,"C");const hKing=findKing(b,"H");for(let r=0;r<ROWS;r++){for(let c=0;c<COLS;c++){const p=b[r][c];if(!p)continue;let val=PIECE_VALUES[p.type]||0;const isC=p.color==="C";const enemyK=isC?hKing:cKing;if(p.type==="P"){const adv=isC?(9-r):r;val+=adv*20;if(c>=2&&c<=6)val+=25;if((isC&&inHanPalace(r,c))||(!isC&&inChoPalace(r,c)))val+=80;}else if(p.type==="R"){if(c===3||c===4||c===5)val+=45;let openLine=0;for(const[dr,dc]of[[-1,0],[1,0],[0,-1],[0,1]]){let nr=r+dr,nc=c+dc;while(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS&&!b[nr][nc]){openLine++;nr+=dr;nc+=dc;}}val+=openLine*8;}else if(p.type==="C"){if(c===4)val+=35;if(enemyK&&(r===enemyK.r||c===enemyK.c))val+=50;}else if(p.type==="H"){if(r>=2&&r<=7&&c>=2&&c<=6)val+=40;}else if(p.type==="E"){if(r>=2&&r<=7&&c>=1&&c<=7)val+=30;}else if(p.type==="A"){if((isC&&r===8&&c===4)||(!isC&&r===1&&c===4))val+=30;}score+=isC?val:-val;}}return score;}function alphaBeta(b,depth,alpha,beta,isMaximizing,currentTurn){const opp=currentTurn==="C"?"H":"C";if(depth===0)return currentTurn==="C"?evaluateBoardStatic(b):-evaluateBoardStatic(b);const moves=getAllLegalMoves(b,currentTurn);if(moves.length===0){if(isInCheck(b,currentTurn))return -99999+(3-depth)*1000;return 0;}moves.sort((m1,m2)=>{const t1=b[m1.toR][m1.toC]?PIECE_VALUES[b[m1.toR][m1.toC].type]:0;const t2=b[m2.toR][m2.toC]?PIECE_VALUES[b[m2.toR][m2.toC].type]:0;return t2-t1;});let bestVal=-Infinity;for(const m of moves){const sim=applyMoveOnBoard(b,m);const val=-alphaBeta(sim.board,depth-1,-beta,-alpha,!isMaximizing,opp);if(val>bestVal)bestVal=val;if(bestVal>alpha)alpha=bestVal;if(alpha>=beta)break;}return bestVal;}function evaluateBoardState(b, nextTurn) {  const legal = getAllLegalMoves(b, nextTurn);  const inChk = isInCheck(b, nextTurn);  if (legal.length === 0) {    if (inChk) {      const winC = nextTurn === "H";      return {        diff: winC ? 99.9 : -99.9,        winProbC: winC ? 99 : 1,        winProbH: winC ? 1 : 99,        comment: winC ? "초가 매우 유리합니다." : "한이 매우 유리합니다."      };    }    return { diff: 0, winProbC: 50, winProbH: 50, comment: "균형 상태입니다." };  }  const cMap = Array.from({ length: ROWS }, () => Array(COLS).fill(false));  const hMap = Array.from({ length: ROWS }, () => Array(COLS).fill(false));  for (let r = 0; r < ROWS; r++) {    for (let c = 0; c < COLS; c++) {      const p = b[r][c];      if (!p) continue;      const pm = generatePseudoMovesForSquare(b, r, c);      const targetMap = p.color === "C" ? cMap : hMap;      for (const m of pm) targetMap[m.toR][m.toC] = true;    }  }  let hangingPenalty = 0;  for (let r = 0; r < ROWS; r++) {    for (let c = 0; c < COLS; c++) {      const p = b[r][c];      if (!p || p.type === "K") continue;      const val = PIECE_VALUES[p.type] || 0;      if (p.color === "C" && hMap[r][c]) {        hangingPenalty -= cMap[r][c] ? val * 0.12 : val * 0.32;      } else if (p.color === "H" && cMap[r][c]) {        hangingPenalty += hMap[r][c] ? val * 0.12 : val * 0.32;      }    }  }  const rawCp = evaluateBoardStatic(b) + hangingPenalty + (inChk ? (nextTurn === "C" ? -85 : 85) : 0);  const ptsDiff = Number((rawCp / 100).toFixed(1));  const winProbC = Math.min(99, Math.max(1, Math.round(50 + 49 * Math.tanh(rawCp / 580))));  let comment = "균형 상태입니다.";  if (winProbC >= 80) {    comment = "초가 매우 유리합니다.";  } else if (winProbC <= 20) {    comment = "한이 매우 유리합니다.";  } else if (winProbC >= 65) {    comment = "초가 조금 유리합니다.";  } else if (winProbC <= 35) {    comment = "한이 조금 유리합니다.";  }  return { diff: ptsDiff, winProbC, winProbH: 100 - winProbC, comment };}function getRecommendedMoves(b,nextColor,topN=3){const legal=getAllLegalMoves(b,nextColor);if(legal.length===0)return[];const depth=3;const opp=nextColor==="C"?"H":"C";const scoredMoves=[];for(const m of legal){const sim=applyMoveOnBoard(b,m);const score=-alphaBeta(sim.board,depth-1,-Infinity,Infinity,false,opp);const san=buildNotation(b,m);scoredMoves.push({move:m,san,score});}scoredMoves.sort((a,bItem)=>bItem.score-a.score);const unique=[];const seen=new Set();for(const item of scoredMoves){const key=item.move.fromR+","+item.move.fromC+"-"+item.move.toR+","+item.move.toC;if(!seen.has(key)){seen.add(key);unique.push(item);if(unique.length>=topN)break;}}return unique;}function chooseJanggiAiMove(b,aiColor){const legal=getAllLegalMoves(b,aiColor);if(legal.length===0)return{isPass:true};const depth=3;let bestMove=legal[0];let bestScore=-Infinity;const opp=aiColor==="C"?"H":"C";legal.sort((m1,m2)=>{const t1=b[m1.toR][m1.toC]?PIECE_VALUES[b[m1.toR][m1.toC].type]:0;const t2=b[m2.toR][m2.toC]?PIECE_VALUES[b[m2.toR][m2.toC].type]:0;return t2-t1;});for(const m of legal){const sim=applyMoveOnBoard(b,m);const score=-alphaBeta(sim.board,depth-1,-Infinity,Infinity,false,opp);const noise=(Math.random()-0.5)*10;const finalScore=score+noise;if(finalScore>bestScore){bestScore=finalScore;bestMove=m;}}return bestMove;}function triggerAiMoveIfNeeded() {  if (!vsAiMode || !gameStarted || gameOver || isReplaying) return;  if (turn !== aiSide) return;  isAiThinking = true;  updateUI();  setStatus("AI가 다음 수를 생각 중입니다...", false);  if (aiMoveTimer) clearTimeout(aiMoveTimer);  const delay = 700;  aiMoveTimer = setTimeout(() => {    aiMoveTimer = null;    if (!vsAiMode || !gameStarted || gameOver || isReplaying || turn !== aiSide) {      isAiThinking = false;      updateUI();      return;    }    const chosen = chooseJanggiAiMove(board, aiSide);    isAiThinking = false;    if (chosen) {      executeMove(chosen);    } else {      updateUI();    }  }, delay);}function toggleSound() {  soundEnabled = !soundEnabled;  const btn = document.getElementById("soundBtn");  if (soundEnabled) {    btn.className = "btn-on";    playToggleOnSound();    setStatus("효과음이 켜졌습니다.", false);  } else {    btn.className = "btn-off";    playToggleOffSound(true);    setStatus("효과음이 꺼졌습니다.", false);  }}function syncAiHintButtons() {  const replayBtn = document.getElementById("aiHintBtn");  const specBtn = document.getElementById("spectateAiHintBtn");  const cls = showAiHints ? "btn-on" : "btn-off";  if (replayBtn) replayBtn.className = cls;  if (specBtn) specBtn.className = cls;}function toggleAiHint() {  showAiHints = !showAiHints;  syncAiHintButtons();  if (showAiHints) {    playToggleOnSound();    setStatus("AI 추천 수 표시가 켜졌습니다.", false);  } else {    playToggleOffSound();    setStatus("AI 추천 수 표시가 꺼졌습니다.", false);  }  updateAiAnalysisPanel();  invalidateBoardCache();  drawBoard();}function toggleDangerHint() {  showDangerHints = !showDangerHints;  const btn = document.getElementById("dangerHintBtn");  const numBtn = document.getElementById("numBtn");  btn.className = showDangerHints ? "btn-on" : "btn-off";  if (showDangerHints) {    showNums = true;    numBtn.className = "btn-on";    numBtn.disabled = true;    playToggleOnSound();    setStatus("위험 힌트 표시가 켜졌습니다.", false);  } else {    numBtn.disabled = false;    playToggleOffSound();    setStatus("위험 힌트 표시가 꺼졌습니다.", false);  }  invalidateBoardCache();  drawBoard();}function toggleNums() {  if (showDangerHints) return;  showNums = !showNums;  const btn = document.getElementById("numBtn");  btn.className = showNums ? "btn-on" : "btn-off";  if (showNums) {    playToggleOnSound();    setStatus("이동 힌트 표시가 켜졌습니다.", false);  } else {    playToggleOffSound();    setStatus("이동 힌트 표시가 꺼졌습니다.", false);  }  invalidateBoardCache();  drawBoard();}function isModeSwitchLocked() {  if (gameStarted || moves.length > 0 || isReplaying || isAiThinking) return true;  return false;}function toggleAiMode() {  if (isModeSwitchLocked()) return;  document.getElementById("nameEditBox").style.display = "none";  const btn = document.getElementById("aiModeBtn");  const pCard = document.getElementById("promptCard");  const sBtn = document.getElementById("spectateBtn");  const vsBtn = document.getElementById("vsAiBtn");  if (!aiModeEnabled) {    if (vsAiMode) {      vsAiMode = false;      vsBtn.className = "btn-off btn-right";      players.C = userCustomPlayers.C;      players.H = userCustomPlayers.H;    } else {      userCustomPlayers = { C: players.C, H: players.H };    }    aiModeEnabled = true;    btn.className = "btn-on";    pCard.style.display = "block";    playToggleOnSound();    aiSessionPlayers = { C: "Gemini", H: "ChatGPT" };    players.C = "Gemini";    players.H = "ChatGPT";    spectateMode = true;    sBtn.className = "btn-on";    syncPlayerDOM();    invalidateBoardCache();    drawBoard();    setStatus("AI 모드(Gemini vs ChatGPT) 및 관전 모드가 켜졌습니다.", false);  } else {    aiModeEnabled = false;    btn.className = "btn-off";    pCard.style.display = "none";    playToggleOffSound();    players.C = userCustomPlayers.C;    players.H = userCustomPlayers.H;    spectateMode = false;    sBtn.className = "btn-off";    syncPlayerDOM();    invalidateBoardCache();    drawBoard();    setStatus("AI 모드가 꺼졌습니다.", false);  }}function toggleVsAiMode() {  if (isModeSwitchLocked()) return;  document.getElementById("nameEditBox").style.display = "none";  const vsBtn = document.getElementById("vsAiBtn");  const aiBtn = document.getElementById("aiModeBtn");  const pCard = document.getElementById("promptCard");  const sBtn = document.getElementById("spectateBtn");  if (!vsAiMode) {    if (aiModeEnabled) {      aiModeEnabled = false;      aiBtn.className = "btn-off";      pCard.style.display = "none";      players.C = userCustomPlayers.C;      players.H = userCustomPlayers.H;    } else {      userCustomPlayers = { C: players.C, H: players.H };    }    spectateMode = false;    sBtn.className = "btn-off";    vsAiMode = true;    aiSide = "H";    vsBtn.className = "btn-on btn-right";    playToggleOnSound();    players.C = userCustomPlayers.C;    players.H = "AI";    vsAiSessionPlayers = { C: players.C, H: "AI" };    syncPlayerDOM();    invalidateBoardCache();    drawBoard();    setStatus("AI와 대국 모드가 켜졌습니다. '새 대국'을 누르면 자체 AI와 대국합니다.", false);  } else {    vsAiMode = false;    vsBtn.className = "btn-off btn-right";    playToggleOffSound();    players.C = userCustomPlayers.C;    players.H = userCustomPlayers.H;    syncPlayerDOM();    invalidateBoardCache();    drawBoard();    setStatus("AI와 대국 모드가 꺼졌습니다.", false);  }}function toggleSpectate() {  if (isModeSwitchLocked() || aiModeEnabled || vsAiMode) return;  spectateMode = !spectateMode;  const btn = document.getElementById("spectateBtn");  if (spectateMode) {    btn.className = "btn-on";    selectedSq = null;    legalMovesForSelected = [];    forbiddenMovesForSelected = [];    playToggleOnSound();    setStatus("관전 모드가 켜졌습니다. 장기판을 직접 클릭할 수 없으며, 수 입력으로만 진행됩니다.", false);  } else {    btn.className = "btn-off";    playToggleOffSound();    setStatus("관전 모드가 해제되었습니다.", false);  }  updateAiAnalysisPanel();  invalidateBoardCache();  drawBoard();}function syncNameEditInputs() {  const cInput = document.getElementById("cNameInput");  const hInput = document.getElementById("hNameInput");  const hint = document.getElementById("nameEditHint");  if (!cInput || !hInput) return;  cInput.value = players.C;  hInput.value = players.H;  if (onlineMode) {    if (myOnlineColor === "C") {      cInput.disabled = false;      hInput.disabled = true;    } else {      cInput.disabled = true;      hInput.disabled = false;    }    if (hint) hint.textContent = "한글·영문 최대 13자까지 입력할 수 있습니다. 친구의 이름은 수정할 수 없습니다.";  } else if (vsAiMode) {    if (aiSide === "C") {      cInput.disabled = true;      cInput.value = "AI";      hInput.disabled = false;    } else {      cInput.disabled = false;      hInput.disabled = true;      hInput.value = "AI";    }    if (hint) hint.textContent = "한글·영문 최대 13자까지 입력할 수 있습니다. (AI의 이름은 수정할 수 없습니다.)";  } else {    cInput.disabled = false;    hInput.disabled = false;    if (hint) hint.textContent = "한글·영문 최대 13자까지 입력할 수 있습니다.";  }}function toggleNameEdit() {  if (gameStarted || moves.length > 0 || isReplaying) {    setStatus("대국 시작 후에는 이름을 수정할 수 없습니다.", true);    return;  }  const box = document.getElementById("nameEditBox");  const isHidden = box.style.display === "" || box.style.display === "none";  if (isHidden) {    syncNameEditInputs();    box.style.display = "flex";    if ((onlineMode && myOnlineColor === "H") || (vsAiMode && aiSide === "C")) {      document.getElementById("hNameInput").focus();    } else {      document.getElementById("cNameInput").focus();    }  } else {    box.style.display = "none";  }}function resetPlayerNames() {  if (gameStarted || moves.length > 0 || isReplaying) {    setStatus("대국 시작 후에는 이름을 초기화할 수 없습니다.", true);    return;  }  document.getElementById("nameEditBox").style.display = "none";  if (onlineMode) {    if (myOnlineColor === "C") {      players.C = "초";      userCustomPlayers.C = "초";    } else {      players.H = "한";      userCustomPlayers.H = "한";    }    syncPlayerDOM();    drawBoard();    if (onlineConn && onlineConn.open && !isRemoteAction) {      sendPeerData({ type: "SYNC_NAMES", players });    }    setStatus("내 이름이 기본값으로 초기화되었습니다.", false);  } else if (aiModeEnabled) {    players.C = "Gemini";    players.H = "ChatGPT";    aiSessionPlayers = { C: "Gemini", H: "ChatGPT" };    syncPlayerDOM();    drawBoard();    setStatus("AI 플레이어 이름이 초기화되었습니다: Gemini vs ChatGPT", false);  } else if (vsAiMode) {    aiSide = "H";    players.C = "초";    players.H = "AI";    vsAiSessionPlayers = { C: "초", H: "AI" };    userCustomPlayers = { C: "초", H: "한" };    syncPlayerDOM();    drawBoard();    setStatus("AI와 대국 이름이 초기화되었습니다: 초 vs AI", false);  } else {    players.C = "초";    players.H = "한";    userCustomPlayers = { C: "초", H: "한" };    syncPlayerDOM();    drawBoard();    setStatus("플레이어 이름이 초기화되었습니다: 초 vs 한", false);  }}function swapPlayers() {  if (gameStarted || moves.length > 0 || isReplaying) {    setStatus("대국 시작 후에는 진영을 교체할 수 없습니다.", true);    return;  }  if (onlineMode) {    if (!isOnlineHost) {      setStatus("방장만 진영을 교체할 수 있습니다.", true);      return;    }    requestOnlineSwapSide();    return;  }  if (vsAiMode) {    const oldHumanSide = aiSide === "C" ? "H" : "C";    let humanName = players[oldHumanSide];    aiSide = aiSide === "C" ? "H" : "C";    const newHumanSide = aiSide === "C" ? "H" : "C";    if (oldHumanSide === "C" && humanName === "초") humanName = "한";    else if (oldHumanSide === "H" && humanName === "한") humanName = "초";    players[aiSide] = "AI";    players[newHumanSide] = humanName;    vsAiSessionPlayers = { C: players.C, H: players.H };  } else if (aiModeEnabled) {    const t = players.C;    players.C = players.H;    players.H = t;    aiSessionPlayers = { C: players.C, H: players.H };  } else {    const t = players.C;    players.C = players.H;    players.H = t;    userCustomPlayers = { C: players.C, H: players.H };  }  if (document.getElementById("nameEditBox").style.display === "flex") {    syncNameEditInputs();  }  syncPlayerDOM();  setStatus("진영이 교체되었습니다.", false);}function applyPlayerNames() {  if (onlineMode) {    if (myOnlineColor === "C") {      const newC = document.getElementById("cNameInput").value.trim() || "초";      players.C = newC;      userCustomPlayers.C = newC;    } else {      const newH = document.getElementById("hNameInput").value.trim() || "한";      players.H = newH;      userCustomPlayers.H = newH;    }  } else if (vsAiMode) {    if (aiSide === "H") {      const newC = document.getElementById("cNameInput").value.trim() || "초";      players.C = newC;      players.H = "AI";      userCustomPlayers.C = newC;    } else {      const newH = document.getElementById("hNameInput").value.trim() || "한";      players.C = "AI";      players.H = newH;      userCustomPlayers.H = newH;    }    vsAiSessionPlayers = { C: players.C, H: players.H };  } else if (aiModeEnabled) {    const newC = document.getElementById("cNameInput").value.trim() || "Gemini";    const newH = document.getElementById("hNameInput").value.trim() || "ChatGPT";    players.C = newC;    players.H = newH;    aiSessionPlayers = { C: newC, H: newH };  } else {    const newC = document.getElementById("cNameInput").value.trim() || "초";    const newH = document.getElementById("hNameInput").value.trim() || "한";    players.C = newC;    players.H = newH;    userCustomPlayers = { C: newC, H: newH };  }  document.getElementById("nameEditBox").style.display = "none";  syncPlayerDOM();  if (onlineMode && onlineConn && onlineConn.open && !isRemoteAction) {    sendPeerData({ type: "SYNC_NAMES", players });  }  setStatus("플레이어 이름이 수정되었습니다: 초(" + players.C + ") vs 한(" + players.H + ")", false);}function updatePrompts() {  const cText = "장기 대국을 하자." + NL +    "대한장기협회 표준 9x10 장기판(가로 1~9, 세로 1~9·0, 10번째 줄은 0으로 표기)을 사용한다." + NL +    "너는 초(C, 선공)이고 상대는 한(H, 후공)이다." + NL +    "대국 시작 전, 너의 차림을 [왼상 / 오른상 / 안상 / 바깥상] 중에서 하나 선택해 줘." + NL +    "답변은 설명 없이 첫 줄에 선택한 차림과 첫 수를 아래 형식으로 출력한다." + NL +    "안상, 07마86" + NL + NL + "차림을 고르고 첫 수를 착수해 줘.";  const hText = "장기 대국을 하자." + NL +    "대한장기협회 표준 9x10 장기판(가로 1~9, 세로 1~9·0, 10번째 줄은 0으로 표기)을 사용한다." + NL +    "상대는 초(C, 선공)이고 너는 한(H, 후공)이다." + NL +    "초를 기다리지 말고, 대국 시작 전 너의 차림을 [왼상 / 오른상 / 안상 / 바깥상] 중에서 하나 선택해 줘." + NL +    "답변은 설명 없이 첫 줄에 선택한 차림을 출력해 줘." + NL +    "예: 안상" + NL + NL + "차림을 고르고 대답해 줘.";  const cEl = document.getElementById("cPrompt");  const hEl = document.getElementById("hPrompt");  if (cEl && hEl) {    cEl.value = cText;    cEl.textContent = cText;    hEl.value = hText;    hEl.textContent = hText;  }}function updatePlayerBarLayout() {  const bar = document.getElementById("playersBar");  if (!bar) return;  const totalLen = (players.C ? players.C.length : 0) + (players.H ? players.H.length : 0);  if (totalLen >= 8) {    bar.classList.add("long-names");  } else {    bar.classList.remove("long-names");  }}function syncPlayerDOM() {  document.getElementById("cName").textContent = players.C;  document.getElementById("hName").textContent = players.H;  document.getElementById("pCTitle").textContent = players.C;  document.getElementById("pHTitle").textContent = players.H;  updatePlayerBarLayout();  updatePrompts();  renderHist();  updateUI();}function updateAiAnalysisPanel() {  const panel = document.getElementById("aiEvalPanel");  const specHintBtn = document.getElementById("spectateAiHintBtn");  if (isReplaying || (!isReplaying && !spectateMode)) {    panel.style.display = "none";    if (specHintBtn) specHintBtn.style.display = "none";    currentRecommendations = [];    return;  }  panel.style.display = "flex";  if (!isReplaying && spectateMode) {    document.getElementById("evalTitle").textContent = "관전 모드 AI 실시간 분석";    if (specHintBtn) {      specHintBtn.style.display = "inline-block";      specHintBtn.className = showAiHints ? "btn-on" : "btn-off";    }  } else {    document.getElementById("evalTitle").textContent = "복기 모드 AI 엔진 분석";    if (specHintBtn) {      specHintBtn.style.display = "none";    }  }  const evalRes = evaluateBoardState(board, turn);  const barC = document.getElementById("evalBarC");  const barH = document.getElementById("evalBarH");  barC.style.width = evalRes.winProbC + "%";  barC.textContent = "초 " + evalRes.winProbC + "%";  barH.textContent = "한 " + evalRes.winProbH + "%";  document.getElementById("evalComment").textContent = evalRes.comment;  const recBox = document.getElementById("recMovesBox");  const compareEl = document.getElementById("evalActualCompare");  if (gameOver) {    currentRecommendations = [];    recBox.innerHTML = "<span style='font-size:0.78rem;color:rgb(107,114,128);'>대국이 종료된 수순입니다.</span>";    compareEl.textContent = "";    return;  }  currentRecommendations = getRecommendedMoves(board, turn, 3);  const nextKor = turn === "C" ? "초" : "한";  if (!showAiHints) {    recBox.innerHTML = "<span style='font-size:0.78rem;color:rgb(107,114,128);'>추천 수 표시가 꺼져 있습니다.</span>";  } else {    recBox.innerHTML =      "<strong style='font-size:0.78rem;color:rgb(31,41,55);'>" + nextKor + " 추천 수:</strong> " +      currentRecommendations.map((rec, idx) => {        const cls = idx === 0 ? "rec-chip rank1" : "rec-chip";        const clickAction = spectateMode          ? "showCustomModal('관전 모드에서는 직접 둘 수 없습니다. 수 입력을 사용해 주세요.', false)"          : "playRecommendedMove(" + idx + ")";        return '<span class="' + cls + '" onclick="' + clickAction + '" title="AI 추천 수">' +          (idx + 1) + "순위 " + rec.san +          "</span>";      }).join("");  }  if (!isReplaying && spectateMode) {    compareEl.textContent = showAiHints ? "관전 중 실시간 추천 수 표시 중" : "관전 중 (추천 표시 꺼짐)";  } else if (!isBranching && replayStep < allReplayMoves.length) {    const actualNext = allReplayMoves[replayStep];    const matchIdx = currentRecommendations.findIndex(x =>      !actualNext.isPass &&      x.move.fromR === actualNext.fromR && x.move.fromC === actualNext.fromC &&      x.move.toR === actualNext.toR && x.move.toC === actualNext.toC    );    if (matchIdx === 0) {      compareEl.innerHTML = "<strong style='color:rgb(5,150,105);'>실전 다음 수: " + actualNext.san + " (AI 1순위 일치!)</strong>";    } else if (matchIdx > 0) {      compareEl.innerHTML = "<strong style='color:rgb(37,99,235);'>실전 다음 수: " + actualNext.san + " (AI " + (matchIdx + 1) + "순위)</strong>";    } else {      compareEl.textContent = "실전 다음 수: " + actualNext.san;    }  }  else {    compareEl.textContent = "";  }}function playRecommendedMove(idx) {  if (!isReplaying || gameOver) return;  const rec = currentRecommendations[idx];  if (!rec) return;  isBranching = true;  executeMove(rec.move);}function drawOctagonPath(cCtx, cx, cy, radius) {  const angleOffset = Math.PI / 8;  cCtx.beginPath();  for (let i = 0; i < 8; i++) {    const ang = angleOffset + (i * Math.PI) / 4;    const px = cx + radius * Math.cos(ang);    const py = cy + radius * Math.sin(ang);    if (i === 0) cCtx.moveTo(px, py);    else cCtx.lineTo(px, py);  }  cCtx.closePath();}function drawCenteredHanja(cCtx, text, cx, cy) {  cCtx.textAlign = "center";  cCtx.textBaseline = "alphabetic";  const m = cCtx.measureText(text);  let dx = 0;  let dy = 0;  if (typeof m.actualBoundingBoxAscent === "number" && typeof m.actualBoundingBoxDescent === "number") {    dy = (m.actualBoundingBoxAscent - m.actualBoundingBoxDescent) / 2;  } else {    cCtx.textBaseline = "middle";  }  if (typeof m.actualBoundingBoxLeft === "number" && typeof m.actualBoundingBoxRight === "number") {    dx = (m.actualBoundingBoxLeft - m.actualBoundingBoxRight) / 2;  }  cCtx.fillText(text, cx + dx, cy + dy);}function initBadgePieceIcons() {  const makeIconUrl = (color) => {    const c = document.createElement("canvas");    const size = 120;    c.width = size;    c.height = size;    const bCtx = c.getContext("2d");    const cx = size / 2;    const cy = size / 2;    const radius = size * 0.42;    drawOctagonPath(bCtx, cx, cy, radius);    bCtx.fillStyle = "#f3dba5";    bCtx.fill();    bCtx.lineWidth = 4.2;    bCtx.strokeStyle = "#7a5120";    bCtx.stroke();    const hanja = HANJA_MAP[color].K;    const fontPx = (radius * (0.50 / 0.455)).toFixed(1);    bCtx.font = "900 " + fontPx + "px 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Serif KR', serif";    bCtx.fillStyle = color === "C" ? "rgb(18, 107, 48)" : "rgb(192, 24, 24)";    drawCenteredHanja(bCtx, hanja, cx, cy);    return c.toDataURL("image/png");  };  const cImg = document.getElementById("cBadgeIcon");  const hImg = document.getElementById("hBadgeIcon");  if (cImg) cImg.src = makeIconUrl("C");  if (hImg) hImg.src = makeIconUrl("H");}function getBoardMetrics() {  const padX = 36;  const padY = 35;  const cellX = (LOGICAL_W - padX * 2) / (COLS - 1);  const cellY = (LOGICAL_H - padY * 2) / (ROWS - 1);  return { padX, padY, cellX, cellY };}function renderStaticBoardToCache() {  staticCacheCtx.setTransform(currentDpr, 0, 0, currentDpr, 0, 0);  staticCacheCtx.clearRect(0, 0, LOGICAL_W, LOGICAL_H);  const { padX, padY, cellX, cellY } = getBoardMetrics();  const bgGrad = staticCacheCtx.createLinearGradient(0, 0, LOGICAL_W, LOGICAL_H);  bgGrad.addColorStop(0, "#e5bc74");  bgGrad.addColorStop(0.5, "#dcaf62");  bgGrad.addColorStop(1, "#cfa052");  staticCacheCtx.fillStyle = bgGrad;  staticCacheCtx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);  staticCacheCtx.strokeStyle = "rgb(65, 44, 15)";  staticCacheCtx.lineWidth = 1.5;  for (let r = 0; r < ROWS; r++) {    const y = Math.round(padY + r * cellY);    staticCacheCtx.beginPath();    staticCacheCtx.moveTo(padX, y);    staticCacheCtx.lineTo(padX + (COLS - 1) * cellX, y);    staticCacheCtx.stroke();  }  for (let c = 0; c < COLS; c++) {    const x = Math.round(padX + c * cellX);    staticCacheCtx.beginPath();    staticCacheCtx.moveTo(x, padY);    staticCacheCtx.lineTo(x, padY + (ROWS - 1) * cellY);    staticCacheCtx.stroke();  }  staticCacheCtx.beginPath();  staticCacheCtx.moveTo(padX + 3 * cellX, padY + 0 * cellY);  staticCacheCtx.lineTo(padX + 5 * cellX, padY + 2 * cellY);  staticCacheCtx.moveTo(padX + 5 * cellX, padY + 0 * cellY);  staticCacheCtx.lineTo(padX + 3 * cellX, padY + 2 * cellY);  staticCacheCtx.moveTo(padX + 3 * cellX, padY + 7 * cellY);  staticCacheCtx.lineTo(padX + 5 * cellX, padY + 9 * cellY);  staticCacheCtx.moveTo(padX + 5 * cellX, padY + 7 * cellY);  staticCacheCtx.lineTo(padX + 3 * cellX, padY + 9 * cellY);  staticCacheCtx.stroke();  staticCacheCtx.fillStyle = "rgb(60, 40, 12)";  staticCacheCtx.font = "bold 11px -apple-system, BlinkMacSystemFont, sans-serif";  staticCacheCtx.textAlign = "center";  staticCacheCtx.textBaseline = "middle";  for (let c = 0; c < COLS; c++) {    const x = Math.round(padX + c * cellX);    staticCacheCtx.fillText(toJanggiColChar(c), x, 13);    staticCacheCtx.fillText(toJanggiColChar(c), x, LOGICAL_H - 13);  }  for (let r = 0; r < ROWS; r++) {    const y = Math.round(padY + r * cellY);    staticCacheCtx.fillText(toJanggiRowChar(r), 13, y);    staticCacheCtx.fillText(toJanggiRowChar(r), LOGICAL_W - 13, y);  }  const lastMove = moves.length > 0 ? moves[moves.length - 1] : null;  if (lastMove && !lastMove.isPass) { let radScale = 0.405; if (lastMove.piece === "K") radScale = 0.455; else if (lastMove.piece === "A" || lastMove.piece === "P") radScale = 0.345; for (const [hr, hc] of [[lastMove.fromR, lastMove.fromC], [lastMove.toR, lastMove.toC]]) { const hx = padX + hc * cellX; const hy = padY + hr * cellY; staticCacheCtx.save(); staticCacheCtx.beginPath(); staticCacheCtx.arc(hx, hy, cellX * (radScale + 0.08), 0, Math.PI * 2); staticCacheCtx.fillStyle = "rgba(245, 224, 90, 0.45)"; staticCacheCtx.fill(); staticCacheCtx.restore(); } }  if (selectedSq) { let radScale = 0.405; const selP = board[selectedSq.r][selectedSq.c]; if (selP) { if (selP.type === "K") radScale = 0.455; else if (selP.type === "A" || selP.type === "P") radScale = 0.345; } const sx = padX + selectedSq.c * cellX; const sy = padY + selectedSq.r * cellY; staticCacheCtx.save(); staticCacheCtx.beginPath(); staticCacheCtx.arc(sx, sy, cellX * (radScale + 0.08), 0, Math.PI * 2); staticCacheCtx.fillStyle = "rgba(246, 232, 104, 0.62)"; staticCacheCtx.fill(); staticCacheCtx.restore(); }  const cKing = findKing(board, "C");  const hKing = findKing(board, "H");  const cCheck = isInCheck(board, "C");  const hCheck = isInCheck(board, "H");  if (cCheck && cKing) {    staticCacheCtx.save();    staticCacheCtx.beginPath();    staticCacheCtx.arc(padX + cKing.c * cellX, padY + cKing.r * cellY, cellX * 0.52, 0, Math.PI * 2);    staticCacheCtx.fillStyle = "rgba(235, 97, 80, 0.76)";    staticCacheCtx.fill();    staticCacheCtx.restore();  }  if (hCheck && hKing) {    staticCacheCtx.save();    staticCacheCtx.beginPath();    staticCacheCtx.arc(padX + hKing.c * cellX, padY + hKing.r * cellY, cellX * 0.52, 0, Math.PI * 2);    staticCacheCtx.fillStyle = "rgba(235, 97, 80, 0.76)";    staticCacheCtx.fill();    staticCacheCtx.restore();  }  if (showNums && selectedSq && legalMovesForSelected.length > 0) {    const seenBg = new Set();    legalMovesForSelected.forEach(m => {      const key = m.toR + "," + m.toC;      if (seenBg.has(key)) return;      seenBg.add(key);      const targetPiece = board[m.toR][m.toC];      if (targetPiece) { let radScale = 0.405; if (targetPiece.type === "K") radScale = 0.455; else if (targetPiece.type === "A" || targetPiece.type === "P") radScale = 0.345; const tx = Math.round(padX + m.toC * cellX); const ty = Math.round(padY + m.toR * cellY); staticCacheCtx.save(); staticCacheCtx.beginPath(); staticCacheCtx.arc(tx, ty, cellX * (radScale + 0.08), 0, Math.PI * 2); staticCacheCtx.fillStyle = (showDangerHints && m.isDangerous) ? "rgba(235, 97, 80, 0.65)" : "rgba(20, 20, 20, 0.22)"; staticCacheCtx.fill(); staticCacheCtx.restore(); }    });  }  for (let r = 0; r < ROWS; r++) {    for (let c = 0; c < COLS; c++) {      const p = board[r][c];      if (!p) continue;      const cx = Math.round(padX + c * cellX);      const cy = Math.round(padY + r * cellY);      let radScale = 0.405;      let fontScale = 0.44;      if (p.type === "K") {        radScale = 0.455;        fontScale = 0.50;      } else if (p.type === "A" || p.type === "P") {        radScale = 0.345;        fontScale = 0.38;      }      const radius = cellX * radScale;      staticCacheCtx.save();      staticCacheCtx.shadowColor = "rgba(0, 0, 0, 0.22)";      staticCacheCtx.shadowBlur = 2.5;      staticCacheCtx.shadowOffsetY = 1.5;      drawOctagonPath(staticCacheCtx, cx, cy, radius);      staticCacheCtx.fillStyle = "#f3dba5";      staticCacheCtx.fill();      staticCacheCtx.shadowColor = "transparent";      staticCacheCtx.lineWidth = 1.6;      staticCacheCtx.strokeStyle = "#7a5120";      staticCacheCtx.stroke();      const hanja = HANJA_MAP[p.color][p.type];      const fontPx = (cellX * fontScale).toFixed(1);      staticCacheCtx.font = "900 " + fontPx + "px 'Malgun Gothic', 'Apple SD Gothic Neo', 'Noto Serif KR', serif";      staticCacheCtx.fillStyle = p.color === "C" ? "rgb(18, 107, 48)" : "rgb(192, 24, 24)";      drawCenteredHanja(staticCacheCtx, hanja, cx, cy);      staticCacheCtx.restore();    }  }  if (showNums && selectedSq && legalMovesForSelected.length > 0) {    const seenFg = new Set();    legalMovesForSelected.forEach(m => {      const key = m.toR + "," + m.toC;      if (seenFg.has(key)) return;      seenFg.add(key);      const targetPiece = board[m.toR][m.toC];      const tx = Math.round(padX + m.toC * cellX);      const ty = Math.round(padY + m.toR * cellY);      if (!targetPiece) { staticCacheCtx.save(); staticCacheCtx.beginPath(); staticCacheCtx.arc(tx, ty, cellX * 0.15, 0, Math.PI * 2); staticCacheCtx.fillStyle = (showDangerHints && m.isDangerous) ? "rgba(235, 97, 80, 0.9)" : "rgba(20, 20, 20, 0.38)"; staticCacheCtx.fill(); staticCacheCtx.restore(); }    });  }  if (selectedSq && forbiddenMovesForSelected.length > 0) {    const seenForb = new Set();    forbiddenMovesForSelected.forEach(m => {      const key = m.toR + "," + m.toC;      if (seenForb.has(key)) return;      seenForb.add(key);      const tx = Math.round(padX + m.toC * cellX);      const ty = Math.round(padY + m.toR * cellY);      const arm = 6.5;      staticCacheCtx.save();      staticCacheCtx.lineWidth = 3;      staticCacheCtx.strokeStyle = "rgba(220, 38, 38, 0.9)";      staticCacheCtx.beginPath();      staticCacheCtx.moveTo(tx - arm, ty - arm);      staticCacheCtx.lineTo(tx + arm, ty + arm);      staticCacheCtx.moveTo(tx + arm, ty - arm);      staticCacheCtx.lineTo(tx - arm, ty + arm);      staticCacheCtx.stroke();      staticCacheCtx.restore();    });  }  staticCacheValid = true;}function drawBoard(fromAnimLoop = false) {  if (!fromAnimLoop) staticCacheValid = false;  if (!staticCacheValid) renderStaticBoardToCache();  ctx.save();  ctx.setTransform(1, 0, 0, 1, 0, 0);  ctx.clearRect(0, 0, canvas.width, canvas.height);  ctx.drawImage(staticCacheCanvas, 0, 0);  ctx.restore();  const { padX, padY, cellX, cellY } = getBoardMetrics();  if (rippleEffect) {    const rx = padX + rippleEffect.c * cellX;    const ry = padY + rippleEffect.r * cellY;    ctx.save();    ctx.beginPath();    ctx.arc(rx, ry, cellX * 0.5 * rippleEffect.scale, 0, Math.PI * 2);    ctx.fillStyle = "rgba(20, 20, 20, " + rippleEffect.alpha.toFixed(3) + ")";    ctx.fill();    ctx.restore();  }}let pointerStart = null;canvas.addEventListener("pointerdown", (e) => {  pointerStart = { x: e.clientX, y: e.clientY };});canvas.addEventListener("pointerup", (e) => {  if (!pointerStart) return;  const dx = e.clientX - pointerStart.x;  const dy = e.clientY - pointerStart.y;  pointerStart = null;  if (Math.hypot(dx, dy) > 10) return;  handleBoardTap(e.clientX, e.clientY);});function handleBoardTap(clientX, clientY) {
+  if(onlineMode && (!onlineConn || !onlineConn.open)){setStatus("친구와 연결이 끊어졌습니다. 재연결을 기다려주세요.", true);return;}
+  if (!gameStarted) {    if (onlineMode && !isOnlineHost) { setStatus("방장이 아직 대국을 시작하지 않았습니다. 방장이 새 대국을 시작할 때까지 기다려 주세요.", true); } else { setStatus("먼저 '새 대국' 버튼을 눌러 대국을 시작해 주세요.", true); }    return;  }  if (spectateMode) {    setStatus("관전 모드 켜짐: 장기판을 직접 클릭할 수 없습니다. '수 입력'을 이용하세요.", true);    return;  }  if (gameOver) {    setStatus("종료된 상태입니다. 이전 수로 이동하거나 새 대국을 눌러주세요.", true);    return;  }  if (onlineMode && onlineConn && onlineConn.open && !isReplaying) {
+    if (onlineWaitingSetup) {
+      setStatus("상대방이 차림을 선택할 때까지 잠시만 기다려 주세요.", true);
+      return;
+    }
+    if (turn !== myOnlineColor) {
+      setStatus("상대방(" + (turn === "C" ? "초" : "한") + ")의 차례입니다. 상대가 착수할 때까지 기다려 주세요.", true);
+      return;
+    }
+  }
+  if (vsAiMode && !isReplaying && (isAiThinking || turn === aiSide)) {    setStatus("AI가 다음 수를 생각 중입니다. 잠시만 기다려 주세요.", true);    return;  }  const rect = canvas.getBoundingClientRect();  const x = (clientX - rect.left) * (LOGICAL_W / rect.width);  const y = (clientY - rect.top) * (LOGICAL_H / rect.height);  const { padX, padY, cellX, cellY } = getBoardMetrics();  const c = Math.round((x - padX) / cellX);  const r = Math.round((y - padY) / cellY);  if (r < 0 || r >= ROWS || c < 0 || c >= COLS) return;  if (selectedSq) {    const matching = legalMovesForSelected.find(m => m.toR === r && m.toC === c);    if (matching) {      if (isReplaying) isBranching = true;      executeMove(matching);      return;    }    const forbiddenMatch = forbiddenMovesForSelected.find(m => m.toR === r && m.toC === c);    if (forbiddenMatch) {      playForbiddenSound();      setStatus(forbiddenMatch.reason, true);      return;    }  }  const clickedPiece = board[r][c];  if (clickedPiece && clickedPiece.color === turn) {    if (selectedSq && selectedSq.r === r && selectedSq.c === c) {      selectedSq = null;      legalMovesForSelected = [];      forbiddenMovesForSelected = [];      invalidateBoardCache();      drawBoard();      return;    }    selectedSq = { r, c };    legalMovesForSelected = getLegalMovesForSingleSquare(board, turn, r, c);    forbiddenMovesForSelected = getForbiddenMovesForSingleSquare(board, turn, r, c);    invalidateBoardCache();    triggerRipple(r, c);    drawBoard();    const pName = KOR_PIECE_NAME[clickedPiece.color][clickedPiece.type];    setStatus(toOfficialCoord(r, c) + " " + pName + " 선택됨 (" + legalMovesForSelected.length + "개 이동 가능)", false);  } else if (clickedPiece && clickedPiece.color !== turn) {    const hadSelection = Boolean(selectedSq);    selectedSq = null;    legalMovesForSelected = [];    forbiddenMovesForSelected = [];    invalidateBoardCache();    drawBoard();    if (hadSelection) {      setStatus("유효한 수가 아닙니다.", true);    } else {      setStatus("자신의 기물이 아닙니다.", true);    }  } else {    const hadSelection = Boolean(selectedSq);    selectedSq = null;    legalMovesForSelected = [];    forbiddenMovesForSelected = [];    invalidateBoardCache();    drawBoard();    if (hadSelection) {      setStatus("유효한 수가 아닙니다.", true);    }  }}function passTurn() {  if (!gameStarted || gameOver || isReplaying || isAiThinking) return;  if (onlineMode && onlineConn && onlineConn.open && (onlineWaitingSetup || turn !== myOnlineColor)) return;  if (vsAiMode && turn === aiSide) return;  if (isInCheck(board, turn)) {    playForbiddenSound();    setStatus("장군 상태에서는 한수쉼을 할 수 없습니다.", true);    return;  }  executeMove({ isPass: true });}function executeMove(m, skipSfx = false) {  if (!gameStarted || gameOver) return false;  if (m.isPass) {    if (isInCheck(board, turn)) {      if (!skipSfx) playForbiddenSound();      setStatus("장군 상태에서는 한수쉼을 할 수 없습니다.", true);      return false;    }    stateSnapshots.push({      board: cloneBoard(board),      turn,      positionCounts: { ...positionCounts },      checkPositionCounts: { ...checkPositionCounts },      consecutivePasses,      bikjangActive    });    const moveRecord = {      color: turn,      piece: "PASS",      isPass: true,      fromR: -1, fromC: -1, toR: -1, toC: -1,      captured: null,      san: "한수쉼"    };    moves.push(moveRecord);    consecutivePasses++;    turn = turn === "C" ? "H" : "C";    selectedSq = null;    legalMovesForSelected = [];    forbiddenMovesForSelected = [];    if (onlineMode && onlineConn && onlineConn.open && !isRemoteAction && !isReplaying) {
+      sendPeerData({ type: "MOVE", move: { isPass: true } });
+    }
+    if (bikjangEnabled && bikjangActive && isBikjangState(board)) {      gameOver = true;      isDrawed = true;      winResultText = "빅장 성립: 무승부로 대국이 종료되었습니다.";      if (!skipSfx) playGameEndSound("end");      invalidateBoardCache();      updateCapturedBar();      updateUI();      drawBoard();      setStatus(winResultText, false);      if (!isReplaying) saveHist("무승부");      return true;    }    if (consecutivePasses >= 2) {      gameOver = true;      isDrawed = true;      winResultText = "양측 연속 한수쉼: 무승부로 대국이 종료되었습니다.";      if (!skipSfx) playGameEndSound("end");      invalidateBoardCache();      updateCapturedBar();      updateUI();      drawBoard();      setStatus(winResultText, false);      if (!isReplaying) saveHist("무승부");      return true;    }    if (moves.length >= 200) {      gameOver = true;      const { scoreC, scoreH } = calculateMaterialScores(board);      const winner = scoreC > scoreH ? "C" : "H";      winResultText = "200수 제한 도달 — 점수 판정 (초 " + scoreC + "점 : 한 " + scoreH.toFixed(1) + "점) " + getPlayerLabel(winner, "square") + " 승리!";      if (!skipSfx) playGameEndSound("win");      invalidateBoardCache();      updateCapturedBar();      updateUI();      drawBoard();      setStatus(winResultText, false);      if (!isReplaying) saveHist(getPlayerLabel(winner, "round") + " 승");      return true;    }    if (!skipSfx) playMoveSound();    if (isBatchReplay) return true;    invalidateBoardCache();    updateCapturedBar();    updateUI();    drawBoard();    setStatus("착수 완료: " + formatMovePrefix(moves.length - 1) + " 한수쉼", false);    if (vsAiMode && !isReplaying) triggerAiMoveIfNeeded();    return true;  }  const allLegal = getAllLegalMoves(board, turn);  const valid = allLegal.find(x =>    x.fromR === m.fromR && x.fromC === m.fromC &&    x.toR === m.toR && x.toC === m.toC  );  if (!valid) {    const pseudoCheck = generatePseudoMovesForSquare(board, m.fromR, m.fromC).find(x => x.toR === m.toR && x.toC === m.toC);    if (pseudoCheck) {      const sim = applyMoveOnBoard(board, pseudoCheck);      if (isInCheck(sim.board, turn)) {        if (!skipSfx) playForbiddenSound();        setStatus("유효한 수가 아닙니다.", true);        return false;      }    }    setStatus("유효한 수가 아닙니다.", true);    return false;  }  stateSnapshots.push({    board: cloneBoard(board),    turn,    positionCounts: { ...positionCounts },    checkPositionCounts: { ...checkPositionCounts },    consecutivePasses,    bikjangActive  });  const prevBikjangActive = bikjangActive;  const movingPiece = board[valid.fromR][valid.fromC];  const san = buildNotation(board, valid);  const sim = applyMoveOnBoard(board, valid);  board = sim.board;  consecutivePasses = 0;  const moveRecord = {    color: movingPiece.color,    piece: movingPiece.type,    isPass: false,    fromR: valid.fromR,    fromC: valid.fromC,    toR: valid.toR,    toC: valid.toC,    captured: sim.captured || null,    san  };  moves.push(moveRecord);  turn = turn === "C" ? "H" : "C";  selectedSq = null;  legalMovesForSelected = [];  forbiddenMovesForSelected = [];  const posKey = getPositionKey(board, turn);  positionCounts[posKey] = (positionCounts[posKey] || 0) + 1;  const nextInCheck = isInCheck(board, turn);  if (nextInCheck) {    checkPositionCounts[posKey] = (checkPositionCounts[posKey] || 0) + 1;  }  const nextLegal = getAllLegalMoves(board, turn);  const totalMoveCount = moves.length;  const nowBikjang = isBikjangState(board);  if (nextLegal.length === 0 && nextInCheck) {    gameOver = true;    winResultText = getPlayerLabel(moveRecord.color, "square") + " 승리 (" + totalMoveCount + "수 외통승!)";    if (!skipSfx) playGameEndSound("win");  } else if (bikjangEnabled && prevBikjangActive && nowBikjang) {    gameOver = true;    isDrawed = true;    winResultText = "빅장 성립: 무승부로 대국이 종료되었습니다.";    if (!skipSfx) playGameEndSound("end");  } else if (positionCounts[posKey] >= 3) {    gameOver = true;    isDrawed = true;    winResultText = "3회 동형 반복: 무승부로 대국이 종료되었습니다.";    if (!skipSfx) playGameEndSound("end");  } else if (isInsufficientMaterial(board)) {    gameOver = true;    isDrawed = true;    winResultText = "기물 부족: 무승부로 대국이 종료되었습니다.";    if (!skipSfx) playGameEndSound("end");  } else if (totalMoveCount >= 200) {    gameOver = true;    const { scoreC, scoreH } = calculateMaterialScores(board);    const winner = scoreC > scoreH ? "C" : "H";    winResultText = "200수 제한 도달 — 점수 판정 (초 " + scoreC + "점 : 한 " + scoreH.toFixed(1) + "점) " + getPlayerLabel(winner, "square") + " 승리!";    if (!skipSfx) playGameEndSound("win");  } else {    bikjangActive = bikjangEnabled && nowBikjang;    if (!skipSfx) {      if (nextInCheck || bikjangActive) playCheckSound();      else if (sim.captured) playCaptureSound();      else playMoveSound();    }  }  if (isBatchReplay) return true;  invalidateBoardCache();  updateCapturedBar();  updateUI();  drawBoard();  if (onlineMode && onlineConn && onlineConn.open && !isRemoteAction && !isReplaying) {
+    sendPeerData({
+      type: "MOVE",
+      move: {
+        isPass: false,
+        fromR: valid.fromR,
+        fromC: valid.fromC,
+        toR: valid.toR,
+        toC: valid.toC
+      }
+    });
+  }
+  const moveIdx = moves.length - 1;  const movePrefix = formatMovePrefix(moveIdx);  if (gameOver) {    setStatus(winResultText, false);    if (!isReplaying) {      if (isDrawed) {        saveHist("무승부");      } else {        const { scoreC, scoreH } = calculateMaterialScores(board);        const wCol = (nextLegal.length === 0 && nextInCheck) ? moveRecord.color : (scoreC > scoreH ? "C" : "H");        saveHist(getPlayerLabel(wCol, "round") + " 승");      }    }  } else {    setStatus("착수 완료: " + movePrefix + " " + moveRecord.san, false);    if (vsAiMode && !isReplaying) {      triggerAiMoveIfNeeded();    }  }  return true;}function parseSingleMoveToken(token, b, color) {  let s = token.replace(/[()[\]]/g, "").trim();  if (!s) return { error: "empty" };  s = s.replace(/^(?:[CH초한]\s*[:：]\s*)/i, "");  s = s.replace(/^\d+\s*\.{1,3}\s*/, "");  s = s.replace(/(?:장군|멍군|빅장|[+#?!])/g, "").trim();  if (/^(?:한수쉼|한수\s*쉼|쉼|pass)$/i.test(s)) {    return { candidates: [{ isPass: true }] };  }  const allLegal = getAllLegalMoves(b, color, true);  const stdMatch = s.match(/^(\d{1,2})\s*[,/]?\s*(\d{1,2})\s*([차포마상사졸병궁초한車包馬象士卒兵楚漢]?)\s*[-~>to]*\s*(\d{1,2})\s*[,/]?\s*(\d{1,2})$/);  if (stdMatch) {    const d1 = parseInt(stdMatch[1], 10);    const d2 = parseInt(stdMatch[2], 10);    const pChar = stdMatch[3];    const d3 = parseInt(stdMatch[4], 10);    const d4 = parseInt(stdMatch[5], 10);    const charMap = { "차": "R", "車": "R", "포": "C", "包": "C", "마": "H", "馬": "H", "상": "E", "象": "E", "사": "A", "士": "A", "졸": "P", "병": "P", "궁": "K", "초": "K", "한": "K", "楚": "K", "漢": "K" };    const reqType = pChar ? charMap[pChar] : null;    const rA1 = (d1 === 0 || d1 === 10) ? 9 : (d1 - 1);    const cA1 = d2 - 1;    const rA2 = (d3 === 0 || d3 === 10) ? 9 : (d3 - 1);    const cA2 = d4 - 1;    const cB1 = d1 - 1;    const rB1 = (d2 === 0 || d2 === 10) ? 9 : (d2 - 1);    const cB2 = d3 - 1;    const rB2 = (d4 === 0 || d4 === 10) ? 9 : (d4 - 1);    let candsA = (cA1 >= 0 && cA1 < COLS && rA1 >= 0 && rA1 < ROWS && cA2 >= 0 && cA2 < COLS && rA2 >= 0 && rA2 < ROWS)      ? allLegal.filter(m => m.fromR === rA1 && m.fromC === cA1 && m.toR === rA2 && m.toC === cA2 && (!reqType || (b[m.fromR][m.fromC] && b[m.fromR][m.fromC].type === reqType)))      : [];    let candsB = (cB1 >= 0 && cB1 < COLS && rB1 >= 0 && rB1 < ROWS && cB2 >= 0 && cB2 < COLS && rB2 >= 0 && rB2 < ROWS)      ? allLegal.filter(m => m.fromR === rB1 && m.fromC === cB1 && m.toR === rB2 && m.toC === cB2 && (!reqType || (b[m.fromR][m.fromC] && b[m.fromR][m.fromC].type === reqType)))      : [];    if (candsA.length > 0) return { candidates: candsA };    if (candsB.length > 0) return { candidates: candsB };  }  const shortMatch = s.match(/^([차포마상사졸병궁초한車包馬象士卒兵楚漢])\s*(\d)\s*[,/]?\s*(\d{1,2})$/);  if (shortMatch) {    const pChar = shortMatch[1];    const toC = parseInt(shortMatch[2], 10) - 1;    const rVal = parseInt(shortMatch[3], 10);    const toR = (rVal === 0 || rVal === 10) ? 9 : (rVal - 1);    const charMap = {      "차": "R", "車": "R",      "포": "C", "包": "C",      "마": "H", "馬": "H",      "상": "E", "象": "E",      "사": "A", "士": "A",      "졸": "P", "병": "P",      "궁": "K", "초": "K", "한": "K", "楚": "K", "漢": "K"    };    const pType = charMap[pChar];    if (toC >= 0 && toC < COLS && toR >= 0 && toR < ROWS && pType) {      const cands = allLegal.filter(m => {        const p = b[m.fromR][m.fromC];        return p && p.type === pType && m.toR === toR && m.toC === toC;      });      if (cands.length > 0) return { candidates: cands };    }  }  return { error: "invalid" };}async function applyLog() {  if (!gameStarted) {    if (onlineMode && !isOnlineHost) { setStatus("방장이 아직 대국을 시작하지 않았습니다. 방장이 새 대국을 시작할 때까지 기다려 주세요.", true); } else { setStatus("먼저 '새 대국' 버튼을 눌러 대국을 시작해 주세요.", true); }    return;  }  const rawCheck = document.getElementById("logInput").value.trim();  if (rawCheck.includes(":") || rawCheck.includes("：") || /^[초한CH:]/i.test(rawCheck)) {    setStatus("형식 오류: 수만 입력해주세요.", true);    return;  }  if (gameOver) {    setStatus("대국이 종료되어 수를 입력할 수 없습니다.", true);    return;  }  if (onlineMode && onlineConn && onlineConn.open && !isReplaying) {
+    if (onlineWaitingSetup || turn !== myOnlineColor) {
+      setStatus("상대방 차례에는 수 입력을 할 수 없습니다.", true);
+      return;
+    }
+  }
+  if (vsAiMode && !isReplaying && isAiThinking) {    setStatus("AI가 다음 수를 생각 중입니다. 잠시만 기다려 주세요.", true);    return;  }  let raw = document.getElementById("logInput").value.trim();  if (!raw) {    setStatus("유효한 수가 아닙니다.", true);    return;  }  if (raw.startsWith("왼상") || raw.startsWith("오른상") || raw.startsWith("안상") || raw.startsWith("바깥상")) {    raw = raw.replace(/^(?:왼상|오른상|안상|바깥상)\s*[,，/:\s]\s*/g, "");  }  raw = raw.replace(/한수\s+쉼/g, "한수쉼");  raw = raw.replace(/\s*([-~>])\s*/g, "$1");  const cleaned = raw.replace(/\d+\.(?:\.\.)?/g, " ").trim();  const tokens = cleaned.split(/[\n,;]+|\s{2,}/).map(t => t.trim()).filter(Boolean);  const tokenList = tokens.length === 1 && !tokens[0].includes(":") && tokens[0].split(/\s+/).length > 1    ? tokens[0].split(/\s+/)    : tokens;  let cnt = 0;  for (const tok of tokenList) {    if (gameOver) break;    const prefixMatch = tok.match(/^([^:]+)[:：]\s*(.*)$/);    let moveStr = tok;    if (prefixMatch) {      const prefix = prefixMatch[1].trim().toUpperCase();      const movePart = prefixMatch[2].trim();      if (prefix === "초" || prefix === "C") {        if (turn !== "C") {          setStatus("형식 오류: 수만 입력해주세요.", true);          return;        }        moveStr = movePart;      } else if (prefix === "한" || prefix === "H") {        if (turn !== "H") {          setStatus("형식 오류: 수만 입력해주세요.", true);          return;        }        moveStr = movePart;      } else {        setStatus("형식 오류: 수만 입력해주세요.", true);        return;      }    }    const res = parseSingleMoveToken(moveStr, board, turn);    if (res.error === "empty") continue;    if (res.error || !res.candidates || res.candidates.length === 0) {      setStatus("유효한 수가 아닙니다.", true);      return;    }    if (res.candidates.length > 1) {      setStatus("가능한 두 개 이상의 같은 기물이 있습니다. 시작 좌표를 포함해 주세요 (예: 70마68).", true);      return;    }    const chosenMove = res.candidates[0];    if (!chosenMove) {      setStatus("유효한 수가 아닙니다.", true);      return;    }    if (isReplaying) isBranching = true;    if (!executeMove(chosenMove)) return;    cnt++;  }  if (cnt > 0) {    document.getElementById("logInput").value = "";  }}function handleEnter(e) {  if (e.key === "Enter" && !e.shiftKey) {    e.preventDefault();    applyLog();  }}function formatKiboLines(moveArray) {  const lines = [];  for (let i = 0; i < moveArray.length; i += 2) {    const cMove = moveArray[i];    const hMove = moveArray[i + 1];    let line = (i + 1) + ". " + cMove.san;    if (hMove) {      line += "  " + (i + 2) + ". " + hMove.san;    }    lines.push(line);  }  return lines;}function updateUI() {  syncActiveSession();  if (typeof saveOnlineRoomSession === "function") saveOnlineRoomSession();  const noMoves = moves.length === 0;  const lockSetup = gameStarted || !noMoves || isReplaying || isAiThinking || onlineWaitingSetup;  document.getElementById("swapBtn").disabled = lockSetup || (vsAiMode && gameStarted) || (onlineMode && !isOnlineHost);  document.getElementById("editNameBtn").disabled = lockSetup;  document.getElementById("resetNameBtn").disabled = lockSetup;  if (lockSetup) {    document.getElementById("nameEditBox").style.display = "none";  }  let disableUndo = noMoves;  if (isReplaying) {    disableUndo = moves.length <= replayStep;  } else if (onlineMode && gameOver) {    disableUndo = true;  } else if (vsAiMode) {    if (isAiThinking) disableUndo = true;    else if (aiSide === "C" && moves.length <= 1 && !isResigned && !isDrawed) disableUndo = true;  }  document.getElementById("newGameBtn").disabled = (onlineMode && (!isOnlineHost || !onlineConn || !onlineConn.open)) || ((gameStarted && !gameOver && !isReplaying) || onlineWaitingSetup);  document.getElementById("undoBtn").disabled = disableUndo;  const baseActionDisabled = !gameStarted || gameOver || isReplaying || isAiThinking || onlineWaitingSetup;  document.getElementById("passBtn").disabled = baseActionDisabled || (vsAiMode && turn === aiSide) || (onlineMode && turn !== myOnlineColor) || aiModeEnabled || spectateMode;  const baseResignDisabled = noMoves || gameOver || isReplaying || isAiThinking || onlineWaitingSetup;  document.getElementById("resignCBtn").disabled = baseResignDisabled || (vsAiMode && aiSide === "C") || (onlineMode && myOnlineColor !== "C");  document.getElementById("resignHBtn").disabled = baseResignDisabled || (vsAiMode && aiSide === "H") || (onlineMode && myOnlineColor !== "H");  document.getElementById("drawBtn").disabled = baseResignDisabled || vsAiMode;  document.getElementById("endGameBtn").disabled = (onlineMode && (!isOnlineHost || !onlineConn || !onlineConn.open)) || (!gameStarted && !isReplaying);  document.getElementById("copyKiboLastBtn").disabled = noMoves;  document.getElementById("copyKiboLineBtn").disabled = noMoves;  document.getElementById("copyKiboOneBtn").disabled = noMoves;  const hasStartedOrReplaying = (gameStarted || moves.length > 0 || isReplaying || isAiThinking || onlineMode);  document.getElementById("aiModeBtn").disabled = hasStartedOrReplaying;  document.getElementById("vsAiBtn").disabled = hasStartedOrReplaying;  const specBtn = document.getElementById("spectateBtn");  if (aiModeEnabled) {    specBtn.disabled = true;    specBtn.className = "btn-on";  } else if (vsAiMode) {    specBtn.disabled = true;    specBtn.className = "btn-off";  } else {    specBtn.disabled = hasStartedOrReplaying;    specBtn.className = spectateMode ? "btn-on" : "btn-off";  }  const nBtn = document.getElementById("numBtn");  const dBtn = document.getElementById("dangerHintBtn");  if (aiModeEnabled) {    if (nBtn) nBtn.disabled = true;    if (dBtn) dBtn.disabled = true;  } else {    if (dBtn) dBtn.disabled = false;    if (nBtn) nBtn.disabled = showDangerHints;  }  syncAiHintButtons();  updatePlayerBarLayout();  document.getElementById("mCount").textContent = String(moves.length);  const badge = document.getElementById("turnBadge");  const banner = document.getElementById("winBanner");  const replayPanel = document.getElementById("replayPanel");  const replayStatus = document.getElementById("replayStatus");  const cBadge = document.getElementById("cBadge");  const hBadge = document.getElementById("hBadge");  const showTurnHighlight = (gameStarted || isReplaying) && !gameOver;  if (cBadge && hBadge) {    cBadge.classList.toggle("active-turn", showTurnHighlight && turn === "C");    hBadge.classList.toggle("active-turn", showTurnHighlight && turn === "H");  }  replayPanel.style.display=isReplaying?"flex":"none";const branchBtn=document.getElementById("branchBtn");if(branchBtn)branchBtn.className=isBranching?"btn-on":"";  const nextMoveNum = moves.length + 1;  if (isReplaying) {    replayStatus.textContent = "복기 모드 (" + replayStep + " / " + allReplayMoves.length + "수)";    badge.textContent = "복기 모드 (" + replayStep + " / " + allReplayMoves.length + "수)";    badge.style.background = "rgb(254,243,199)";    badge.style.color = "rgb(146,64,14)";    if (gameOver && winResultText) {      banner.style.display = "block";      banner.textContent = winResultText;    } else {      banner.style.display = "none";    }  } else {    if (!gameStarted) {      badge.textContent = "대국 전 (새 대국을 눌러 시작)";      badge.style.background = "rgb(219,234,254)";      badge.style.color = "rgb(30,64,175)";      banner.style.display = "none";    } else if (gameOver) {      badge.textContent = "대국 종료";      badge.style.background = "rgb(254,243,199)";      badge.style.color = "rgb(146,64,14)";      banner.style.display = "block";      banner.textContent = winResultText;    } else {      badge.textContent = nextMoveNum + "수째: " + getTurnPlayerText(turn);      badge.style.background = "rgb(219,234,254)";      badge.style.color = "rgb(30,64,175)";      banner.style.display = "none";    }  }  const kb = document.getElementById("kiboBox");  if (noMoves) {    kb.textContent = "아직 착수된 기물이 없습니다.";  } else {    kb.textContent = moves.map((m, i) => {      const prefix = formatMovePrefix(i);      return prefix + " " + m.san;    }).join(NL);    kb.scrollTop = kb.scrollHeight;  }  updateAiAnalysisPanel();}async function resignGame(color, isAi = false) {  if (gameOver || moves.length === 0 || isReplaying) return;  if (!isAi && isAiThinking) return;  if (vsAiMode && color === aiSide) return;  const pName = players[color];  if (!isAi) {    const ok = await showCustomModal(pName + "님, 정말 기권하시겠습니까?", true);    if (!ok) return;  }  if (aiMoveTimer) {    clearTimeout(aiMoveTimer);    aiMoveTimer = null;  }  isAiThinking = false;  gameOver = true;  isResigned = true;  const wColor = color === "C" ? "H" : "C";  winResultText = getPlayerLabel(color, "square") + " 기권 - " + getPlayerLabel(wColor, "square") + " 승리";  playGameEndSound("end");  setStatus(winResultText, false);  if (!isReplaying) {    saveHist(getPlayerLabel(wColor, "round") + " 승");  }  if (onlineMode) {
+    if (onlineConn && onlineConn.open && !isRemoteAction) {
+      sendPeerData({ type: "RESIGN", color });
+    }
+    const finalMsg = winResultText;
+    prepareWaitingBoardForOnline();
+    updateOnlinePanelUI(onlineConn && onlineConn.open ? "connected" : "waiting", "친구와 실시간 연결됨");
+    syncPlayerDOM();
+    updateCapturedBar();
+    updateUI();
+    drawBoard();
+    setStatus(finalMsg + " (대국이 종료되었습니다.)", false);
+    return;
+  }
+  updateUI();  drawBoard();}async function requestDraw() {  if (gameOver || moves.length === 0 || isReplaying || isAiThinking || vsAiMode) return;
+  if (onlineMode && onlineConn && onlineConn.open && !isRemoteAction) {
+    const ok = await showCustomModal("상대방에게 무승부를 제안하시겠습니까?", true);
+    if (ok) {
+      sendPeerData({ type: "DRAW_REQ" });
+      setStatus("상대방에게 무승부를 제안했습니다. 응답을 기다립니다...", false);
+    }
+    return;
+  }
+  const ok = isRemoteAction ? true : await showCustomModal("양측 합의하에 무승부로 처리하시겠습니까?", true);  if (ok) {    if (aiMoveTimer) {      clearTimeout(aiMoveTimer);      aiMoveTimer = null;    }    isAiThinking = false;    gameOver = true;    isDrawed = true;    winResultText = "양측 합의: 무승부로 대국이 종료되었습니다.";    playGameEndSound("end");    setStatus(winResultText, false);    if (!isReplaying) {      saveHist("무승부");    }    if (onlineMode) {
+      const finalMsg = winResultText;
+      prepareWaitingBoardForOnline();
+      updateOnlinePanelUI(onlineConn && onlineConn.open ? "connected" : "waiting", "친구와 실시간 연결됨");
+      syncPlayerDOM();
+      updateCapturedBar();
+      updateUI();
+      drawBoard();
+      setStatus(finalMsg, false);
+      return;
+    }
+    updateUI();    drawBoard();  }}async function undoMove() {  if (moves.length === 0 || isAiThinking) return;  if (isReplaying && moves.length <= replayStep) return;
+  if (onlineMode && onlineConn && onlineConn.open && !isRemoteAction && !isReplaying) {
+    const ok = await showCustomModal("상대방에게 한 수 무르기를 요청하시겠습니까?", true);
+    if (ok) {
+      sendPeerData({ type: "UNDO_REQ" });
+      setStatus("상대방에게 무르기를 요청했습니다. 수락을 기다립니다...", false);
+    }
+    return;
+  }  if (!isReplaying && currentSavedId !== null) {    deleteHistoryItem(currentSavedId, true);    currentSavedId = null;  }  if (isResigned) {    gameOver = false;    isResigned = false;    winResultText = "";    updateUI();    drawBoard();    setStatus("기권이 취소되었습니다. 대국을 이어가세요.", false);    return;  }  if (isDrawed && winResultText.includes("양측 합의")) {    gameOver = false;    isDrawed = false;    winResultText = "";    updateUI();    drawBoard();    setStatus("무승부가 취소되었습니다. 대국을 이어가세요.", false);    return;  }  gameOver = false;  isDrawed = false;  winResultText = "";  let popCount = 1;  if (vsAiMode && !isReplaying) {    const lastMove = moves[moves.length - 1];    if (lastMove.color === aiSide && moves.length >= 2) {      popCount = 2;    }  }  let undoneMove = null;  for (let i = 0; i < popCount; i++) {    undoneMove = moves.pop();    const snap = stateSnapshots.pop();    if (snap) {      board = snap.board;      turn = snap.turn;      positionCounts = snap.positionCounts;      checkPositionCounts = snap.checkPositionCounts || {};      consecutivePasses = snap.consecutivePasses;      bikjangActive = Boolean(snap.bikjangActive);    }  }  selectedSq = null;  legalMovesForSelected = [];  forbiddenMovesForSelected = [];  invalidateBoardCache();  updateCapturedBar();  updateUI();  drawBoard();  setStatus("무르기 완료: " + (undoneMove ? undoneMove.san : ""), false);}function restoreActiveModePlayers() {  if (aiModeEnabled) {    players.C = aiSessionPlayers.C;    players.H = aiSessionPlayers.H;  } else if (vsAiMode) {    players.C = vsAiSessionPlayers.C;    players.H = vsAiSessionPlayers.H;  } else {    players.C = userCustomPlayers.C;    players.H = userCustomPlayers.H;  }}function endGame() {  if (!gameStarted && !isReplaying) return;  if (aiMoveTimer) {    clearTimeout(aiMoveTimer);    aiMoveTimer = null;  }  isAiThinking = false;  let savedUnfin = false;  if (gameStarted && !gameOver && moves.length > 0 && !isReplaying) {    saveUnfinished();    savedUnfin = true;  }  choFormation = "MSSM";  hanFormation = "MSSM";  initNewGameData();  gameOver = false;  gameStarted = false;  winResultText = "";  currentSavedId = null;  currentUnfinId = null;  isResigned = false;  isDrawed = false;  isReplaying = false;    isBranching = false;  allReplayMoves = [];  replayStep = 0;  restoreActiveModePlayers();  syncPlayerDOM();  updateCapturedBar();  updateUI();  drawBoard();  if (onlineMode && onlineConn && onlineConn.open && !isRemoteAction) {
+    sendPeerData({ type: "END_GAME" });
+  }
+  if (savedUnfin) {    setStatus("대국이 종료되었습니다. (진행 중이던 대국은 미완료 대국에 저장되었습니다.)", false);  } else {    setStatus("대국이 종료되어 대기 상태로 돌아왔습니다.", false);  }}function selectFormation(side, fCode) {  if (side === "C") {    choFormation = fCode;    document.querySelectorAll("#choSetupBtns .setup-opt").forEach(btn => {      btn.classList.toggle("active", btn.dataset.f === fCode);    });  } else {    hanFormation = fCode;    document.querySelectorAll("#hanSetupBtns .setup-opt").forEach(btn => {      btn.classList.toggle("active", btn.dataset.f === fCode);    });  }}function resetBoard() {  if (aiMoveTimer) {    clearTimeout(aiMoveTimer);    aiMoveTimer = null;  }  isAiThinking = false;  selectFormation("C", "MSSM");  selectFormation("H", "MSSM");  const choGroup = document.getElementById("choSetupGroup");  const hanGroup = document.getElementById("hanSetupGroup");  if (choGroup && hanGroup) {    if (onlineMode && onlineConn && onlineConn.open) {      choGroup.style.display = myOnlineColor === "C" ? "block" : "none";      hanGroup.style.display = myOnlineColor === "H" ? "block" : "none";    } else if (vsAiMode) {      choGroup.style.display = aiSide === "C" ? "none" : "block";      hanGroup.style.display = aiSide === "H" ? "none" : "block";    } else {      choGroup.style.display = "block";      hanGroup.style.display = "block";    }  }  document.getElementById("setupModal").style.display = "flex";}function cancelSetupModal() {  document.getElementById("setupModal").style.display = "none";  if (onlineMode && onlineConn && onlineConn.open && isGuestPickingFormation) {    isGuestPickingFormation = false;    sendPeerData({ type: "SETUP_CANCEL" });    setStatus("새 대국 차림 선택을 취소했습니다.", false);  }}function confirmSetupModal() {  document.getElementById("setupModal").style.display = "none";  if (onlineMode && onlineConn && onlineConn.open) {    if (isGuestPickingFormation) {      isGuestPickingFormation = false;      const myForm = myOnlineColor === "C" ? choFormation : hanFormation;      sendPeerData({        type: "GUEST_SETUP_DONE",        guestColor: myOnlineColor,        guestFormation: myForm      });      startOnlineJanggiGame();      return;    }    if (!isOnlineHost) {      const myForm = myOnlineColor === "C" ? choFormation : hanFormation;      onlineWaitingSetup = true;      updateUI();      sendPeerData({        type: "GUEST_REQ_NEW_GAME",        guestColor: myOnlineColor,        guestFormation: myForm      });      setStatus("방장에게 새 대국을 요청했습니다. 방장의 차림 및 빅장 규칙 선택을 기다립니다...", false);      return;    }  }  document.getElementById("bikjangModal").style.display = "flex";}function applyBikjangRule(enabled) {  bikjangEnabled = Boolean(enabled);  document.getElementById("bikjangModal").style.display = "none";  if (onlineMode && onlineConn && onlineConn.open && isOnlineHost) {    const hostForm = myOnlineColor === "C" ? choFormation : hanFormation;    if (pendingGuestFormation) {      if (myOnlineColor === "C") hanFormation = pendingGuestFormation;      else choFormation = pendingGuestFormation;      pendingGuestFormation = null;      sendPeerData({        type: "START_ONLINE_GAME",        players,        hostColor: myOnlineColor,        choFormation,        hanFormation,        bikjangEnabled      });      startOnlineJanggiGame();      return;    } else {      onlineWaitingSetup = true;      updateUI();      sendPeerData({        type: "HOST_SETUP_REQ",        players,        hostColor: myOnlineColor,        hostFormation: hostForm,        bikjangEnabled      });      setStatus("상대방에게 대국 시작 및 차림 선택을 요청했습니다. 상대방의 선택을 기다립니다...", false);      return;    }  }  if (gameStarted && !gameOver && moves.length > 0 && !isReplaying) {    saveUnfinished();  }  if (vsAiMode) {    const forms = ["SMSM", "MSMS", "MSSM", "SMMS"];    const rndForm = forms[Math.floor(Math.random() * forms.length)];    selectFormation(aiSide, rndForm);  }  initNewGameData();  gameOver = false;  gameStarted = true;  winResultText = "";  currentSavedId = null;  currentUnfinId = null;  isResigned = false;  isDrawed = false;  if (isReplaying) {    isReplaying = false;    isBranching = false;  }  restoreActiveModePlayers();  if (aiModeEnabled) {    spectateMode = true;    document.getElementById("spectateBtn").className = "btn-on";  } else if (vsAiMode) {    spectateMode = false;    document.getElementById("spectateBtn").className = "btn-off";  }  syncPlayerDOM();  document.getElementById("logInput").value = "";  updateCapturedBar();  updateUI();  drawBoard();  const bikjangText = bikjangEnabled ? "빅장 있음" : "빅장 없음";  const choShort = FORMATION_NAMES[choFormation].split('(')[0];  const hanShort = FORMATION_NAMES[hanFormation].split('(')[0];  setStatus("새 대국이 시작되었습니다 (" + choShort + " vs " + hanShort + ", " + bikjangText + "). 착수해 주세요.", false);  if (vsAiMode) {    triggerAiMoveIfNeeded();  }}function flashCopyBtn(btn) {  if (!btn) return;  if (!btn.dataset.origText) {    btn.dataset.origText = btn.textContent;  }  btn.textContent = "복사됨!";  btn.classList.add("btn-copied");  if (btn._copyTimer) clearTimeout(btn._copyTimer);  btn._copyTimer = setTimeout(() => {    btn.textContent = btn.dataset.origText;    btn.classList.remove("btn-copied");  }, 1200);}function fallbackCopyText(text) {  const ta = document.createElement("textarea");  ta.value = text;  ta.setAttribute("readonly", "");  ta.style.position = "fixed";  ta.style.top = "-9999px";  ta.style.left = "-9999px";  document.body.appendChild(ta);  ta.focus();  ta.select();  ta.setSelectionRange(0, text.length);  let ok = false;  try {    ok = document.execCommand("copy");  } catch (e) {}  document.body.removeChild(ta);  return ok;}function copyToClipboard(text, successMsg, btn) {  if (!text) {    setStatus("복사할 내용이 없습니다.", true);    return;  }  const onSuccess = () => {    setStatus(successMsg, false);    flashCopyBtn(btn);  };  const onFail = () => {    if (fallbackCopyText(text)) {      onSuccess();    } else {      setStatus("복사에 실패했습니다. 직접 선택해 복사해 주세요.", true);    }  };  if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {    navigator.clipboard.writeText(text).then(onSuccess).catch(onFail);  } else {    onFail();  }}function copyText(id, btn) {  const el = document.getElementById(id);  if (!el) return;  copyToClipboard(el.value, "시작 프롬프트가 복사되었습니다.", btn);}function copyLast(btn) {  if (moves.length === 0) {    setStatus("아직 착수된 기물이 없습니다.", true);    return;  }  const lastIdx = moves.length - 1;  const prefix = formatMovePrefix(lastIdx);  const t = prefix + " " + moves[lastIdx].san;  copyToClipboard(t, "마지막 수 복사 완료: " + t, btn);}function copyState(btn) {  const lines = formatKiboLines(moves);  const kiboText = lines.length > 0 ? lines.join(" ") : "없음";  const nextPrefix = formatMovePrefix(moves.length);  const s = "[현재 장기판 상태 요약]" + NL +    "- 초 차림: " + FORMATION_NAMES[choFormation] + " / 한 차림: " + FORMATION_NAMES[hanFormation] + " / 빅장: " + (bikjangEnabled ? "있음" : "없음") + NL +    "- 진행 기보: " + kiboText + NL +    "- 현재 차례: " + (turn === "C" ? "초(C)" : "한(H)") + NL +    "위 기보에 이어서 '" + nextPrefix + " (시작좌표+기물+도착좌표)' 형식으로 다음 수를 답해줘.";  copyToClipboard(s, "현재 판 상태 요약이 복사되었습니다.", btn);}function copyKibo(one, btn) {  if (moves.length === 0) {    setStatus("아직 복사할 기보가 없습니다.", true);    return;  }  const lines = formatKiboLines(moves);  const t = lines.join(one ? " " : NL);  copyToClipboard(t, (one ? "한 줄 기보" : "줄바꿈 기보") + "가 복사되었습니다.", btn);}function formatFullDate(timestamp) {  const d = new Date(timestamp);  const yyyy = d.getFullYear();  const mm = String(d.getMonth() + 1).padStart(2, "0");  const dd = String(d.getDate()).padStart(2, "0");  const timeStr = d.toLocaleTimeString("ko-KR",{hour12:false,hour:"2-digit",minute:"2-digit",second:"2-digit"});  return yyyy + ". " + mm + ". " + dd + ". " + timeStr;}async function showFullDateModal(timestamp) {  await showCustomModal("전체 날짜 및 시간:" + NL + formatFullDate(timestamp), false);}function serializeMoves(moveArr) {  return moveArr.map(m => ({    isPass: Boolean(m.isPass),    fromR: m.fromR, fromC: m.fromC,    toR: m.toR, toC: m.toC,    san: m.san  }));}function saveHist(res) {  if (isReplaying) return;  const newId = Date.now();  const record = {    id: newId,    timestamp: newId,    date: new Date().toLocaleTimeString("ko-KR",{hour12:false,hour:"2-digit",minute:"2-digit"}),    c: players.C,    h: players.H,    choFormation,    hanFormation,    bikjangEnabled,    res,    cnt: moves.length,    rawMoves: serializeMoves(moves)  };  histList.unshift(record);  currentSavedId = newId;  saveStorageHist();  renderHist();}function renderHist() {  document.getElementById("clearHistBtn").disabled = histList.length === 0;  let cWins = 0, hWins = 0, draws = 0;  histList.forEach(x => {    if (x.res === "무승부") draws++;    else if (x.res.includes("초 승") || x.res.includes("(초) 승")) cWins++;    else if (x.res.includes("한 승") || x.res.includes("(한) 승")) hWins++;    else if (x.res.includes(x.c)) cWins++;    else hWins++;  });  document.getElementById("scoreBox").textContent = "초: " + cWins + "승 | 한: " + hWins + "승 | 무승부: " + draws + "회";  const tb = document.getElementById("hBody");  if (histList.length === 0) {    tb.innerHTML = "<tr><td colspan='5' style='text-align:center;color:rgb(107,114,128);'>저장된 대국 기록이 없습니다.</td></tr>";    return;  }  tb.innerHTML = histList.map(x => {    const ts = x.timestamp || x.id;    return "<tr>" +      "<td><div class='date-wrap'><span class='date-text'>" + x.date + "</span><button class='info-btn' onclick='showFullDateModal(" + ts + ")' title='상세 날짜 확인'>i</button></div></td>" +      "<td>" + x.c + "/" + x.h + "</td>" +      "<td>" + x.res + "</td>" +      "<td>" + x.cnt + "수</td>" +      "<td><button onclick='loadHist(" + x.id + ")' " + (onlineMode ? "disabled" : "") + ">복기</button> <button class='btn-danger' onclick='deleteHistoryItem(" + x.id + ", false)'>삭제</button></td>" +    "</tr>";  }).join("");}function saveUnfinished() {  if (isReplaying || moves.length === 0) return;  const now = Date.now();  const useId = currentUnfinId || now;  const record = {    id: useId,    timestamp: now,    date: new Date().toLocaleTimeString("ko-KR",{hour12:false,hour:"2-digit",minute:"2-digit"}),    c: players.C,    h: players.H,    choFormation,    hanFormation,    bikjangEnabled,    vsAiMode,    aiSide,    aiModeEnabled,    spectateMode,    cnt: moves.length,    rawMoves: serializeMoves(moves)  };  unfinList = unfinList.filter(x => x.id !== useId);  unfinList.unshift(record);  currentUnfinId = useId;  try { localStorage.removeItem(STORAGE_KEY_ACTIVE); } catch (e) {}  saveStorageUnfin();  renderUnfin();}function renderUnfin() {  document.getElementById("clearUnfinBtn").disabled = unfinList.length === 0;  const tb = document.getElementById("unfinBody");  if (unfinList.length === 0) {    tb.innerHTML = "<tr><td colspan='4' style='text-align:center;color:rgb(107,114,128);'>저장된 미완료 대국이 없습니다.</td></tr>";    return;  }  tb.innerHTML = unfinList.map(x => {    const ts = x.timestamp || x.id;    return "<tr>" +      "<td><div class='date-wrap'><span class='date-text'>" + x.date + "</span><button class='info-btn' onclick='showFullDateModal(" + ts + ")' title='상세 날짜 확인'>i</button></div></td>" +      "<td>" + x.c + "/" + x.h + "</td>" +      "<td>" + x.cnt + "수</td>" +      "<td><button onclick='loadUnfin(" + x.id + ")' " + (onlineMode && !isOnlineHost ? "disabled" : "") + ">이어 두기</button> <button class='btn-danger' onclick='deleteUnfin(" + x.id + ", false)' " + (onlineMode && !isOnlineHost ? "disabled" : "") + ">삭제</button></td>" +    "</tr>";  }).join("");}function loadUnfin(id) {  const item = unfinList.find(x => x.id === id);  if (!item) return;  if (aiMoveTimer) {    clearTimeout(aiMoveTimer);    aiMoveTimer = null;  }  isAiThinking = false;  if (gameStarted && !gameOver && moves.length > 0 && !isReplaying) {    saveUnfinished();  }  choFormation = item.choFormation || "MSSM";  hanFormation = item.hanFormation || "MSSM";  bikjangEnabled = item.bikjangEnabled !== undefined ? Boolean(item.bikjangEnabled) : true;  initNewGameData();  gameOver = false;  gameStarted = true;  winResultText = "";  isReplaying = false;  isBranching = false;  allReplayMoves = [];  replayStep = 0;  isResigned = false;  isDrawed = false;  currentUnfinId = item.id;  players.C = item.c;  players.H = item.h;  vsAiMode = Boolean(item.vsAiMode);  aiSide = item.aiSide || "H";  aiModeEnabled = Boolean(item.aiModeEnabled);  spectateMode = Boolean(item.spectateMode);  if (vsAiMode) {    vsAiSessionPlayers = { C: players.C, H: players.H };  } else if (aiModeEnabled) {    aiSessionPlayers = { C: players.C, H: players.H };  } else {    userCustomPlayers = { C: players.C, H: players.H };  }  document.getElementById("vsAiBtn").className = (vsAiMode ? "btn-on" : "btn-off") + " btn-right";  document.getElementById("aiModeBtn").className = aiModeEnabled ? "btn-on" : "btn-off";  document.getElementById("promptCard").style.display = aiModeEnabled ? "block" : "none";  document.getElementById("spectateBtn").className = spectateMode ? "btn-on" : "btn-off";  syncPlayerDOM();  document.getElementById("logInput").value = "";  if (item.rawMoves) {    item.rawMoves.forEach(m => executeMove(m, true));  }  deleteUnfin(id, true);  currentUnfinId = item.id;  syncActiveSession();  updateCapturedBar();  updateUI();  drawBoard();  setStatus("미완료 대국을 불러왔습니다. 이어서 두세요.", false);  if (vsAiMode) {    triggerAiMoveIfNeeded();  
+  if (onlineMode && onlineConn && onlineConn.open && !isRemoteAction && isOnlineHost) {
+    sendPeerData({
+      type: "WELCOME_SYNC",
+      players,
+      hostColor: myOnlineColor,
+      choFormation,
+      hanFormation,
+      bikjangEnabled,
+      gameStarted: gameStarted,
+      gameOver: gameOver,
+      rawMoves: serializeMoves(moves),
+      winResultText: winResultText
+    });
+  }
+}}async function deleteUnfin(id, silent) {  if (!silent) {    const ok = await showCustomModal("정말로 삭제하시겠습니까?", true);    if (!ok) return;  }  unfinList = unfinList.filter(x => x.id !== id);  saveStorageUnfin();  renderUnfin();  if (!silent) setStatus("미완료 대국이 삭제되었습니다.", false);}async function clearUnfinished() {  if (unfinList.length === 0) return;  const ok = await showCustomModal("정말로 삭제하시겠습니까?", true);    if (!ok) return;  unfinList = [];  saveStorageUnfin();  renderUnfin();  setStatus("모든 미완료 대국이 삭제되었습니다.", false);}let isBatchReplay = false;
+function renderReplayBoard(playSfx) {  initNewGameData();  gameOver = false;  winResultText = "";  isResigned = false;  isDrawed = false;  const slice = allReplayMoves.slice(0, replayStep);  isBatchReplay = true;  slice.forEach((m, idx) => {    const isLast = idx === slice.length - 1;    executeMove(m, !(playSfx && isLast));  });  isBatchReplay = false;  invalidateBoardCache();  updateCapturedBar();  updateUI();  drawBoard();}function loadHist(id) {  const item = histList.find(x => x.id === id);  if (!item) return;  if (aiMoveTimer) {    clearTimeout(aiMoveTimer);    aiMoveTimer = null;  }  isAiThinking = false;  if (gameStarted && !gameOver && moves.length > 0 && !isReplaying) {    saveUnfinished();  }  choFormation = item.choFormation || "MSSM";  hanFormation = item.hanFormation || "MSSM";  bikjangEnabled = item.bikjangEnabled !== undefined ? Boolean(item.bikjangEnabled) : true;  players.C = item.c;  players.H = item.h;  syncPlayerDOM();  document.getElementById("logInput").value = "";  allReplayMoves = item.rawMoves || [];  isReplaying = true;  isBranching = false;  gameStarted = true;  currentSavedId = null;  replayStep = 0;  spectateMode = false;  document.getElementById("spectateBtn").className = "btn-off";  renderReplayBoard(true);  if (gameOver) { setStatus(winResultText, false); } else { setStatus("복기 모드 시작: 엔진 분석 결과가 적용되었습니다.", false); }}function toggleBranching(){if(!isReplaying)return;isBranching=!isBranching;if(isBranching){playToggleOnSound();setStatus("복기 모드: 이어 두기가 켜졌습니다.",false);}else{playToggleOffSound();renderReplayBoard(false);drawBoard();if(gameOver){setStatus(winResultText,false);}else{setStatus("복기: "+replayStep+"수째 상태",false);}}updateUI();}
+function replayFirst() {  if (!isReplaying) return;  isBranching = false;  replayStep = 0;  document.getElementById("logInput").value = "";  renderReplayBoard(true);  if (gameOver) { setStatus(winResultText, false); } else { setStatus("복기 처음 상태(" + replayStep + "수)로 돌아왔습니다.", false); }}function replayPrev() {  if (!isReplaying) return;  if (replayStep <= 0) return;  isBranching = false;  replayStep--;  document.getElementById("logInput").value = "";  renderReplayBoard(true);  if (gameOver) { setStatus(winResultText, false); } else { setStatus("복기: " + replayStep + "수째 상태", false); }}function replayNext() {  if (!isReplaying) return;  if (replayStep >= allReplayMoves.length) return;  isBranching = false;  replayStep++;  document.getElementById("logInput").value = "";  renderReplayBoard(true);  if (gameOver) { setStatus(winResultText, false); } else { setStatus("복기: " + replayStep + "수째 상태", false); }}function resumePlay() {  if (!isReplaying) return;  renderReplayBoard(false);  if (gameOver) {    setStatus("이미 대국이 종료된 수순입니다. 이전 수로 이동한 뒤 이어 두세요.", true);    return;  }  isBranching = true;  document.getElementById("logInput").value = "";  updateUI();  drawBoard();  setStatus(replayStep + "수째 상태에서 이어 둡니다. (기록에는 저장되지 않습니다)", false);}async function deleteHistoryItem(id, silent) {  if (!silent) {    const ok = await showCustomModal("정말로 삭제하시겠습니까?", true);    if (!ok) return;  }  histList = histList.filter(h => h.id !== id);  saveStorageHist();  renderHist();  if (!silent) setStatus("대국 기록이 삭제되었습니다.", false);}async function clearHist() {  if (histList.length === 0) return;  const ok = await showCustomModal("정말로 삭제하시겠습니까?", true);    if (!ok) return;  histList = [];  currentSavedId = null;  saveStorageHist();  renderHist();  setStatus("모든 대국 기록이 삭제되었습니다.", false);}function setStatus(m, err) {  const el = document.getElementById("statusMsg");  const normalized = String(m).replace(/\n+/g, " ").trim();  const sentences = normalized.split(/(?<=[다요음)\][!?]\.|[!?])\s+/);  el.innerHTML = "";  if (sentences.length <= 1) {    el.textContent = normalized;  } else {    sentences.forEach((s, idx) => {      const span = document.createElement("span");      span.className = "sentence-chunk";      span.textContent = s;      el.appendChild(span);      if (idx < sentences.length - 1) {        el.appendChild(document.createTextNode(" "));      }    });  }  el.className = "status " + (err ? "err" : "ok");}function downloadHTML() {  const html = initialHTMLSnapshot || ('<!DOCTYPE html>' + NL + '<html lang="ko">' + document.documentElement.innerHTML + '</html>');  const blob = new Blob([html], { type: "text/html;charset=utf-8" });  const url = URL.createObjectURL(blob);  const a = document.createElement("a");  a.href = url;  a.download = "장기.html";  document.body.appendChild(a);  a.click();  document.body.removeChild(a);  URL.revokeObjectURL(url);}initNewGameData();initBadgePieceIcons();updatePlayerBarLayout();updatePrompts();updateCapturedBar();drawBoard();
+let onlineMode = false; unfinList=[...offlineUnfinList]; if(typeof renderUnfin==='function')renderUnfin(); if(typeof renderHist==='function')renderHist();
+let peerInstance = null;
+let onlineConn = null;
+let currentRoomCode = "";
+let myOnlineColor = "C";
+let isOnlineHost = false;
+let isRemoteAction = false;
+let manualDisconnect = false;
+let reconnectTimer = null;
+let heartbeatTimer = null;
+let onlineWaitingSetup = false;
+let isGuestPickingFormation = false;
+let pendingGuestFormation = null;
+const PEER_PREFIX = "JANGGI-KR-ROOM-";
+const STORAGE_KEY_ONLINE_ROOM = "janggi_online_room_persistent_v1";
+
+function saveOnlineRoomSession() {
+  try {
+    if (onlineMode && currentRoomCode && !manualDisconnect) {
+      const payload = {
+        roomCode: currentRoomCode,
+        isHost: isOnlineHost,
+        myColor: myOnlineColor,
+        players: players,
+        choFormation: choFormation,
+        hanFormation: hanFormation,
+        bikjangEnabled: bikjangEnabled,
+        gameStarted: gameStarted,
+        gameOver: gameOver,
+        rawMoves: serializeMoves(moves),
+        winResultText: winResultText,
+        savedAt: Date.now()
+      };
+      localStorage.setItem(STORAGE_KEY_ONLINE_ROOM, JSON.stringify(payload));
+      sessionStorage.setItem(STORAGE_KEY_ONLINE_ROOM, JSON.stringify(payload));
+    } else if (manualDisconnect) {
+      localStorage.removeItem(STORAGE_KEY_ONLINE_ROOM);
+      sessionStorage.removeItem(STORAGE_KEY_ONLINE_ROOM);
+    }
+  } catch (e) {}
+}
+
+function clearOnlineRoomSession() {
+  try {
+    localStorage.removeItem(STORAGE_KEY_ONLINE_ROOM);
+    sessionStorage.removeItem(STORAGE_KEY_ONLINE_ROOM);
+  } catch (e) {}
+}
+
+function getOnlineRoleBadgeText() {
+  const sideKor = myOnlineColor === "C" ? "초" : "한";
+  return isOnlineHost ? ("방장/내 진영: " + sideKor) : ("내 진영: " + sideKor);
+}
+
+function showFloatingToast(msg) {
+  const existing = document.querySelector(".floating-toast");
+  if (existing) existing.remove();
+  const el = document.createElement("div");
+  el.className = "floating-toast";
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => {
+    if (el.parentNode) el.remove();
+  }, 3000);
+}
+
+function toggleFriendPanel(forceShow) {
+  const panel = document.getElementById("friendPanel");
+  const btn = document.getElementById("friendBattleBtn");
+  const isHidden = panel.style.display === "" || panel.style.display === "none";
+  const show = typeof forceShow === "boolean" ? forceShow : isHidden;
+  panel.style.display = show ? "flex" : "none";
+  if (show || onlineMode) {
+    btn.classList.add("active-online");
+  } else {
+    btn.classList.remove("active-online");
+  }
+}
+
+function generateRoomCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+function disableAiModesForOnline() {
+  if (vsAiMode) {
+    vsAiMode = false;
+    document.getElementById("vsAiBtn").className = "btn-off btn-right";
+  }
+  if (aiModeEnabled) {
+    aiModeEnabled = false;
+    document.getElementById("aiModeBtn").className = "btn-off";
+    document.getElementById("promptCard").style.display = "none";
+  }
+  if (spectateMode) {
+    spectateMode = false;
+    document.getElementById("spectateBtn").className = "btn-off";
+  }
+}
+
+function updateOnlinePanelUI(state, detailText) {
+  const dot = document.getElementById("onlineDot");
+  const title = document.getElementById("onlineStatusTitle");
+  const roleBadge = document.getElementById("myRoleBadge");
+  const discBtn = document.getElementById("disconnectPeerBtn");
+  const setupArea = document.getElementById("friendSetupArea");
+  const connArea = document.getElementById("friendConnectedArea");
+  const friendBtn = document.getElementById("friendBattleBtn");
+  const joinBox = document.getElementById("joinRoomBox");
+  const guideText = document.getElementById("connectedGuideText");
+  if (guideText) {
+    guideText.textContent = isOnlineHost ? "새 대국 버튼을 눌러 대국을 시작하세요." : "방장이 새 대국을 시작할 때까지 기다려 주세요.";
+  }
+
+  if (state === "disconnected") {
+    dot.className = "online-dot";
+    title.textContent = detailText || "친구와 실시간 온라인 대국";
+    roleBadge.style.display = "none";
+    discBtn.style.display = "none";
+    setupArea.style.display = "flex";
+    connArea.style.display = "none";
+    document.getElementById("hostCodeArea").style.display = "none";
+    if (joinBox) joinBox.style.display = "flex";
+    document.getElementById("createRoomBtn").disabled = false;
+    document.getElementById("joinRoomBtn").disabled = false;
+    if (document.getElementById("friendPanel").style.display === "none") {
+      friendBtn.classList.remove("active-online");
+    }
+  } else if (state === "waiting") {
+    dot.className = "online-dot waiting";
+    title.textContent = detailText || "친구 접속 대기 중...";
+    roleBadge.style.display = "inline-block";
+    roleBadge.textContent = getOnlineRoleBadgeText();
+    discBtn.style.display = "inline-block";
+    setupArea.style.display = "flex";
+    connArea.style.display = "none";
+    if (isOnlineHost) {
+      document.getElementById("hostCodeArea").style.display = "inline-flex";
+      document.getElementById("myRoomCode").textContent = currentRoomCode;
+      if (joinBox) joinBox.style.display = "none";
+    } else {
+      document.getElementById("hostCodeArea").style.display = "none";
+      if (joinBox) joinBox.style.display = "flex";
+    }
+    document.getElementById("createRoomBtn").disabled = true;
+    document.getElementById("joinRoomBtn").disabled = true;
+    friendBtn.classList.add("active-online");
+  } else if (state === "connected") {
+    dot.className = "online-dot connected";
+    title.textContent = detailText || "친구와 실시간 연결됨";
+    roleBadge.style.display = "inline-block";
+    roleBadge.textContent = getOnlineRoleBadgeText();
+    discBtn.style.display = "inline-block";
+    setupArea.style.display = "none";
+    connArea.style.display = "flex";
+    document.getElementById("activeRoomCode").textContent = currentRoomCode;
+    friendBtn.classList.add("active-online");
+  }
+}
+
+function prepareWaitingBoardForOnline() {
+  if (aiMoveTimer) {
+    clearTimeout(aiMoveTimer);
+    aiMoveTimer = null;
+  }
+  isAiThinking = false;
+  onlineWaitingSetup = false;
+  isGuestPickingFormation = false;
+  pendingGuestFormation = null;
+  choFormation = "MSSM";
+  hanFormation = "MSSM";
+  initNewGameData();
+  gameOver = false;
+  gameStarted = false;
+  winResultText = "";
+  currentSavedId = null;
+  currentUnfinId = null;
+  isResigned = false;
+  isDrawed = false;
+  isReplaying = false;
+  isBranching = false;
+  allReplayMoves = [];
+  replayStep = 0;
+  document.getElementById("logInput").value = "";
+}
+
+function startOnlineJanggiGame() {
+  onlineWaitingSetup = false;
+  isGuestPickingFormation = false;
+  pendingGuestFormation = null;
+  initNewGameData();
+  gameOver = false;
+  gameStarted = true;
+  winResultText = "";
+  currentSavedId = null;
+  currentUnfinId = null;
+  isResigned = false;
+  isDrawed = false;
+  isReplaying = false;
+  isBranching = false;
+  restoreActiveModePlayers();
+  syncPlayerDOM();
+  document.getElementById("logInput").value = "";
+  updateOnlinePanelUI("connected", "친구와 실시간 대국 중");
+  updateCapturedBar();
+  updateUI();
+  drawBoard();
+  saveOnlineRoomSession();
+  const bikjangText = bikjangEnabled ? "빅장 있음" : "빅장 없음";
+  const choShort = FORMATION_NAMES[choFormation].split("(")[0];
+  const hanShort = FORMATION_NAMES[hanFormation].split("(")[0];
+  const myKor = myOnlineColor === "C" ? "초(선공)" : "한(후공)";
+  setStatus("친구와 새 대국이 시작되었습니다 (" + choShort + " vs " + hanShort + ", " + bikjangText + ")! 내 진영: " + myKor, false);
+}
+
+function startHeartbeat() {
+  stopHeartbeat();
+  heartbeatTimer = setInterval(() => {
+    if (onlineMode && onlineConn && onlineConn.open) {
+      sendPeerData({ type: "PING" });
+    }
+  }, 4000);
+}
+
+function stopHeartbeat() {
+  if (heartbeatTimer) {
+    clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+  }
+}
+
+function createOnlineRoom(reuseCode) {
+  if (typeof Peer === "undefined") {
+    setStatus("온라인 대국 모듈(PeerJS)을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.", true);
+    return;
+  }
+  manualDisconnect = false;
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+  if (peerInstance) {
+    try { peerInstance.destroy(); } catch (e) {}
+    peerInstance = null;
+  }
+  disableAiModesForOnline();
+  if (!reuseCode) {
+    prepareWaitingBoardForOnline();
+    currentRoomCode = generateRoomCode();
+    isOnlineHost = true;
+    myOnlineColor = "C";
+  }
+  if(!onlineMode){offlineUnfinList=[...unfinList];unfinList=[];if(typeof renderUnfin==='function')renderUnfin();} onlineMode = true; if(typeof renderHist==='function')renderHist();
+  saveOnlineRoomSession();
+  updateOnlinePanelUI("waiting", reuseCode ? "방 [" + currentRoomCode + "] 복구 중..." : "방 생성 중...");
+
+  peerInstance = new Peer(PEER_PREFIX + currentRoomCode);
+
+  peerInstance.on("open", () => {
+    if(!onlineMode){offlineUnfinList=[...unfinList];unfinList=[];if(typeof renderUnfin==='function')renderUnfin();} onlineMode = true; if(typeof renderHist==='function')renderHist();
+    saveOnlineRoomSession();
+    updateOnlinePanelUI("waiting", "방 생성 완료! 친구 입장을 기다립니다...");
+    if (!reuseCode) {
+      setStatus("방 [" + currentRoomCode + "] 생성 완료! 방 코드를 친구에게 보내주세요.", false);
+    } else {
+      setStatus("방 [" + currentRoomCode + "]이 유지되었습니다. 친구 연결을 기다립니다...", false);
+    }
+    updateCapturedBar();
+    updateUI();
+    drawBoard();
+  });
+
+  peerInstance.on("disconnected", () => {
+    if (!manualDisconnect && peerInstance && !peerInstance.destroyed) {
+      try { peerInstance.reconnect(); } catch (e) {}
+    }
+  });
+
+  peerInstance.on("connection", (conn) => {
+    if (onlineConn && onlineConn.open) {
+      try { onlineConn.close(); } catch (e) {}
+    }
+    onlineConn = conn;
+    setupPeerConnection(reuseCode);
+  });
+
+  peerInstance.on("error", (err) => {
+    if (err.type === "unavailable-id") {
+      if (reuseCode) {
+        reconnectTimer = setTimeout(() => {
+          if (!manualDisconnect && onlineMode && isOnlineHost) {
+            createOnlineRoom(true);
+          }
+        }, 1200);
+      } else {
+        createOnlineRoom(false);
+      }
+      return;
+    }
+    if (!manualDisconnect && onlineMode) {
+      reconnectTimer = setTimeout(() => {
+        if (!manualDisconnect && onlineMode && isOnlineHost) {
+          createOnlineRoom(true);
+        }
+      }, 1500);
+      return;
+    }
+    setStatus("온라인 연결 오류: " + (err.message || err.type), true);
+  });
+}
+
+function joinOnlineRoom(codeParam, isReconnect) {
+  if (typeof Peer === "undefined") {
+    setStatus("온라인 대국 모듈(PeerJS)을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.", true);
+    return;
+  }
+  const inputEl = document.getElementById("joinCodeInput");
+  const code = (codeParam || inputEl.value || "").trim().toUpperCase();
+  if (!code || code.length < 4) {
+    setStatus("입장할 6자리 방 코드를 입력해 주세요.", true);
+    return;
+  }
+  manualDisconnect = false;
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+  if (peerInstance) {
+    try { peerInstance.destroy(); } catch (e) {}
+    peerInstance = null;
+  }
+  disableAiModesForOnline();
+  if (!isReconnect) {
+    prepareWaitingBoardForOnline();
+    myOnlineColor = "H";
+  }
+  currentRoomCode = code;
+  isOnlineHost = false;
+  if(!onlineMode){offlineUnfinList=[...unfinList];unfinList=[];if(typeof renderUnfin==='function')renderUnfin();} onlineMode = true; if(typeof renderHist==='function')renderHist();
+  saveOnlineRoomSession();
+  updateOnlinePanelUI("waiting", isReconnect ? "방 [" + code + "] 재연결 중..." : "방 [" + code + "] 연결 중...");
+  if (!isReconnect) {
+    setStatus("방 [" + code + "]에 접속하고 있습니다...", false);
+  } else {
+    setStatus("방 [" + code + "] 연결을 복구하고 있습니다...", false);
+  }
+
+  peerInstance = new Peer();
+  peerInstance.on("open", () => {
+    onlineConn = peerInstance.connect(PEER_PREFIX + code, { reliable: true });
+    setupPeerConnection(isReconnect);
+  });
+
+  peerInstance.on("disconnected", () => {
+    if (!manualDisconnect && peerInstance && !peerInstance.destroyed) {
+      try { peerInstance.reconnect(); } catch (e) {}
+    }
+  });
+
+  peerInstance.on("error", (err) => {
+    if (!manualDisconnect && onlineMode) {
+      if (isReconnect || err.type === "peer-unavailable" || err.type === "network" || err.type === "disconnected" || err.type === "server-error") {
+        if (!isReconnect && err.type === "peer-unavailable") {
+          setStatus("해당 방 코드(" + code + ")를 찾을 수 없습니다. 코드를 다시 확인해 주세요.", true);
+          disconnectOnline(true);
+          return;
+        }
+        reconnectTimer = setTimeout(() => {
+          if (!manualDisconnect && onlineMode && !isOnlineHost) {
+            joinOnlineRoom(currentRoomCode, true);
+          }
+        }, 1500);
+        return;
+      }
+    }
+    setStatus("방 접속 오류: " + (err.message || err.type), true);
+  });
+}
+
+function replayOnlineRawMoves(rawMovesList, cForm, hForm, bikjangRule) {
+  prepareWaitingBoardForOnline();
+  choFormation = cForm || "MSSM";
+  hanFormation = hForm || "MSSM";
+  bikjangEnabled = bikjangRule !== undefined ? Boolean(bikjangRule) : true;
+  initNewGameData();
+  gameStarted = true;
+  isBatchReplay = true;
+  rawMovesList.forEach(m => {
+    executeMove(m, true);
+  });
+  isBatchReplay = false;
+}
+
+function setupPeerConnection(isReconnect) {
+  if (!onlineConn) return;
+
+  onlineConn.on("open", () => {
+    if(!onlineMode){offlineUnfinList=[...unfinList];unfinList=[];if(typeof renderUnfin==='function')renderUnfin();} onlineMode = true; if(typeof renderHist==='function')renderHist();
+    saveOnlineRoomSession();
+    startHeartbeat();
+    if (!isReconnect) playToggleOnSound();
+    if (isOnlineHost) {
+      if (players.C === "초" && players.H === "한") {
+        players.C = "초";
+        players.H = "한";
+        userCustomPlayers = { C: players.C, H: players.H };
+      }
+      sendPeerData({
+        type: "WELCOME_SYNC",
+        players,
+        hostColor: myOnlineColor,
+        choFormation: choFormation,
+        hanFormation: hanFormation,
+        bikjangEnabled: bikjangEnabled,
+        gameStarted: gameStarted,
+        gameOver: gameOver,
+        rawMoves: serializeMoves(moves),
+        winResultText: winResultText
+      });
+      if (!gameStarted && moves.length === 0) {
+        showFloatingToast("친구가 방에 입장했습니다. 새 대국 버튼을 눌러 대국을 시작해 주세요.");
+        setStatus("친구가 입장했습니다. '새 대국' 버튼을 눌러 대국을 시작해 주세요.", false);
+      } else {
+        showFloatingToast("친구와 다시 연결되었습니다.");
+      }
+    } else {
+      sendPeerData({
+        type: "GUEST_HELLO",
+        choFormation: choFormation,
+        hanFormation: hanFormation,
+        bikjangEnabled: bikjangEnabled,
+        gameStarted: gameStarted,
+        rawMoves: serializeMoves(moves)
+      });
+      if (!isReconnect) {
+        showFloatingToast("방장이 새 대국을 시작할 때까지 기다려 주세요.");
+        setStatus("방장이 새 대국을 시작할 때까지 기다려 주세요.", false);
+      }
+    }
+    updateOnlinePanelUI("connected", gameStarted && !gameOver ? "친구와 실시간 대국 중" : "친구와 실시간 연결됨");
+    syncPlayerDOM();
+    updateCapturedBar();
+    updateUI();
+    drawBoard();
+  });
+
+  onlineConn.on("data", async (data) => {
+    if (!data || !data.type) return;
+    if (data.type === "PING") {
+      sendPeerData({ type: "PONG" });
+      return;
+    }
+    if (data.type === "PONG") {
+      return;
+    }
+    isRemoteAction = true;
+    try {
+      if (data.type === "ROOM_FULL") {
+        setStatus("이미 대국 중인 방입니다 (정원 초과).", true);
+        disconnectOnline(true);
+      } else if (data.type === "SYNC_UNFIN") {
+        if (Array.isArray(data.unfinList)) {
+          unfinList = data.unfinList;
+          if (typeof renderUnfin === "function") renderUnfin();
+        }
+      } else if (data.type === "BYE") {
+        unfinList = [];
+        if (typeof renderUnfin === "function") renderUnfin();
+        showFloatingToast("친구가 연결을 종료했습니다.");
+        setStatus("상대방이 온라인 연결을 종료했습니다.", true);
+        if (isOnlineHost) {
+          if (onlineConn) {
+            try { onlineConn.close(); } catch (e) {}
+            onlineConn = null;
+          }
+          prepareWaitingBoardForOnline();
+          saveOnlineRoomSession();
+          updateOnlinePanelUI("waiting", "친구가 나갔습니다. 새 친구 입장을 기다립니다...");
+          updateCapturedBar();
+          updateUI();
+          drawBoard();
+        } else {
+          disconnectOnline(true);
+        }
+      } else if (data.type === "GUEST_HELLO") {
+        if (isOnlineHost && (!gameStarted || moves.length === 0) && data.gameStarted && Array.isArray(data.rawMoves) && data.rawMoves.length > 0) {
+          replayOnlineRawMoves(data.rawMoves, data.choFormation, data.hanFormation, data.bikjangEnabled);
+          saveOnlineRoomSession();
+          updateOnlinePanelUI("connected", "친구와 실시간 대국 중");
+          syncPlayerDOM();
+          updateCapturedBar();
+          updateUI();
+          drawBoard();
+        }
+      } else if (data.type === "WELCOME_SYNC") {
+        unfinList = []; if (typeof renderUnfin === 'function') renderUnfin();
+
+        myOnlineColor = data.hostColor === "C" ? "H" : "C";
+        if (data.players) {
+          players.C = data.players.C;
+          players.H = data.players.H;
+          userCustomPlayers = { C: players.C, H: players.H };
+        }
+        if (data.gameStarted && Array.isArray(data.rawMoves) && data.rawMoves.length > 0) {
+          replayOnlineRawMoves(data.rawMoves, data.choFormation, data.hanFormation, data.bikjangEnabled);
+          updateOnlinePanelUI("connected", "친구와 실시간 대국 중");
+          syncPlayerDOM();
+          updateCapturedBar();
+          updateUI();
+          drawBoard();
+          if (data.isResume) { showFloatingToast("방장이 미완료 대국 이어 두기를 시작했습니다."); setStatus("미완료 대국을 불러왔습니다. 이어서 두세요.", false); } else { setStatus("진행 중인 대국에 다시 연결되었습니다.", false); }
+        } else if (!gameStarted || moves.length === 0) {
+          prepareWaitingBoardForOnline();
+          if (data.choFormation) choFormation = data.choFormation;
+          if (data.hanFormation) hanFormation = data.hanFormation;
+          if (data.bikjangEnabled !== undefined) bikjangEnabled = Boolean(data.bikjangEnabled);
+          initNewGameData();
+          if (data.gameStarted) {
+            gameStarted = true;
+            updateOnlinePanelUI("connected", "친구와 실시간 대국 중");
+            setStatus("친구와 새 대국이 시작되었습니다! 내 진영: " + (myOnlineColor === "C" ? "초(선공)" : "한(후공)"), false);
+          } else {
+            updateOnlinePanelUI("connected", "친구와 실시간 연결됨");
+            setStatus("방장이 새 대국을 시작할 때까지 기다려 주세요.", false);
+          }
+          syncPlayerDOM();
+          updateCapturedBar();
+          updateUI();
+          drawBoard();
+        } else {
+          sendPeerData({
+            type: "GUEST_HELLO",
+            choFormation: choFormation,
+            hanFormation: hanFormation,
+            bikjangEnabled: bikjangEnabled,
+            gameStarted: gameStarted,
+            rawMoves: serializeMoves(moves)
+          });
+          updateOnlinePanelUI("connected", "친구와 실시간 대국 중");
+          syncPlayerDOM();
+          updateCapturedBar();
+          updateUI();
+          drawBoard();
+        }
+        saveOnlineRoomSession();
+      } else if (data.type === "HOST_SETUP_REQ") {
+        if (data.players) {
+          players.C = data.players.C;
+          players.H = data.players.H;
+          userCustomPlayers = { C: players.C, H: players.H };
+        }
+        myOnlineColor = data.hostColor === "C" ? "H" : "C";
+        bikjangEnabled = Boolean(data.bikjangEnabled);
+        if (data.hostColor === "C") {
+          choFormation = data.hostFormation || "MSSM";
+        } else {
+          hanFormation = data.hostFormation || "MSSM";
+        }
+        isGuestPickingFormation = true;
+        selectFormation(myOnlineColor, "MSSM");
+        const choGroup = document.getElementById("choSetupGroup");
+        const hanGroup = document.getElementById("hanSetupGroup");
+        if (choGroup && hanGroup) {
+          choGroup.style.display = myOnlineColor === "C" ? "block" : "none";
+          hanGroup.style.display = myOnlineColor === "H" ? "block" : "none";
+        }
+        document.getElementById("setupModal").style.display = "flex";
+        showFloatingToast("방장이 새 대국을 요청했습니다. 내 차림을 선택해 주세요.");
+      } else if (data.type === "GUEST_SETUP_DONE") {
+        if (data.guestColor === "C") choFormation = data.guestFormation || "MSSM";
+        else hanFormation = data.guestFormation || "MSSM";
+        startOnlineJanggiGame();
+        showFloatingToast("상대방이 차림 선택을 완료하여 대국이 시작되었습니다.");
+      } else if (data.type === "GUEST_REQ_NEW_GAME") {
+        pendingGuestFormation = data.guestFormation || "MSSM";
+        if (data.guestColor === "C") choFormation = pendingGuestFormation;
+        else hanFormation = pendingGuestFormation;
+        selectFormation(myOnlineColor, "MSSM");
+        const choGroup = document.getElementById("choSetupGroup");
+        const hanGroup = document.getElementById("hanSetupGroup");
+        if (choGroup && hanGroup) {
+          choGroup.style.display = myOnlineColor === "C" ? "block" : "none";
+          hanGroup.style.display = myOnlineColor === "H" ? "block" : "none";
+        }
+        document.getElementById("setupModal").style.display = "flex";
+        showFloatingToast("상대방이 새 대국을 요청했습니다. 차림과 빅장 규칙을 선택해 주세요.");
+      } else if (data.type === "START_ONLINE_GAME") {
+        if (data.players) {
+          players.C = data.players.C;
+          players.H = data.players.H;
+          userCustomPlayers = { C: players.C, H: players.H };
+        }
+        if (data.hostColor) {
+          myOnlineColor = isOnlineHost ? data.hostColor : (data.hostColor === "C" ? "H" : "C");
+        }
+        choFormation = data.choFormation || "MSSM";
+        hanFormation = data.hanFormation || "MSSM";
+        bikjangEnabled = Boolean(data.bikjangEnabled);
+        startOnlineJanggiGame();
+        showFloatingToast("새 대국이 시작되었습니다.");
+      } else if (data.type === "SETUP_CANCEL") {
+        onlineWaitingSetup = false;
+        isGuestPickingFormation = false;
+        pendingGuestFormation = null;
+        updateUI();
+        showFloatingToast("상대방이 새 대국 차림 선택을 취소했습니다.");
+        setStatus("상대방이 새 대국 차림 선택을 취소했습니다.", true);
+      } else if (data.type === "MOVE") {
+        if (data.move) {
+          executeMove(data.move, false);
+        }
+        saveOnlineRoomSession();
+      } else if (data.type === "END_GAME") {
+        endGame();
+        saveOnlineRoomSession();
+        updateOnlinePanelUI("connected", "친구와 실시간 연결됨");
+        showFloatingToast("상대방이 대국을 대기 상태로 종료했습니다.");
+      } else if (data.type === "RESIGN") {
+        await resignGame(data.color, true);
+        saveOnlineRoomSession();
+        showFloatingToast("상대방이 기권하여 대국이 종료되었습니다.");
+      } else if (data.type === "DRAW_REQ") {
+        isRemoteAction = false;
+        const accept = await showCustomModal("상대방이 무승부를 제안했습니다. 수락하시겠습니까?", true);
+        if (accept) {
+          sendPeerData({ type: "DRAW_ACCEPT" });
+          isRemoteAction = true;
+          await requestDraw();
+          isRemoteAction = false;
+          saveOnlineRoomSession();
+          showFloatingToast("무승부로 대국이 종료되었습니다.");
+        } else {
+          sendPeerData({ type: "DRAW_REJECT" });
+          setStatus("상대방의 무승부 제안을 거절했습니다.", false);
+        }
+      } else if (data.type === "DRAW_ACCEPT") {
+        await requestDraw();
+        saveOnlineRoomSession();
+        showFloatingToast("상대방이 무승부를 수락하여 대국이 종료되었습니다.");
+      } else if (data.type === "DRAW_REJECT") {
+        setStatus("상대방이 무승부 제안을 거절했습니다.", true);
+        showFloatingToast("상대방이 무승부 제안을 거절했습니다.");
+      } else if (data.type === "UNDO_REQ") {
+        isRemoteAction = false;
+        const accept = await showCustomModal("상대방이 한 수 무르기를 요청했습니다. 수락하시겠습니까?", true);
+        if (accept) {
+          sendPeerData({ type: "UNDO_ACCEPT" });
+          isRemoteAction = true;
+          await undoMove();
+          isRemoteAction = false;
+          saveOnlineRoomSession();
+        } else {
+          sendPeerData({ type: "UNDO_REJECT" });
+          setStatus("상대방의 무르기 요청을 거절했습니다.", false);
+        }
+      } else if (data.type === "UNDO_ACCEPT") {
+        await undoMove();
+        saveOnlineRoomSession();
+        showFloatingToast("상대방이 무르기를 수락했습니다.");
+      } else if (data.type === "UNDO_REJECT") {
+        setStatus("상대방이 무르기 요청을 거절했습니다.", true);
+        showFloatingToast("상대방이 무르기 요청을 거절했습니다.");
+      } else if (data.type === "SWAP_SIDE") {
+        myOnlineColor = myOnlineColor === "C" ? "H" : "C";
+        const tmp = players.C;
+        players.C = players.H;
+        players.H = tmp;
+        userCustomPlayers = { C: players.C, H: players.H };
+        saveOnlineRoomSession();
+        if (document.getElementById("nameEditBox").style.display === "flex") {
+          syncNameEditInputs();
+        }
+        syncPlayerDOM();
+        updateOnlinePanelUI("connected", "친구와 실시간 연결됨");
+        showFloatingToast("진영이 교체되었습니다. 내 진영: " + (myOnlineColor === "C" ? "초" : "한"));
+        setStatus("진영이 교체되었습니다. 내 진영: " + (myOnlineColor === "C" ? "초(선공)" : "한(후공)"), false);
+      } else if (data.type === "SYNC_NAMES") {
+        if (data.players) {
+          players.C = data.players.C;
+          players.H = data.players.H;
+          userCustomPlayers = { C: players.C, H: players.H };
+          saveOnlineRoomSession();
+          if (document.getElementById("nameEditBox").style.display === "flex") {
+            syncNameEditInputs();
+          }
+          syncPlayerDOM();
+          showFloatingToast("플레이어 이름이 변경되었습니다: " + players.C + " vs " + players.H);
+        }
+      }
+    } finally {
+      isRemoteAction = false;
+    }
+  });
+
+  onlineConn.on("close", () => {
+    stopHeartbeat();
+    if (manualDisconnect || !onlineMode) return;
+    if (isOnlineHost) {
+      updateOnlinePanelUI("waiting", "친구 재접속 대기 중...");
+      setStatus("친구와의 연결이 일시 끊어졌습니다. 재접속을 기다립니다...", false);
+    } else {
+      updateOnlinePanelUI("waiting", "방 [" + currentRoomCode + "] 재연결 중...");
+      setStatus("연결을 유지하기 위해 재접속 중입니다...", false);
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      reconnectTimer = setTimeout(() => {
+        if (!manualDisconnect && onlineMode && !isOnlineHost) {
+          joinOnlineRoom(currentRoomCode, true);
+        }
+      }, 1200);
+    }
+  });
+
+  onlineConn.on("error", () => {
+    if (manualDisconnect || !onlineMode) return;
+    if (!isOnlineHost) {
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      reconnectTimer = setTimeout(() => {
+        if (!manualDisconnect && onlineMode && !isOnlineHost) {
+          joinOnlineRoom(currentRoomCode, true);
+        }
+      }, 1500);
+    }
+  });
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") {
+    saveOnlineRoomSession();
+  } else if (document.visibilityState === "visible" && onlineMode && !manualDisconnect) {
+    if (peerInstance && peerInstance.disconnected && !peerInstance.destroyed) {
+      try { peerInstance.reconnect(); } catch (e) {}
+    }
+    if (!onlineConn || !onlineConn.open) {
+      if (isOnlineHost) {
+        if (!peerInstance || peerInstance.destroyed) {
+          createOnlineRoom(true);
+        }
+      } else if (currentRoomCode) {
+        joinOnlineRoom(currentRoomCode, true);
+      }
+    } else {
+      sendPeerData({ type: "PING" });
+    }
+  }
+});
+
+window.addEventListener("pagehide", () => {
+  saveOnlineRoomSession();
+});
+
+window.addEventListener("online", () => {
+  if (onlineMode && !manualDisconnect) {
+    if (isOnlineHost) {
+      createOnlineRoom(true);
+    } else if (currentRoomCode) {
+      joinOnlineRoom(currentRoomCode, true);
+    }
+  }
+});
+
+function sendPeerData(payload) {
+  if (onlineConn && onlineConn.open) {
+    try {
+      onlineConn.send(payload);
+    } catch (e) {}
+  }
+}
+
+function requestOnlineSwapSide() {
+  if (!onlineMode) return;
+  if (!isOnlineHost) {
+    setStatus("방장만 진영을 교체할 수 있습니다.", true);
+    return;
+  }
+  if (gameStarted || moves.length > 0 || isReplaying) {
+    setStatus("대국 시작 후에는 진영을 교체할 수 없습니다.", true);
+    return;
+  }
+  myOnlineColor = myOnlineColor === "C" ? "H" : "C";
+  const tmp = players.C;
+  players.C = players.H;
+  players.H = tmp;
+  userCustomPlayers = { C: players.C, H: players.H };
+  saveOnlineRoomSession();
+  if (document.getElementById("nameEditBox").style.display === "flex") {
+    syncNameEditInputs();
+  }
+  syncPlayerDOM();
+  if (onlineConn && onlineConn.open) {
+    updateOnlinePanelUI("connected", "친구와 실시간 연결됨");
+    sendPeerData({ type: "SWAP_SIDE" });
+  } else {
+    updateOnlinePanelUI("waiting", "방 생성 완료! 친구 입장을 기다립니다...");
+  }
+  showFloatingToast("진영을 교체했습니다. 내 진영: " + (myOnlineColor === "C" ? "초" : "한"));
+  setStatus("진영이 교체되었습니다. 내 진영: " + (myOnlineColor === "C" ? "초(선공)" : "한(후공)"), false);
+}
+
+function disconnectOnline(silent) {
+  manualDisconnect = true;
+  if (typeof onlineWaitingSetup !== "undefined") onlineWaitingSetup = false;
+  if (typeof isGuestPickingFormation !== "undefined") isGuestPickingFormation = false;
+  if (typeof pendingGuestFormation !== "undefined") pendingGuestFormation = null;
+  stopHeartbeat();
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+  clearOnlineRoomSession();
+  if (onlineConn) {
+    if (!silent && onlineConn.open) {
+      try { onlineConn.send({ type: "BYE" }); } catch (e) {}
+    }
+    try { onlineConn.close(); } catch (e) {}
+    onlineConn = null;
+  }
+  if (peerInstance) {
+    try { peerInstance.destroy(); } catch (e) {}
+    peerInstance = null;
+  }
+  unfinList = [];
+  if (typeof prepareWaitingBoardForOnline === "function") {
+    prepareWaitingBoardForOnline();
+  }
+  try { localStorage.removeItem(STORAGE_KEY_ACTIVE); } catch (e) {}
+  onlineMode = false;
+  isOnlineHost = false;
+  currentRoomCode = "";
+  const joinInput = document.getElementById("joinCodeInput");
+  if (joinInput) joinInput.value = "";
+  if (typeof restoreActiveModePlayers === "function") {
+    restoreActiveModePlayers();
+  }
+  unfinList = [...offlineUnfinList];
+  if (typeof renderUnfin === "function") renderUnfin();
+  if (typeof renderHist === "function") renderHist();
+  updateOnlinePanelUI("disconnected");
+  if (typeof syncPlayerDOM === "function") syncPlayerDOM();
+  if (typeof updateCapturedBar === "function") updateCapturedBar();
+  if (typeof invalidateBoardCache === "function") invalidateBoardCache();
+  updateUI();
+  if (typeof drawBoard === "function") drawBoard();
+  if (!silent) {
+    playToggleOffSound();
+    setStatus("친구와의 온라인 대국 연결을 종료했습니다.", false);
+  }
+}
+
+function copyRoomCode(btn) {
+  if (!currentRoomCode) return;
+  copyToClipboard(currentRoomCode, "방 코드(" + currentRoomCode + ")가 복사되었습니다!", btn);
+}
+
+function checkAutoJoinFromURL() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const roomParam = params.get("room");
+    if (roomParam && roomParam.trim().length >= 4) {
+      const cleanCode = roomParam.trim().toUpperCase();
+      toggleFriendPanel(true);
+      document.getElementById("joinCodeInput").value = cleanCode;
+      setTimeout(() => {
+        joinOnlineRoom(cleanCode, false);
+      }, 400);
+      return;
+    }
+    const savedRaw = localStorage.getItem(STORAGE_KEY_ONLINE_ROOM) || sessionStorage.getItem(STORAGE_KEY_ONLINE_ROOM);
+    if (savedRaw) {
+      const saved = JSON.parse(savedRaw);
+      if (saved && saved.roomCode) {
+        currentRoomCode = saved.roomCode;
+        isOnlineHost = Boolean(saved.isHost);
+        myOnlineColor = saved.myColor || (isOnlineHost ? "C" : "H");
+        if (saved.players) {
+          players.C = saved.players.C || "초";
+          players.H = saved.players.H || "한";
+          userCustomPlayers = { C: players.C, H: players.H };
+        }
+        if (saved.choFormation) choFormation = saved.choFormation;
+        if (saved.hanFormation) hanFormation = saved.hanFormation;
+        if (saved.bikjangEnabled !== undefined) bikjangEnabled = Boolean(saved.bikjangEnabled);
+        if (saved.gameStarted && Array.isArray(saved.rawMoves) && saved.rawMoves.length > 0) {
+          replayOnlineRawMoves(saved.rawMoves, choFormation, hanFormation, bikjangEnabled);
+        }
+        syncPlayerDOM();
+        updateCapturedBar();
+        updateUI();
+        drawBoard();
+        toggleFriendPanel(true);
+        if (isOnlineHost) {
+          createOnlineRoom(true);
+        } else {
+          document.getElementById("joinCodeInput").value = currentRoomCode;
+          joinOnlineRoom(currentRoomCode, true);
+        }
+      }
+    }
+  } catch (e) {}
+}
+(function applyFinalOnlineUnfinPatch() {
+  if (!onlineMode) {
+    unfinList = loadStorageUnfin();
+    offlineUnfinList = [...unfinList];
+  }
+  window.renderUnfin = function() {
+    const isGuest = onlineMode && !isOnlineHost;
+    const clearBtn = document.getElementById("clearUnfinBtn");
+    if (clearBtn) clearBtn.disabled = unfinList.length === 0 || isGuest;
+
+    const tb = document.getElementById("unfinBody");
+    if (!tb) return;
+    if (unfinList.length === 0) {
+      tb.innerHTML = "<tr><td colspan='4' style='text-align:center;color:rgb(107,114,128);'>저장된 미완료 대국이 없습니다.</td></tr>";
+      return;
+    }
+    tb.innerHTML = unfinList.map(x => {
+      const ts = x.timestamp || x.id;
+      const p1 = x.b || x.w || x.c || x.s || "";
+      const p2 = (x.b ? x.w : (x.w ? x.b : (x.c ? x.h : x.g))) || "";
+      const disAttr = isGuest ? "disabled" : "";
+      return "<tr>" +
+        "<td><div class='date-wrap'><span class='date-text'>" + x.date + "</span><button class='info-btn' onclick='showFullDateModal(" + ts + ")' title='상세 날짜 확인'>i</button></div></td>" +
+        "<td>" + p1 + "/" + p2 + "</td>" +
+        "<td>" + x.cnt + "수</td>" +
+        "<td><button onclick='loadUnfin(" + x.id + ")' " + disAttr + ">이어 두기</button> " +
+        "<button class='btn-danger' onclick='deleteUnfin(" + x.id + ", false)' " + disAttr + ">삭제</button></td>" +
+      "</tr>";
+    }).join("");
+  };
+  const origDeleteUnfin = window.deleteUnfin;
+  window.deleteUnfin = async function(id, silent) {
+    if (!silent && onlineMode && !isOnlineHost) return;
+    await origDeleteUnfin(id, silent);
+    if (!silent && onlineMode && isOnlineHost && onlineConn && onlineConn.open) {
+      sendPeerData({ type: "SYNC_UNFIN", unfinList: unfinList });
+    }
+  };
+
+  const origClearUnfinished = window.clearUnfinished;
+  window.clearUnfinished = async function() {
+    if (onlineMode && !isOnlineHost) return;
+    await origClearUnfinished();
+    if (onlineMode && isOnlineHost && onlineConn && onlineConn.open) {
+      sendPeerData({ type: "SYNC_UNFIN", unfinList: unfinList });
+    }
+  };
+  const origLoadUnfin = window.loadUnfin;
+  window.loadUnfin = function(id) {
+    if (onlineMode && !isOnlineHost) return;
+    origLoadUnfin(id);
+    if (onlineMode && onlineConn && onlineConn.open && !isRemoteAction && isOnlineHost) {
+      updateOnlinePanelUI("connected", "친구와 실시간 대국 중");
+      const payload = {
+        type: "WELCOME_SYNC",
+        isResume: true,
+        players: players,
+        hostColor: myOnlineColor,
+        gameStarted: gameStarted,
+        gameOver: gameOver,
+        winResultText: winResultText,
+        unfinList: unfinList
+      };
+      if (typeof serializeMoves === "function") {
+        payload.rawMoves = serializeMoves(moves);
+      } else {
+        payload.moves = moves;
+      }
+      if (typeof choFormation !== "undefined") {
+        payload.choFormation = choFormation;
+        payload.hanFormation = hanFormation;
+        payload.bikjangEnabled = bikjangEnabled;
+      }
+      if (typeof senteFormation !== "undefined") {
+        payload.senteFormation = senteFormation;
+        payload.goteFormation = goteFormation;
+      }
+      sendPeerData(payload);
+      saveOnlineRoomSession();
+    }
+  };
+  const origDisconnectOnline = window.disconnectOnline;
+  if (typeof origDisconnectOnline === "function") {
+    window.disconnectOnline = function(silent) {
+      unfinList = [];
+      origDisconnectOnline(silent);
+      unfinList = [...offlineUnfinList];
+      renderUnfin();
+    };
+  }
+
+  renderUnfin();
+})();
+
+initialHTMLSnapshot = '<!DOCTYPE html>' + NL + '<html lang="ko">' + document.documentElement.innerHTML + '</html>';recoverActiveSessionOnStartup();renderHist();renderUnfin();checkAutoJoinFromURL();</script></body></html>
