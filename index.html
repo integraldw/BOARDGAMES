@@ -15,24 +15,27 @@
       -webkit-tap-highlight-color: transparent !important;
     }
     html, body {
-      /* 전체 페이지 스크롤 방지 */
       overflow: hidden;
       height: 100%;
-      touch-action: none; /* 모바일 브라우저의 터치 스크롤 및 바운스 효과 방지 */
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      touch-action: none;
     }
     body {
       background: #f4f5f7;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 16px;
     }
     .card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       background: white;
       border-radius: 14px;
       padding: 24px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-      width: 100%;
+      width: calc(100% - 32px);
       max-width: 360px;
       text-align: center;
     }
@@ -59,14 +62,12 @@
       color: #1f2937;
       font-weight: 700;
       font-size: 1.05rem;
-      transition: background 0.15s;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
       outline: none;
       user-select: none;
       -webkit-user-select: none;
       touch-action: manipulation;
-      -webkit-tap-highlight-color: transparent !important;
     }
-    /* 마우스 등 실제 호버가 가능한 기기에서만 hover 효과 적용 (모바일 터치 잔상 방지) */
     @media (hover: hover) and (pointer: fine) {
       .btn:hover {
         background: #eff6ff;
@@ -74,17 +75,10 @@
         color: #1e40af;
       }
     }
-    /* 버튼을 누르는 순간에만 파란색 표시 */
     .btn:active {
       background: #eff6ff;
       border-color: #93c5fd;
       color: #1e40af;
-      outline: none !important;
-      -webkit-tap-highlight-color: transparent !important;
-    }
-    .btn:focus {
-      outline: none !important;
-      -webkit-tap-highlight-color: transparent !important;
     }
   </style>
 </head>
@@ -98,9 +92,7 @@
       <a href="쇼기.html" class="btn">쇼기</a>
     </div>
   </div>
-
   <script>
-    // 다른 페이지에 갔다가 뒤로 가기로 돌아왔을 때 버튼의 포커스/활성 상태를 초기화
     window.addEventListener('pageshow', function () {
       if (document.activeElement && document.activeElement !== document.body) {
         document.activeElement.blur();
