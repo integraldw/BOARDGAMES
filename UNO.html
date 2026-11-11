@@ -14,9 +14,13 @@
         padding: 0;
     }
     body, html {
-        width: 100vw;
-        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         overflow: hidden;
+        touch-action: none;
         font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
         background-color: #071f12;
     }
@@ -27,11 +31,8 @@
         --card-w: 68px;
         --card-h: 102px;
         --card-r: 8px;
-        --bottom-overlap: 18px;
-        --side-card-w: 46px;
-        --side-card-h: 69px;
-        --top-overlap: 24px;
-        --lr-overlap: 46px;
+        --bottom-overlap: 26px;
+        --lr-overlap: 78px;
     }
 
     #titleScreen {
@@ -207,9 +208,10 @@
     .btn-start:active { transform: scale(0.98); }
 
     #gameScreen {
-        position: relative;
-        width: 100vw;
-        height: 100vh;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%;
+        height: 100%;
         background: radial-gradient(circle at center, #1d5735 0%, #0d311c 68%, #06180d 100%);
         display: none;
         overflow: hidden;
@@ -254,6 +256,7 @@
         font-weight: 900;
     }
 
+    /* 좌우상하 봇 자리 설정 및 대칭구조 확보 */
     .player-seat {
         position: absolute;
         display: flex;
@@ -264,32 +267,34 @@
         transition: transform 0.25s, opacity 0.25s;
     }
     .seat-bottom {
-        bottom: 105px;
+        bottom: 20px;
         left: 50%;
         transform: translateX(-50%);
         width: auto;
         max-width: 96vw;
     }
     .seat-top {
-        top: 10px;
+        top: 20px; 
         left: 50%;
         transform: translateX(-50%);
-        max-width: 94vw;
+        width: auto;
+        max-width: 96vw;
+        flex-direction: column; 
     }
     .seat-left {
-        left: 32px;
-        top: 45%;
+        left: 20vw;
+        top: 50%;
         transform: translateY(-50%);
     }
     .seat-right {
-        right: 32px;
-        top: 45%;
+        right: 20vw;
+        top: 50%;
         transform: translateY(-50%);
     }
 
     .player-tag {
-        background: rgba(15, 22, 18, 0.85);
-        border: 2px solid rgba(255,255,255,0.2);
+        background: rgba(15, 22, 18, 0.9);
+        border: 2px solid rgba(255,255,255,0.22);
         border-radius: 22px;
         padding: 5px 14px;
         color: #fff;
@@ -303,113 +308,53 @@
         box-shadow: 0 4px 12px rgba(0,0,0,0.45);
         transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
         white-space: nowrap;
+        z-index: 25;
     }
+    .seat-bottom .player-tag { margin-bottom: 8px; }
     .player-seat.active-turn .player-tag {
         border-color: #f1c40f;
         box-shadow: 0 0 16px rgba(241, 196, 15, 0.75);
         transform: scale(1.05);
     }
-    .turn-dot {
-        width: 9px; height: 9px;
-        border-radius: 50%;
-        background: #555;
-    }
-    .player-seat.active-turn .turn-dot {
-        background: #2ecc71;
-        box-shadow: 0 0 8px #2ecc71;
-    }
-    .rank-badge {
-        color: #f1c40f;
-        font-weight: 900;
-        font-size: 12px;
-        margin-left: 4px;
-    }
-    .uno-pill {
-        background: #e74c3c;
-        color: #f1c40f;
-        font-size: 10px;
-        font-weight: 900;
-        padding: 2px 6px;
-        border-radius: 10px;
-        border: 1px solid #fff;
-        animation: unoPulse 0.8s infinite alternate;
-    }
-    @keyframes unoPulse {
-        from { transform: scale(1); }
-        to { transform: scale(1.15); }
-    }
+    .turn-dot { width: 9px; height: 9px; border-radius: 50%; background: #555; }
+    .player-seat.active-turn .turn-dot { background: #2ecc71; box-shadow: 0 0 8px #2ecc71; }
+    .rank-badge { color: #f1c40f; font-weight: 900; font-size: 12px; margin-left: 4px; }
+    .uno-pill { background: #e74c3c; color: #f1c40f; font-size: 10px; font-weight: 900; padding: 2px 6px; border-radius: 10px; border: 1px solid #fff; }
 
-    /* 스크롤바 스타일링 */
     .hand-row {
         display: flex;
         justify-content: flex-start;
         align-items: center;
-        padding: 4px 10px;
         pointer-events: auto;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: thin;
         scrollbar-color: rgba(241, 196, 15, 0.55) rgba(0, 0, 0, 0.2);
+        background: rgba(0, 0, 0, 0.32);
+        border-radius: 14px;
     }
     .hand-row::-webkit-scrollbar { width: 5px; height: 5px; }
     .hand-row::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); border-radius: 8px; }
     .hand-row::-webkit-scrollbar-thumb { background: rgba(241, 196, 15, 0.55); border-radius: 8px; }
 
-    /* 아래(나)의 카드: 11장까지 너비 늘어나고, 12장부터는 좌우 스크롤 */
-    .seat-bottom .hand-row {
+    .seat-bottom .hand-row,
+    .seat-top .hand-row {
+        flex-direction: row;
         flex-wrap: nowrap;
         overflow-x: auto;
         overflow-y: hidden;
         width: max-content;
-        max-width: min(94vw, calc(var(--card-w) + 10 * (var(--card-w) - var(--bottom-overlap)) + 32px));
-        min-height: calc(var(--card-h) + 24px);
-        margin-top: -14px;
-        padding-top: 30px;
-        padding-bottom: 6px;
-        background: rgba(0, 0, 0, 0.28);
-        border-radius: 14px;
-        padding-left: 16px;
-        padding-right: 16px;
+        max-width: min(92vw, calc(var(--card-w) + 10 * (var(--card-w) - var(--bottom-overlap)) + 32px));
     }
-    .seat-bottom .hand-row .uno-card {
+    .seat-bottom .hand-row { padding: 24px 4px 4px 4px; }
+    .seat-top .hand-row { padding: 4px 4px 24px 4px; margin-top: 4px; }
+    .seat-bottom .hand-row .uno-card,
+    .seat-top .hand-row .uno-card {
         margin-left: calc(-1 * var(--bottom-overlap));
         transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s;
     }
-    .seat-bottom .hand-row .uno-card:first-child {
-        margin-left: 0;
-    }
-    .seat-bottom .hand-row .uno-card.playable {
-        cursor: pointer;
-    }
-    .seat-bottom .hand-row .uno-card.playable:hover {
-        transform: translateY(-16px) scale(1.08);
-        z-index: 30;
-        box-shadow: 0 12px 24px rgba(0,0,0,0.75), 0 0 12px rgba(241, 196, 15, 0.85);
-    }
-    .seat-bottom .hand-row .uno-card.unplayable {
-        filter: brightness(0.65);
-    }
-
-    /* 위(AI 2)의 카드: 22장까지 너비 늘어나고, 23장부터는 좌우 스크롤 */
-    .seat-top .hand-row {
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        overflow-y: hidden;
-        width: max-content;
-        max-width: min(92vw, calc(var(--side-card-w) + 21 * (var(--side-card-w) - var(--top-overlap)) + 24px));
-        background: rgba(0, 0, 0, 0.35);
-        border-radius: 12px;
-        padding: 8px 12px;
-        min-height: 85px;
-    }
-    .seat-top .hand-row .uno-card {
-        width: var(--side-card-w);
-        height: var(--side-card-h);
-        margin-left: calc(-1 * var(--top-overlap));
-        border-radius: 6px;
-    }
+    .seat-bottom .hand-row .uno-card:first-child,
     .seat-top .hand-row .uno-card:first-child { margin-left: 0; }
 
-    /* 좌우(AI 1, 3)의 카드: 17장까지 높이 늘어나고, 18장부터는 상하 스크롤 */
     .seat-left .hand-row,
     .seat-right .hand-row {
         flex-direction: column;
@@ -417,60 +362,40 @@
         overflow-y: auto;
         overflow-x: hidden;
         height: max-content;
-        max-height: calc(var(--side-card-h) + 16 * (var(--side-card-h) - var(--lr-overlap)) + 24px);
-        background: rgba(0, 0, 0, 0.35);
-        border-radius: 12px;
-        padding: 12px 8px;
-        min-width: 62px;
+        max-height: min(74vh, calc(var(--card-h) + 10 * (var(--card-h) - var(--lr-overlap)) + 32px));
     }
+    .seat-left .hand-row { padding: 4px 24px 4px 4px; }
+    .seat-right .hand-row { padding: 4px 4px 4px 24px; }
     .seat-left .hand-row .uno-card,
     .seat-right .hand-row .uno-card {
-        width: var(--side-card-w);
-        height: var(--side-card-h);
         margin-top: calc(-1 * var(--lr-overlap));
-        border-radius: 6px;
+        transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.18s;
     }
     .seat-left .hand-row .uno-card:first-child,
     .seat-right .hand-row .uno-card:first-child { margin-top: 0; }
 
+    .hand-row .uno-card.playable { cursor: pointer; }
+    .seat-bottom .hand-row .uno-card.playable:hover { transform: translateY(-15px) scale(1.06); z-index: 30; box-shadow: 0 12px 24px rgba(0,0,0,0.75), 0 0 12px rgba(241, 196, 15, 0.85); }
+    .seat-top .hand-row .uno-card.playable:hover { transform: translateY(15px) scale(1.06); z-index: 30; box-shadow: 0 12px 24px rgba(0,0,0,0.75), 0 0 12px rgba(241, 196, 15, 0.85); }
+    .seat-left .hand-row .uno-card.playable:hover { transform: translateX(15px) scale(1.06); z-index: 30; box-shadow: 0 12px 24px rgba(0,0,0,0.75), 0 0 12px rgba(241, 196, 15, 0.85); }
+    .seat-right .hand-row .uno-card.playable:hover { transform: translateX(-15px) scale(1.06); z-index: 30; box-shadow: 0 12px 24px rgba(0,0,0,0.75), 0 0 12px rgba(241, 196, 15, 0.85); }
+    .hand-row .uno-card.unplayable { filter: brightness(0.65); }
+
     .uno-card {
-        width: var(--card-w);
-        height: var(--card-h);
-        border-radius: var(--card-r);
-        position: relative;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.55);
-        flex-shrink: 0;
-        background-color: transparent;
-        border: none;
-        overflow: hidden;
+        width: var(--card-w); height: var(--card-h); border-radius: var(--card-r);
+        position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.55); flex-shrink: 0;
+        background-color: transparent; border: none; overflow: hidden;
     }
-    .uno-card.face-up {
-        background-image: var(--custom-deck-url);
-        background-size: 1400% 800%;
-        background-repeat: no-repeat;
-        border: none;
-    }
-    .uno-card.face-down {
-        background: radial-gradient(circle at center, #222 0%, #0d0d0d 100%);
-        border: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+    .uno-card.face-up { background-image: var(--custom-deck-url); background-size: 1400% 800%; background-repeat: no-repeat; border: none; }
+    .uno-card.face-down { background: radial-gradient(circle at center, #222 0%, #0d0d0d 100%); border: none; display: flex; align-items: center; justify-content: center; }
     .uno-card.face-down::after {
-        content: "";
-        width: 86%;
-        height: 86%;
-        background-image: var(--custom-back-logo);
-        background-size: contain;
-        background-position: center;
-        background-repeat: no-repeat;
-        display: block;
+        content: ""; width: 86%; height: 86%; background-image: var(--custom-back-logo);
+        background-size: contain; background-position: center; background-repeat: no-repeat; display: block;
     }
 
     .center-table {
         position: absolute;
-        top: 45%;
+        top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
         display: flex;
@@ -479,300 +404,145 @@
         z-index: 15;
     }
     .pile-box {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-        position: relative;
+        display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative;
     }
-    .pile-label {
-        font-size: 11px;
-        color: rgba(255,255,255,0.8);
-        font-weight: bold;
-        text-shadow: 0 1px 2px #000;
-    }
-    #drawPileCard {
-        cursor: pointer;
-        transition: transform 0.15s, box-shadow 0.15s;
-    }
-    #drawPileCard:hover {
-        transform: translateY(-4px) scale(1.04);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.7), 0 0 14px rgba(46, 204, 113, 0.75);
-    }
+    .pile-label { font-size: 11px; color: rgba(255,255,255,0.8); font-weight: bold; text-shadow: 0 1px 2px #000; }
+    
+    #drawPileCard { cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+    #drawPileCard:hover { transform: translateY(-4px) scale(1.04); box-shadow: 0 8px 20px rgba(0,0,0,0.7), 0 0 14px rgba(46, 204, 113, 0.75); }
+    
+    /* 제자리에서 반짝이는 효과만 남긴 애니메이션 */
     #drawPileCard.must-draw {
-        box-shadow: 0 0 18px #f1c40f, 0 0 30px rgba(241, 196, 15, 0.6);
-        animation: drawGlow 1s infinite alternate;
+        box-shadow: 0 0 14px #f1c40f;
+        animation: drawGlow 0.8s infinite alternate;
     }
     @keyframes drawGlow {
-        from { transform: scale(1); }
-        to { transform: scale(1.07); }
+        from { box-shadow: 0 0 10px #f1c40f; }
+        to { box-shadow: 0 0 25px rgba(241, 196, 15, 0.8); }
     }
 
     .center-status {
+        position: relative;
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 8px;
-        min-width: 90px;
+        justify-content: center;
+        min-width: 96px;
+        height: 120px;
     }
     .color-orb {
-        width: 44px;
-        height: 44px;
-        border-radius: 50%;
-        border: 3px solid #fff;
+        width: 44px; height: 44px;
+        border-radius: 50%; border: 3px solid #fff;
         box-shadow: 0 4px 14px rgba(0,0,0,0.6);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 900;
-        font-size: 12px;
-        color: #fff;
-        text-shadow: 0 1px 2px #000;
-        transition: background-color 0.25s, transform 0.25s;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 900; font-size: 12px; color: #fff; text-shadow: 0 1px 2px #000;
+        transition: background-color 0.25s; z-index: 15;
     }
-    .dir-badge {
-        background: rgba(0,0,0,0.55);
-        color: #fff;
-        font-size: 11px;
-        font-weight: bold;
-        padding: 3px 10px;
-        border-radius: 12px;
-        border: 1px solid rgba(255,255,255,0.2);
+    
+    /* 턴 넘기기와 +n 누적 배지를 정확히 같은 공간(위쪽)에 배치 */
+    .stack-badge, .btn-pass-turn {
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        white-space: nowrap;
     }
     .stack-badge {
-        background: #e74c3c;
-        color: #fff;
-        font-size: 13px;
-        font-weight: 900;
-        padding: 3px 10px;
-        border-radius: 12px;
-        border: 2px solid #f1c40f;
-        display: none;
-        animation: unoPulse 0.6s infinite alternate;
+        background: #e74c3c; color: #fff; font-size: 12px; font-weight: 900;
+        padding: 3px 10px; border-radius: 12px; border: 2px solid transparent; display: none;
+        animation: stackBorderBlink 0.55s infinite alternate;
+    }
+    @keyframes stackBorderBlink {
+        0% { border-color: rgba(241, 196, 15, 0.2); box-shadow: 0 0 2px rgba(241, 196, 15, 0.2); }
+        100% { border-color: #f1c40f; box-shadow: 0 0 12px #f1c40f; }
+    }
+    .btn-pass-turn {
+        background: rgba(15, 22, 18, 0.9); color: #f1c40f; border: 2px solid #f1c40f;
+        border-radius: 20px; padding: 5px 15px; font-size: 12px; font-weight: 900;
+        cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.55); display: none;
+        transition: transform 0.12s, background 0.15s;
+    }
+    .btn-pass-turn:hover { background: rgba(30, 44, 36, 0.95); transform: translateX(-50%) scale(1.05); }
+    .btn-pass-turn:active { transform: translateX(-50%) scale(0.95); }
+
+    /* 방향 배지는 색상 아래쪽으로 배치 */
+    .dir-badge {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.55); color: #fff; font-size: 11px; font-weight: bold;
+        padding: 3px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); z-index: 5; white-space: nowrap;
     }
 
-    .action-controls {
+    /* UNO 버튼을 플레이어 이름과 방향 표시 사이 정중앙 공간에 독립적으로 배치 */
+    .center-action-zone {
         position: absolute;
-        bottom: 120px;
-        right: 4%;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        z-index: 35;
+        top: calc(50% + 70px);
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex; flex-direction: column; align-items: center; z-index: 75; pointer-events: auto;
     }
     .btn-uno-shout {
-        background: linear-gradient(135deg, #ff5555 0%, #c0392b 100%);
-        color: #f1c40f;
-        border: 3px solid #fff;
-        border-radius: 50px;
-        padding: 10px 20px;
-        font-size: 18px;
-        font-weight: 900;
-        font-style: italic;
-        cursor: pointer;
-        box-shadow: 0 6px 18px rgba(0,0,0,0.65);
-        text-shadow: 2px 2px 0 #000;
-        transition: transform 0.12s, filter 0.15s;
+        background: rgba(15, 22, 18, 0.9); border: 2px solid rgba(255, 255, 255, 0.25); border-radius: 24px;
+        width: 90px; height: 48px; display: flex; align-items: center; justify-content: center; cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5); transition: opacity 0.2s, filter 0.2s, transform 0.12s, border-color 0.2s, box-shadow 0.2s;
     }
-    .btn-uno-shout:hover { filter: brightness(1.1); transform: scale(1.05); }
-    .btn-uno-shout:active { transform: scale(0.94); }
-    .btn-uno-shout.shouted {
-        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-        color: #fff;
-    }
-
-    .btn-pass-turn {
-        background: linear-gradient(180deg, #f39c12 0%, #d68910 100%);
-        color: #fff;
-        border: 2px solid #fff;
-        border-radius: 25px;
-        padding: 8px 16px;
-        font-size: 13px;
-        font-weight: 900;
-        cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-        display: none;
-    }
+    .btn-uno-shout img { height: 26px; object-fit: contain; pointer-events: none; }
+    .btn-uno-shout.disabled { opacity: 0.38; filter: grayscale(1); cursor: default; pointer-events: none; }
+    .btn-uno-shout.active { opacity: 1; filter: none; border-color: #f1c40f; box-shadow: 0 0 14px rgba(241, 196, 15, 0.75); }
+    .btn-uno-shout.active:hover { transform: scale(1.06); }
+    .btn-uno-shout.active:active { transform: scale(0.95); }
+    .btn-uno-shout.shouted { opacity: 1; filter: none; border-color: #2ecc71; box-shadow: 0 0 12px rgba(46, 204, 113, 0.75); }
 
     #toastBanner {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) scale(0.8);
-        background: rgba(0, 0, 0, 0.85);
-        color: #f1c40f;
-        border: 2px solid #f1c40f;
-        border-radius: 40px;
-        padding: 14px 34px;
-        font-size: 20px;
-        font-weight: 900;
-        z-index: 999;
-        pointer-events: none;
-        opacity: 0;
-        transition: opacity 0.25s, transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-        white-space: nowrap;
-        text-align: center;
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8);
+        background: rgba(0, 0, 0, 0.85); color: #f1c40f; border: 2px solid #f1c40f; border-radius: 40px;
+        padding: 14px 34px; font-size: 20px; font-weight: 900; z-index: 999; pointer-events: none; opacity: 0;
+        transition: opacity 0.25s, transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 10px 30px rgba(0,0,0,0.8); white-space: nowrap; text-align: center;
     }
-    #toastBanner.show {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1.1);
-    }
+    #toastBanner.show { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
 
     .modal-overlay {
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.78);
-        z-index: 400;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: 16px;
-        backdrop-filter: blur(4px);
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.78);
+        z-index: 400; display: none; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(4px);
     }
-    .modal-card {
-        background: #1c1e22;
-        border: 2px solid rgba(255,255,255,0.18);
-        border-radius: 18px;
-        padding: 22px;
-        color: #fff;
-        max-width: 520px;
-        width: 100%;
-        box-shadow: 0 16px 40px rgba(0,0,0,0.85);
-        text-align: center;
-    }
-    .modal-title {
-        font-size: 20px;
-        font-weight: 900;
-        color: #f1c40f;
-        margin-bottom: 14px;
-    }
-
-    .color-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        margin-top: 10px;
-    }
-    .color-choice-btn {
-        height: 68px;
-        border-radius: 14px;
-        border: 3px solid #fff;
-        font-size: 17px;
-        font-weight: 900;
-        color: #fff;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.6);
-        cursor: pointer;
-        transition: transform 0.12s, filter 0.15s;
-    }
+    .modal-card { background: #1c1e22; border: 2px solid rgba(255,255,255,0.18); border-radius: 18px; padding: 22px; color: #fff; max-width: 520px; width: 100%; box-shadow: 0 16px 40px rgba(0,0,0,0.85); text-align: center; }
+    .modal-title { font-size: 20px; font-weight: 900; color: #f1c40f; margin-bottom: 14px; }
+    .color-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+    .color-choice-btn { height: 68px; border-radius: 14px; border: 3px solid #fff; font-size: 17px; font-weight: 900; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.6); cursor: pointer; transition: transform 0.12s, filter 0.15s; }
     .color-choice-btn:hover { transform: scale(1.04); filter: brightness(1.1); }
     .color-choice-btn:active { transform: scale(0.96); }
-
-    .btn-cancel-wild {
-        margin-top: 14px;
-        width: 100%;
-        background: #3a3d45;
-        color: #e4e4e6;
-        border: 1px solid rgba(255,255,255,0.22);
-        border-radius: 10px;
-        padding: 11px;
-        font-size: 15px;
-        font-weight: 900;
-        cursor: pointer;
-        transition: background 0.15s, transform 0.1s;
-    }
+    .btn-cancel-wild { margin-top: 14px; width: 100%; background: #3a3d45; color: #e4e4e6; border: 1px solid rgba(255,255,255,0.22); border-radius: 10px; padding: 11px; font-size: 15px; font-weight: 900; cursor: pointer; transition: background 0.15s, transform 0.1s; }
     .btn-cancel-wild:hover { background: #4c505a; }
     .btn-cancel-wild:active { transform: scale(0.98); }
 
-    .score-list {
-        margin: 14px 0;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        text-align: left;
-    }
-    .score-item {
-        background: #2b2d33;
-        padding: 10px 14px;
-        border-radius: 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 14px;
-        font-weight: bold;
-    }
-    .score-item.winner {
-        border: 2px solid #f1c40f;
-        background: rgba(241, 196, 15, 0.15);
-    }
+    .score-list { margin: 14px 0; display: flex; flex-direction: column; gap: 8px; text-align: left; }
+    .score-item { background: #2b2d33; padding: 10px 14px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: bold; }
+    .score-item.winner { border: 2px solid #f1c40f; background: rgba(241, 196, 15, 0.15); }
+    .dex-container { max-height: 62vh; overflow-y: auto; padding: 6px; text-align: left; }
+    .dex-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); gap: 8px; margin-top: 10px; }
+    .dex-item { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10px; color: #ccc; }
+    .dex-item .uno-card { width: 50px; height: 75px; border-radius: 6px; }
 
-    .dex-container {
-        max-height: 62vh;
-        overflow-y: auto;
-        padding: 6px;
-        text-align: left;
-    }
-    .dex-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
-        gap: 8px;
-        margin-top: 10px;
-    }
-    .dex-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 3px;
-        font-size: 10px;
-        color: #ccc;
-    }
-    .dex-item .uno-card {
-        width: 50px;
-        height: 75px;
-        border-radius: 6px;
-    }
-
-    #fadeOverlay {
-        position: fixed;
-        top: 0; left: 0; width: 100vw; height: 100vh;
-        background: #000;
-        z-index: 9999;
-        display: none;
-        opacity: 0;
-        transition: opacity 0.5s ease-in-out;
-        pointer-events: none;
-    }
+    #fadeOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 9999; display: none; opacity: 0; transition: opacity 0.5s ease-in-out; pointer-events: none; }
 
     @media (max-width: 760px) {
-        :root {
-            --card-w: 56px;
-            --card-h: 84px;
-        }
-        #titleScreen {
-            flex-direction: column;
-            justify-content: center;
-            gap: 14px;
-            padding: 3% 4%;
-            overflow-y: auto;
-        }
-        .fan-stage { width: 220px; height: 145px; }
-        .fan-card { width: 66px; height: 100px; }
-        .title-logo { height: 40px; }
+        :root { --card-w: 54px; --card-h: 81px; --bottom-overlap: 21px; --lr-overlap: 63px; }
+        #titleScreen { padding: 2% 4%; gap: 10px; }
+        .fan-stage { width: 210px; height: 140px; margin-bottom: 10px; }
+        .fan-card { width: 64px; height: 96px; }
+        .title-logo { height: 38px; }
         .title-num { font-size: 20px; }
-        .title-panel {
-            width: 100%;
-            max-width: 400px;
-            padding: 14px;
-        }
-        .seat-bottom { bottom: 95px; }
-        .seat-left { left: 16px; top: 45%; }
-        .seat-right { right: 16px; top: 45%; }
-        .center-table { gap: 14px; top: 45%; }
-        .action-controls { bottom: 105px; right: 14px; }
-        #toastBanner {
-            font-size: 16px;
-            padding: 12px 24px;
-        }
+        .title-panel { width: 320px; max-width: 54%; padding: 12px; }
+        .center-table { gap: 14px; }
+        .btn-uno-shout { width: 74px; height: 40px; }
+        .btn-uno-shout img { height: 20px; }
+        #toastBanner { font-size: 16px; padding: 12px 24px; }
+        .seat-left { left: 10vw; }
+        .seat-right { right: 10vw; }
+        .center-action-zone { top: calc(50% + 70px); }
     }
 </style>
 </head>
@@ -835,8 +605,8 @@
 <div id="gameScreen">
     <div class="top-bar">
         <div class="top-bar-group">
-            <button class="top-btn" onclick="returnToTitle()">타이틀로</button>
-            <span class="badge-info" id="roundBadge">라운드 1</span>
+            <button class="top-btn" onclick="returnToTitleWithFade()">타이틀로</button>
+            <span class="badge-info" id="roundBadge">게임 진행중</span>
         </div>
         <div class="top-bar-group">
             <button class="top-btn" id="openHandBtn" onclick="toggleOpenHands()">상대 패 공개: OFF</button>
@@ -844,7 +614,7 @@
         </div>
     </div>
 
-    <div id="toastBanner">게임을 시작합니다!</div>
+    <div id="toastBanner"></div>
 
     <div class="player-seat seat-bottom" id="seatBottom"></div>
     <div class="player-seat seat-left" id="seatLeft" style="display:none;"></div>
@@ -859,8 +629,9 @@
 
         <div class="center-status">
             <div class="color-orb" id="activeColorOrb">색상</div>
+            <div class="stack-badge" id="stackBadgeText">+0장 누적!</div>
+            <button type="button" class="btn-pass-turn" id="passTurnBtn" onclick="onHumanPassTurn()">턴 넘기기</button>
             <div class="dir-badge" id="dirBadgeText">↻ 시계 방향</div>
-            <div class="stack-badge" id="stackBadgeText">+0 누적</div>
         </div>
 
         <div class="pile-box">
@@ -869,9 +640,10 @@
         </div>
     </div>
 
-    <div class="action-controls">
-        <button class="btn-uno-shout" id="unoShoutBtn" onclick="onClickUnoButton()">UNO!</button>
-        <button class="btn-pass-turn" id="passTurnBtn" onclick="onHumanPassTurn()">턴 넘기기</button>
+    <div class="center-action-zone">
+        <button type="button" class="btn-uno-shout disabled" id="unoShoutBtn" onclick="onClickUnoButton()">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/f/f9/UNO_Logo.svg" alt="UNO" onerror="this.src=buildFallbackLogoURI()">
+        </button>
     </div>
 </div>
 
@@ -906,7 +678,7 @@
                 • <b>기본 규칙:</b> 버려진 카드와 <b>같은 색상</b> 또는 <b>같은 숫자/기호</b>의 카드를 낼 수 있습니다.<br>
                 • <b>특수 카드:</b> 건너뛰기(⊘), 방향 바꾸기(⇄), 드로우 2(+2), 와일드(색상 변경), 와일드 드로우 4(+4).<br>
                 • <b>드로우 누적:</b> +2 또는 +4 공격을 받았을 때 같은 종류의 카드로 받아쳐서 벌칙을 다음 사람에게 넘길 수 있습니다.<br>
-                • <b>UNO! 외치기:</b> 손패가 1장 남았을 때 우측 하단의 <b>UNO!</b> 버튼을 안 누르면 +2장 페널티를 받습니다.
+                • <b>UNO! 외치기:</b> 손패가 2장 이하일 때 중앙의 <b>UNO</b> 버튼을 누르지 않고 1장을 남기면 +2장 페널티를 받습니다.
             </p>
             <div style="font-size:13px; font-weight:bold; color:#f1c40f; margin-bottom:6px;">UNO 전체 카드 미리보기 (108장)</div>
             <div class="dex-grid" id="dexGrid"></div>
@@ -1031,7 +803,7 @@ function buildFallbackDeckURI() {
                         <rect x="4" y="-16" width="46" height="68" rx="6" transform="rotate(15)" fill="#55aa55" stroke="#000" stroke-width="3"/>
                     </g>`;
                     svg += `<text x="50" y="54" class="s" font-size="44" fill="#ffffff">+4</text>`;
-                    svg += `<g transform="rotate(180 ${W/2} ${H/2})"><text x="50" y="54" class="s" font-size="44" fill="#ffffff">+4</text></g>`;
+                    svg += `<g transform="rotate(180 ${W/2} ${H/2})"><text x="50" y="54" class="s" fill="#ffffff">+4</text></g>`;
                 }
             }
             svg += `</g>`;
@@ -1201,6 +973,7 @@ let activeColor = 'red';
 let drawStack = 0;
 let openHandsMode = false;
 let hasDrawnThisTurn = false;
+let lastDrawnCardId = null;
 let pendingWildCard = null;
 let pendingWildIndex = -1;
 let aiTimer = null;
@@ -1219,7 +992,6 @@ function returnToTitle() {
     playSfx('click');
     if (aiTimer) clearTimeout(aiTimer);
     gameActive = false;
-    restoreInitialSeats();
     closeAllModals();
     document.getElementById('gameScreen').style.display = 'none';
     document.getElementById('titleScreen').style.display = 'flex';
@@ -1230,7 +1002,6 @@ function returnToTitleWithFade() {
     playSfx('click');
     const fade = document.getElementById('fadeOverlay');
     fade.style.display = 'block';
-    // Force reflow
     void fade.offsetWidth;
     fade.style.opacity = '1';
     fade.style.pointerEvents = 'auto';
@@ -1238,7 +1009,6 @@ function returnToTitleWithFade() {
     setTimeout(() => {
         gameActive = false;
         if (aiTimer) clearTimeout(aiTimer);
-        restoreInitialSeats();
         closeAllModals();
         document.getElementById('gameScreen').style.display = 'none';
         document.getElementById('titleScreen').style.display = 'flex';
@@ -1274,30 +1044,6 @@ function setupPlayers() {
     }
 }
 
-function syncActivePlayerToBottomSeat() {
-    seatOfPlayer = [...initialSeatOfPlayer];
-    
-    const p = players[currentTurn];
-    if (!p || p.rank !== null || !gameActive) return;
-    if (p.isAI) return;
-
-    const ownerOfBottomSeat = players.find(x => x.initialSeat === 0);
-    const myOriginalSeat = p.initialSeat;
-
-    seatOfPlayer[p.index] = 0;
-    if (ownerOfBottomSeat && ownerOfBottomSeat.index !== p.index) {
-        seatOfPlayer[ownerOfBottomSeat.index] = myOriginalSeat;
-    }
-}
-
-function restoreInitialSeats() {
-    if (initialSeatOfPlayer && initialSeatOfPlayer.length === players.length) {
-        seatOfPlayer = [...initialSeatOfPlayer];
-    } else {
-        seatOfPlayer = players.map((_, idx) => idx);
-    }
-}
-
 function startRound() {
     if (aiTimer) clearTimeout(aiTimer);
     closeAllModals();
@@ -1308,6 +1054,7 @@ function startRound() {
     currentTurn = 0;
     currentRankAssign = 1;
     hasDrawnThisTurn = false;
+    lastDrawnCardId = null;
     pendingWildCard = null;
     pendingWildIndex = -1;
     gameActive = true;
@@ -1327,9 +1074,7 @@ function startRound() {
     activeColor = firstCard.color;
 
     document.getElementById('roundBadge').textContent = `게임 진행중`;
-    syncActivePlayerToBottomSeat();
     renderAll();
-    showToast(`게임 시작! ${players[currentTurn].name}의 차례입니다.`);
     checkTurnExecution();
 }
 
@@ -1395,7 +1140,7 @@ function renderAll() {
             statusHtml = `<span class="rank-badge">${p.rank}위 (완료)</span>`;
         } else {
             statusHtml = `<span>(${p.hand.length}장)</span>`;
-            if (p.hand.length === 1 && p.unoShouted) {
+            if (p.hand.length <= 2 && p.unoShouted) {
                 statusHtml += ' <span class="uno-pill">UNO!</span>';
             }
         }
@@ -1407,28 +1152,30 @@ function renderAll() {
         `;
         seatEl.appendChild(tag);
 
-        const handRow = document.createElement('div');
-        handRow.className = 'hand-row';
+        if (p.rank === null) {
+            const handRow = document.createElement('div');
+            handRow.className = 'hand-row';
 
-        const isCurrentHuman = (!p.isAI && idx === currentTurn && p.rank === null);
-        const showFace = openHandsMode || (humanTotal === 1 && seatSlot === 0) || (humanTotal > 1 && isCurrentHuman) || p.rank !== null;
+            const isCurrentHuman = (!p.isAI && idx === currentTurn && p.rank === null);
+            const showFace = openHandsMode || (humanTotal === 1 && !p.isAI) || (humanTotal > 1 && isCurrentHuman);
 
-        p.hand.forEach(card => {
-            const playable = isCurrentHuman && gameActive && canPlayCard(card);
-            const cardEl = buildCardElement(card, showFace);
+            p.hand.forEach(card => {
+                const playable = isCurrentHuman && gameActive && canPlayCard(card);
+                const cardEl = buildCardElement(card, showFace);
 
-            if (isCurrentHuman && showFace) {
-                if (playable) {
-                    cardEl.classList.add('playable');
-                    cardEl.onclick = () => onHumanPlayCard(idx, card.id);
-                } else {
-                    cardEl.classList.add('unplayable');
+                if (isCurrentHuman && showFace) {
+                    if (playable) {
+                        cardEl.classList.add('playable');
+                        cardEl.onclick = () => onHumanPlayCard(idx, card.id);
+                    } else {
+                        cardEl.classList.add('unplayable');
+                    }
                 }
-            }
-            handRow.appendChild(cardEl);
-        });
+                handRow.appendChild(cardEl);
+            });
 
-        seatEl.appendChild(handRow);
+            seatEl.appendChild(handRow);
+        }
     });
 
     const discardSlot = document.getElementById('discardPileSlot');
@@ -1461,17 +1208,22 @@ function renderAll() {
     drawCardEl.classList.toggle('must-draw', isHumanTurn && !hasPlayable && !hasDrawnThisTurn);
 
     const passBtn = document.getElementById('passTurnBtn');
-    passBtn.style.display = (isHumanTurn && hasDrawnThisTurn && drawStack === 0) ? 'block' : 'none';
+    const drawnCardObj = (isHumanTurn && hasDrawnThisTurn && lastDrawnCardId)
+        ? activePlayer.hand.find(c => c.id === lastDrawnCardId)
+        : null;
+    const canPlayDrawnCard = drawnCardObj ? canPlayCard(drawnCardObj) : false;
+    passBtn.style.display = (isHumanTurn && hasDrawnThisTurn && canPlayDrawnCard && drawStack === 0) ? 'block' : 'none';
 
     const unoBtn = document.getElementById('unoShoutBtn');
+    unoBtn.classList.remove('disabled', 'active', 'shouted');
     if (isHumanTurn && activePlayer.hand.length <= 2) {
-        unoBtn.classList.toggle('shouted', activePlayer.unoShouted);
-        unoBtn.style.display = 'block';
-    } else if (isHumanTurn) {
-        unoBtn.style.display = 'block';
-        unoBtn.classList.remove('shouted');
+        if (activePlayer.unoShouted) {
+            unoBtn.classList.add('shouted');
+        } else {
+            unoBtn.classList.add('active');
+        }
     } else {
-        unoBtn.style.display = 'none';
+        unoBtn.classList.add('disabled');
     }
 }
 
@@ -1480,14 +1232,10 @@ function onClickUnoButton() {
     const p = players[currentTurn];
     if (!p || p.isAI || p.rank !== null) return;
 
-    if (p.hand.length <= 2) {
+    if (p.hand.length <= 2 && !p.unoShouted) {
         playSfx('uno');
         p.unoShouted = true;
-        showToast(`${p.name}: "UNO!" 외침 완료!`);
         renderAll();
-    } else {
-        playSfx('click');
-        showToast('UNO!는 손패가 2장 이하일 때 외칠 수 있습니다.');
     }
 }
 
@@ -1500,10 +1248,7 @@ function onHumanPlayCard(playerIdx, cardId) {
     if (cardIndex === -1) return;
     const card = p.hand[cardIndex];
 
-    if (!canPlayCard(card)) {
-        showToast('현재 낼 수 없는 카드입니다!');
-        return;
-    }
+    if (!canPlayCard(card)) return;
 
     p.hand.splice(cardIndex, 1);
     discardPile.push(card);
@@ -1548,13 +1293,11 @@ function cancelWildCardSelection() {
     }
     pendingWildCard = null;
     pendingWildIndex = -1;
-    showToast('와일드 카드 선택을 취소했습니다.');
     renderAll();
 }
 
 function finalizeCardPlay(player, card) {
     if (player.hand.length === 1 && !player.unoShouted) {
-        showToast(`${player.name}님이 UNO!를 외치지 않아 페널티 +2장!`);
         drawCardsForPlayer(player, 2);
     }
 
@@ -1565,7 +1308,6 @@ function finalizeCardPlay(player, card) {
         player.rank = currentRankAssign++;
         rankAssignedJustNow = true;
         playSfx('win');
-        showToast(`${player.name}님 카드를 모두 소진하여 ${player.rank}위 달성!`);
         
         const activePlayersCount = players.filter(p => p.rank === null).length;
         if (activePlayersCount <= 1) {
@@ -1573,7 +1315,7 @@ function finalizeCardPlay(player, card) {
             if (lastPlayer) {
                 lastPlayer.rank = currentRankAssign;
             }
-            setTimeout(handleGameEnd, 1000);
+            setTimeout(handleGameEnd, 800);
             renderAll();
             return;
         }
@@ -1582,28 +1324,20 @@ function finalizeCardPlay(player, card) {
     const activePlayersCount = players.filter(p => p.rank === null).length;
     
     if (card.type === 'skip') {
-        if (!rankAssignedJustNow) showToast(`건너뛰기! 다음 사람 차례를 건너뜁니다.`);
+        showToast(`스킵!`);
         skipNext = true;
     } else if (card.type === 'reverse') {
         if (activePlayersCount === 2) {
-            if (!rankAssignedJustNow) showToast(`남은 인원 2명 리버스! 한 번 더 차례를 갖습니다.`);
+            showToast(`스킵!`);
             skipNext = true;
         } else {
             direction *= -1;
-            if (!rankAssignedJustNow) showToast(`진행 방향이 반대로 바뀝니다!`);
+            showToast(`리버스!`);
         }
     } else if (card.type === 'draw2') {
         drawStack += 2;
-        if (!rankAssignedJustNow) showToast(`+2 공격! (현재 누적 +${drawStack}장)`);
     } else if (card.type === 'wild4') {
         drawStack += 4;
-        if (!rankAssignedJustNow) showToast(`와일드 +4 공격! (${COLOR_KOR[activeColor]}, 누적 +${drawStack}장)`);
-    } else if (card.type === 'wild') {
-        if (!rankAssignedJustNow) showToast(`색상이 [${COLOR_KOR[activeColor]}]으로 변경되었습니다.`);
-    }
-
-    if (rankAssignedJustNow) {
-        restoreInitialSeats();
     }
 
     advanceTurn(skipNext ? 2 : 1);
@@ -1617,7 +1351,7 @@ function drawCardsForPlayer(player, count) {
             player.hand.push(drawPile.pop());
         }
     }
-    if (player.hand.length > 1) {
+    if (player.hand.length > 2) {
         player.unoShouted = false;
     }
 }
@@ -1627,7 +1361,6 @@ function replenishDrawPile() {
     const top = discardPile.pop();
     drawPile = shuffleArray(discardPile);
     discardPile = [top];
-    showToast('버린 카드를 섞어 덱을 보충했습니다.');
 }
 
 function onHumanClickDraw() {
@@ -1639,28 +1372,23 @@ function onHumanClickDraw() {
         const penalty = drawStack;
         drawStack = 0;
         drawCardsForPlayer(p, penalty);
-        showToast(`${p.name}님이 누적 벌칙 ${penalty}장을 뽑았습니다.`);
         advanceTurn(1);
         return;
     }
 
-    if (hasDrawnThisTurn) {
-        showToast('이번 차례에는 이미 카드를 뽑았습니다.');
-        return;
-    }
+    if (hasDrawnThisTurn) return;
 
     drawCardsForPlayer(p, 1);
     hasDrawnThisTurn = true;
     const drawnCard = p.hand[p.hand.length - 1];
+    lastDrawnCardId = drawnCard ? drawnCard.id : null;
 
     renderAll();
 
-    if (canPlayCard(drawnCard)) {
-        showToast('뽑은 카드를 바로 내거나 [턴 넘기기]를 누르세요.');
-    } else {
+    if (!drawnCard || !canPlayCard(drawnCard)) {
         setTimeout(() => {
             if (gameActive && currentTurn === p.index) advanceTurn(1);
-        }, 650);
+        }, 550);
     }
 }
 
@@ -1672,6 +1400,7 @@ function onHumanPassTurn() {
 
 function advanceTurn(steps = 1) {
     hasDrawnThisTurn = false;
+    lastDrawnCardId = null;
     
     for (let i = 0; i < steps; i++) {
         do {
@@ -1679,9 +1408,6 @@ function advanceTurn(steps = 1) {
         } while (players[currentTurn].rank !== null && gameActive);
     }
 
-    syncActivePlayerToBottomSeat();
-    
-    const nextPlayer = players[currentTurn];
     renderAll();
     checkTurnExecution();
 }
@@ -1705,7 +1431,6 @@ function executeAITurn(ai) {
             const pen = drawStack;
             drawStack = 0;
             drawCardsForPlayer(ai, pen);
-            showToast(`${ai.name}: 누적 벌칙 +${pen}장을 뽑습니다.`);
             renderAll();
             setTimeout(() => advanceTurn(1), 650);
             return;
@@ -1713,11 +1438,9 @@ function executeAITurn(ai) {
 
         drawCardsForPlayer(ai, 1);
         const lastCard = ai.hand[ai.hand.length - 1];
-        if (canPlayCard(lastCard)) {
-            showToast(`${ai.name}: 1장 뽑은 후 카드를 냅니다.`);
+        if (lastCard && canPlayCard(lastCard)) {
             playAICardChoice(ai, lastCard);
         } else {
-            showToast(`${ai.name}: 카드를 1장 뽑고 차례를 넘깁니다.`);
             renderAll();
             setTimeout(() => advanceTurn(1), 500);
         }
@@ -1730,7 +1453,7 @@ function executeAITurn(ai) {
     } else if (diffIdx >= 1) {
         const nonWild = playableCards.filter(c => c.color !== 'wild');
         if (nonWild.length > 0) {
-            nonWild.sort((a, b) => b.value - a.value);
+            nonWild.sort((a, b) => (b.value || 0) - (a.value || 0));
             chosen = nonWild[0];
         } else {
             chosen = playableCards[0];
@@ -1751,7 +1474,6 @@ function playAICardChoice(ai, card) {
         if (Math.random() < shoutChance) {
             ai.unoShouted = true;
             playSfx('uno');
-            showToast(`${ai.name}: "UNO!"`);
         }
     }
 
@@ -1775,7 +1497,6 @@ function playAICardChoice(ai, card) {
 function handleGameEnd() {
     gameActive = false;
     playSfx('win');
-    restoreInitialSeats();
     renderAll();
 
     const modal = document.getElementById('gameResultModal');
